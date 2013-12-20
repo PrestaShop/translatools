@@ -230,6 +230,11 @@ class TranslaTools extends Module
 
 	public function exportTranslationsAction()
 	{
-		
+		require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
+
+		$extractor = new TranslationsExtractor();
+		$extractor->setSections(Tools::getValue('section'));
+		$extractor->setRootDir(_PS_ROOT_DIR_);
+		$extractor->extract();
 	}
 }
