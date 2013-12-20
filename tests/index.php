@@ -90,6 +90,12 @@ $fixtures = array(
 			)
 		)
 	)
+	,
+	array(
+		'pattern' => '\$this->l',
+		'string' => '$this->l("bo\"b", (1 ? 2 : "3,)"), (function($bob){})("4),4")',
+		'expected' => array()
+	)
 );
 
 foreach ($fixtures as $fixture)
