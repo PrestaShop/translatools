@@ -1,7 +1,3 @@
-<div class='alert alert-info'>
-	Here are some tools to check that translations in your shop follow the guidelines.
-</div>
-
 <div class="panel">
 	<h3>Translation overriding coherence</h3>
 	<div class='alert alert-info'>

@@ -74,7 +74,9 @@ class TranslationsExtractor
 		$str .= '$'.$name." = array();\n\n";
 
 		foreach ($data as $key => $value)
-			$str .= '$'.$name.'[\''.addslashes($key).'\'] = [\''.addslashes($value).'\'];'."\n";
+			$str .= '$'.$name.'['.$this->quote($key).'] = '.$this->quote($value).";\n";
+
+		$str .= "\n\nreturn ".'$'.$name.";\n";
 
 		return $str;
 	}
@@ -232,6 +234,11 @@ class TranslationsExtractor
 			return substr($str, 1, mb_strlen($str)-2);
 		else
 			return false;
+	}
+
+	public function quote($str)
+	{
+		return '\''.str_replace("\n", '', preg_replace('/\\\*\'/', '\\\'', $str)).'\'';
 	}
 
 	public function record($string, $key, $storage_file, $type)
@@ -645,11 +652,21 @@ class TranslationsExtractor
 	{
 		require_once dirname(__FILE__).'/../../../tools/tar/Archive_Tar.php';
 
+		// Archive_TAR SUCKS!!! We need to uglily create a temporary dir
+		// then create all the files because Archive_TAR will mess up permissions if we do addString
+		// then create the archive
+		// and delete all the temporary stuff... with a custom `rm -R` like function, because... well, PHP.
+
 		$out = tempnam(null, 'translatools');
-		$arch = new Archive_Tar($out, 'gz');
+		unlink($out);
+		mkdir($out);
+		chdir($out);
+
+		$arch = new Archive_Tar('archive.tar.gz', 'gz');
 
 		$lc = $this->language !== '-' ? $this->language : 'en';
 
+		$add = array();
 
 		foreach ($this->files as $name => $contents)
 		{
@@ -662,7 +679,7 @@ class TranslationsExtractor
 				$array_name = '_LANGPDF';
 			else if (preg_match('#/lang/\[lc\]\.php$#', $name))
 				$array_name = '_LANG';
-			else if (preg_match('#(?:/|^)modules/', $name))
+			else if (preg_match('#(?:/|^)modules/#', $name))
 				$array_name = '_MODULE';
 
 			if ($array_name !== null)
@@ -670,8 +687,11 @@ class TranslationsExtractor
 				$dictionary = array();
 				foreach ($contents as $key => $data)
 					$dictionary[$key] = $data['translation'];
-				ddd($this->dictionaryToArray($array_name, $dictionary));
-				$arch->addString(str_replace('[lc]', $lc, $name), $this->dictionaryToArray($array_name, $dictionary));
+
+				$path = str_replace('[lc]', $lc, $name);
+				mkdir(dirname($path), 0777, true);
+				file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary));
+				$add[] = $path;
 			}
 			else
 			{
@@ -679,6 +699,7 @@ class TranslationsExtractor
 			}
 
 		}
+		$arch->add($add);
 
 		ob_end_clean();
 		header('Content-Description: File Transfer');
@@ -688,7 +709,32 @@ class TranslationsExtractor
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
-        readfile($out);
+        readfile('archive.tar.gz');
+
+        // cleanup
+        $this->rmDir($out);
+
         exit;
+	}
+
+	public function rmDir($out)
+	{
+		if (!is_dir($out))
+			return;
+
+		foreach (scandir($out) as $entry)
+		{
+			if ($entry === '.' or $entry === '..')
+				continue;
+
+			$path = $this->join($out, $entry);
+
+			if (is_dir($path))
+				$this->rmDir($path);
+			else
+				unlink($path);
+		}
+
+		rmdir($out);
 	}
 }
