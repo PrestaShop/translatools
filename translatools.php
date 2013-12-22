@@ -84,7 +84,20 @@ class TranslaTools extends Module
 
 	public function defaultAction()
 	{
+		$themes = array();
+		foreach (scandir(_PS_ALL_THEMES_DIR_) as $entry)
+			if (!preg_match('/^\./', $entry) && is_dir(_PS_ALL_THEMES_DIR_.$entry))
+				$themes[] = $entry;
 
+
+		$languages = array();
+		foreach (Language::getLanguages() as $l)
+			$languages[$l['iso_code']] = $l['name'];
+
+		return array(
+			'themes' => $themes,
+			'languages' => $languages
+		);
 	}
 
 	public function checkCoherenceAction()
@@ -235,6 +248,37 @@ class TranslaTools extends Module
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(Tools::getValue('section'));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
+		$extractor->setTheme(Tools::getValue('theme'));
+		$extractor->setLanguage(Tools::getValue('language'));
+		$extractor->setModuleParsingBehaviour(Tools::getValue('overriden_modules'), Tools::getValue('modules_storage'));
 		$extractor->extract();
+		$extractor->sendAsGZIP();
+	}
+
+	public function viewStatsAction()
+	{
+		require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
+
+		$extractor = new TranslationsExtractor();
+		$extractor->setSections(Tools::getValue('section'));
+		$extractor->setRootDir(_PS_ROOT_DIR_);
+		$extractor->setTheme(Tools::getValue('theme'));
+		$extractor->setModuleParsingBehaviour(Tools::getValue('overriden_modules'), Tools::getValue('modules_storage'));
+		$extractor->extract();
+
+		$files = $extractor->getFiles();
+
+		$stats = array();
+
+		foreach ($files as $name => $data)
+		{
+			$stats[$name] = array(
+				'total' => count($data)
+			); 
+		}
+
+		return array(
+			'stats' => $stats
+		);
 	}
 }

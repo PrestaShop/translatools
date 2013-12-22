@@ -117,6 +117,7 @@ class PHPFunctionCallParser
 					}
 					elseif ($c === '\'' || $c === '"')
 					{
+						$this->quote = $c;
 						$this->pushState('string');
 					}
 				}
@@ -140,7 +141,7 @@ class PHPFunctionCallParser
 				}
 				$this->at += 1;
 			}
-
+			
 			if ($c === false)
 				return false;
 			else

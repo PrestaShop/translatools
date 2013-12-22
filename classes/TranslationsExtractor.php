@@ -7,6 +7,19 @@ require dirname(__FILE__).'/SmartyLParser.php';
 
 class TranslationsExtractor
 {
+	public function __construct()
+	{
+		$this->modules_parse_what = 'both';
+		$this->modules_store_where = 'core';
+		$this->language = "-";
+		$this->files = array();
+	}
+
+	public function getFiles()
+	{
+		return $this->files;
+	}
+
 	public function setSections($sections)
 	{
 		$this->sections = $sections;
@@ -15,6 +28,24 @@ class TranslationsExtractor
 	public function setRootDir($dir)
 	{
 		$this->root_dir = $dir;
+	}
+
+	public function setTheme($theme)
+	{
+		$this->theme = $theme;
+	}
+
+	public function setLanguage($language)
+	{
+		$this->language = $language;
+	}
+
+	// $parseWhat can be: both, core, overriden
+	// $storeWhere can be: core, theme
+	public function setModuleParsingBehaviour($parseWhat, $storeWhere)
+	{
+		$this->modules_parse_what = $parseWhat;
+		$this->modules_store_where = $storeWhere;
 	}
 
 	public function extract()
@@ -27,7 +58,45 @@ class TranslationsExtractor
 			else
 				die("Unknown method: $method");
 		}
-		die("Done.");
+		$this->fill();
+	}
+
+	public function parseDictionary($path)
+	{
+		return array();
+	}
+
+	public function dictionaryToArray($name, $data, $global=true)
+	{
+		$str = "<?php\n\n";
+		if ($global)
+			$str .= 'global $'.$name.";\n";
+		$str .= '$'.$name." = array();\n\n";
+
+		foreach ($data as $key => $value)
+			$str .= '$'.$name.'[\''.addslashes($key).'\'] = [\''.addslashes($value).'\'];'."\n";
+
+		return $str;
+	}
+
+	private function fill()
+	{
+		foreach ($this->files as $name => &$data)
+		{
+			$dictionary = array();
+			if ($this->language !== '-' && file_exists($src=$this->join($this->root_dir,str_replace('[lc]', $this->language, $name))))
+			{
+				$dictionary = $this->parseDictionary($src);
+			}
+
+			foreach ($data as &$message)
+			{
+				if ($this->language === '-')
+					$message['translation'] = $message['message'];
+				else
+					$message['translation'] = isset($dictionary[$message['message']]) ? $dictionary[$message['message']] : null;
+			}
+		}
 	}
 
 	public function join($root, $path)
@@ -60,23 +129,36 @@ class TranslationsExtractor
 			{
 				$files = array_merge($files, $this->listFiles($path, $whitelist, $blacklist, $recurse));
 			}
-			else
+			else if (!is_dir($path))
 				$files[] = $path;
 		}
 
 		return $files;
 	}
 
-	public function extractFrontOfficeStrings()
-	{
-
-	}
+	
 
 	public function getAdminControllersDir()
 	{
 		if (defined('_PS_ADMIN_CONTROLLER_DIR_'))
 			return _PS_ADMIN_CONTROLLER_DIR_;
 		else return $this->join($this->root_dir, 'controllers/admin');
+	}
+
+	public function getOverrideDir()
+	{
+		if (defined('_PS_OVERRIDE_DIR_'))
+			return _PS_OVERRIDE_DIR_;
+		else
+			return $this->join($this->root_dir, 'override');
+	}
+
+	public function getClassesDir()
+	{
+		if (defined('_PS_CLASS_DIR_'))
+			return _PS_CLASS_DIR_;
+		else
+			return $this->join($this->root_dir, 'classes');
 	}
 
 	public function getAdminOverridenControllersDir()
@@ -118,6 +200,30 @@ class TranslationsExtractor
 			return $this->join($this->root_dir, 'admin-dev');
 	}
 
+	public function getThemesDir()
+	{
+		if (defined('_PS_ALL_THEMES_DIR_'))
+			return _PS_ALL_THEMES_DIR_;
+		else
+			return $this->join($this->root_dir, 'themes');
+	}
+
+	public function getModulesDir()
+	{
+		if (defined('_PS_MODULE_DIR_'))
+			return _PS_MODULE_DIR_;
+		else
+			return $this->join($this->root_dir, 'modules');
+	}
+
+	public function getPdfsDir()
+	{
+		if (defined('_PS_PDF_DIR_'))
+			return _PS_PDF_DIR_;
+		else
+			return $this->join($this->root_dir, 'pdf');
+	}
+
 	public function dequote($str)
 	{
 		if (mb_strlen($str) < 2)
@@ -125,11 +231,12 @@ class TranslationsExtractor
 		if ($str[0] === $str[mb_strlen($str)-1] && ($str[0] === '\'' || $str[0] === '"'))
 			return substr($str, 1, mb_strlen($str)-2);
 		else
-			return $false;
+			return false;
 	}
 
 	public function record($string, $key, $storage_file, $type)
 	{
+		/*
 		$data = array(
 			'string' => $string,
 			'key' => $key,
@@ -138,7 +245,15 @@ class TranslationsExtractor
 		);
 		echo "<PRE>";
 		print_r($data);
-		echo "</PRE>";
+		echo "</PRE>";*/
+
+		if (!isset($this->files[$storage_file]))
+			$this->files[$storage_file] = array();
+
+		$this->files[$storage_file][$key] = array(
+			'message' => $string,
+			'type' => $type
+		);
 	}
 
 	public function getAdminUnSpecificPHPPrefixKey($file)
@@ -296,23 +411,284 @@ class TranslationsExtractor
 		}
 	}
 
+	public function extractFrontOfficeStrings()
+	{
+		$files = array_merge(
+			$this->listFiles($this->join($this->getThemesDir(), $this->theme), '/\.tpl$/', '#/modules/#', true),
+			$this->listFiles($this->getThemesDir(), '/\.tpl$/')
+			// + override?
+		);
+		$storage_file = 'themes/'.$this->theme.'/lang/[lc].php';
+		$type = 'frontOffice';
+		$parser = new SmartyLParser();
+		foreach ($files as $file)
+		{
+			if (basename($file) === 'debug.tpl')
+				continue;
+			$prefix_key = substr(basename($file), 0, -4);
+			foreach($parser->parse($file) as $string)
+				if ($str=$this->dequote($string))
+				{
+					$key = $prefix_key.'_'.md5($str);
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+		}
+	}
+
 	public function extractErrorsStrings()
 	{
+		$files = $this->listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
 		
+		$storage_file = 'translations/[lc]/errors.php';
+		$type = 'errors';
+		$tstart = time();
+
+		foreach ($files as $n => $file)
+		{
+			$parser = new PHPFunctionCallParser();
+			$parser->setPattern('Tools\s*::\s*displayError');
+			$parser->setString(file_get_contents($file));
+			while ($m=$parser->getMatch())
+			{
+				if (count($m['arguments']) > 0 && $str=$this->dequote($m['arguments'][0]))
+				{
+					$key = md5($str);
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+			}
+		}
+	}
+
+	// $parseWhat can be: both, core, overriden
+	// $storeWhere can be: core, theme
+
+	public function getModuleKey($kind, $module, $file, $str)
+	{
+		$mod = Tools::strtolower($module);
+		
+		$tmp = array();
+		preg_match('/^(.*?)(?:\.\w+)*$/', basename($file), $tmp);
+		$name = $tmp[1];
+		$f = Tools::strtolower($name);
+		
+		$md5 = md5($str);
+
+		if ($this->modules_store_where === 'core')
+			return '<{'.$mod.'}prestashop>'.$f.'_'.$md5;
+		else if ($this->modules_store_where === 'theme' && $kind === 'core')
+			return '<{'.$mod.'}prestashop>'.$f.'_'.$md5;
+		else if ($this->modules_store_where === 'theme' && $kind === 'overriden')
+			return '<{'.$mod.'}'.$this->$theme.'>'.$f.'_'.$md5;
+	}
+
+	public function getModuleStorageFile($kind, $module, $file)
+	{
+		if ($this->modules_store_where === 'core')
+			return 'modules/'.$module.'/translations/[lc].php';
+		else if ($this->modules_store_where === 'theme' && $kind === 'core')
+			return 'modules/'.$module.'/translations/[lc].php';
+		else if ($this->modules_store_where === 'theme' && $kind === 'overriden')
+			return 'themes/'.$this->theme.'/modules/'.$module.'/translations/[lc].php';
+
 	}
 
 	public function extractModulesStrings()
 	{
-		
+		$root_dirs = array(
+			'core' => $this->getModulesDir(), 
+			'overriden' => $this->join($this->getThemesDir(), $this->theme.'/modules')
+		);
+
+		$type = 'modules';
+
+		foreach ($root_dirs as $kind => $dir)
+		{
+			foreach (scandir($dir) as $module)
+			{
+				if (!preg_match('/^\./', $module))
+					if (is_dir($module_root=$this->join($dir, $module)))
+					{
+						/**************************************************************/
+						/*                        PHP files                           */
+						/**************************************************************/
+
+						$files = $this->listFiles($module_root, '/\.php$/', null, true);
+
+						foreach ($files as $file)
+						{
+							$storage_file = $this->getModuleStorageFile($kind, $module, $file);
+							$parser = new PHPFunctionCallParser();
+							$parser->setPattern('->\s*l');
+							$parser->setString(file_get_contents($file));
+							while ($m=$parser->getMatch())
+							{
+								if ($str=$this->dequote($m['arguments'][0]))
+								{
+									$key = $this->getModuleKey($kind, $module, $file, $str);
+									$this->record(
+										$str,
+										$key,
+										$storage_file,
+										$type
+									);
+								}
+							}
+						}
+
+						/**************************************************************/
+						/*                        Templates                           */
+						/**************************************************************/
+
+						$files = $this->listFiles($module_root, '/\.tpl$/', null, true);
+						$parser = new SmartyLParser();
+						foreach ($files as $file)
+						{
+							if (basename($file) === 'debug.tpl')
+								continue;
+
+							$storage_file = $this->getModuleStorageFile($kind, $module, $file);
+
+							foreach($parser->parse($file) as $string)
+								if ($str=$this->dequote($string))
+								{
+									$key = $this->getModuleKey($kind, $module, $file, $str);
+									$this->record(
+										$str,
+										$key,
+										$storage_file,
+										$type
+									);
+								}
+						}
+					}
+			} 
+		}
+
 	}
 
 	public function extractPdfsStrings()
 	{
-		
+		/**************************************************************/
+		/*                        PHP files                           */
+		/**************************************************************/
+
+		$files = array_merge(
+			$this->listFiles($this->join($this->getClassesDir(), 'pdf'), '/\.php$/'),
+			$this->listFiles($this->join($this->getOverrideDir(), 'classes/pdf'), '/\.php$/')
+		);	
+
+		$storage_file = 'translations/[lc]/pdf.php';
+		$type = 'pdfs';
+		foreach ($files as $file)
+		{
+			$parser = new PHPFunctionCallParser();
+			$parser->setPattern('HTMLTemplate\w*\s*::\s*l');
+			$parser->setString(file_get_contents($file));
+			while ($m=$parser->getMatch())
+			{
+				if ($str=$this->dequote($m['arguments'][0]))
+				{
+					$key = 'PDF'.md5($str);
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+			}
+		}
+
+		/**************************************************************/
+		/*                        Templates                           */
+		/**************************************************************/
+
+		$files = array_merge(
+			$this->listFiles($this->getPdfsDir(), '/\.tpl$/'),
+			$this->listFiles($this->join($this->getThemesDir(), $this->theme.'/pdf'), '/\.tpl$/')
+		);
+
+		$parser = new SmartyLParser();
+		foreach ($files as $file)
+		{
+			foreach($parser->parse($file) as $string);
+				if ($str=$this->dequote($string))
+				{
+					$key = 'PDF'.md5($str);
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+		}
+
 	}
 
 	public function extractTabsStrings()
 	{
-		
+		// TODO, only when not in CLI
+	}
+
+	public function sendAsGZIP()
+	{
+		require_once dirname(__FILE__).'/../../../tools/tar/Archive_Tar.php';
+
+		$out = tempnam(null, 'translatools');
+		$arch = new Archive_Tar($out, 'gz');
+
+		$lc = $this->language !== '-' ? $this->language : 'en';
+
+
+		foreach ($this->files as $name => $contents)
+		{
+			$array_name = null;
+			if (basename($name) === 'admin.php')
+				$array_name = '_LANGADM';
+			else if (basename($name) === 'errors.php')
+				$array_name = '_ERRORS';
+			else if (basename($name) === 'pdf.php')
+				$array_name = '_LANGPDF';
+			else if (preg_match('#/lang/\[lc\]\.php$#', $name))
+				$array_name = '_LANG';
+			else if (preg_match('#(?:/|^)modules/', $name))
+				$array_name = '_MODULE';
+
+			if ($array_name !== null)
+			{
+				$dictionary = array();
+				foreach ($contents as $key => $data)
+					$dictionary[$key] = $data['translation'];
+				ddd($this->dictionaryToArray($array_name, $dictionary));
+				$arch->addString(str_replace('[lc]', $lc, $name), $this->dictionaryToArray($array_name, $dictionary));
+			}
+			else
+			{
+				die("Could not guess array name for file '$name'.");
+			}
+
+		}
+
+		ob_end_clean();
+		header('Content-Description: File Transfer');
+        header('Content-Type: application/x-gzip');
+        header('Content-Disposition: attachment; filename='.$lc.'.tar.gz');
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        readfile($out);
+        exit;
 	}
 }

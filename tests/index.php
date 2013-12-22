@@ -89,12 +89,21 @@ $fixtures = array(
 				'arguments' => array('"bo\"b"', '(1 ? 2 : "3,)")', '(function($bob){})("4),4")')
 			)
 		)
-	)
-	,
+	),
 	array(
 		'pattern' => '\$this->l',
 		'string' => '$this->l("bo\"b", (1 ? 2 : "3,)"), (function($bob){})("4),4")',
 		'expected' => array()
+	),
+	array(
+		'pattern' => 'Tools::displayError',
+		'string' => 'Tools::displayError($this->l(\'You do not have permission to edit this.\'));',
+		'expected' => array(
+			array(
+				'function' => 'Tools::displayError',
+				'arguments' => array('$this->l(\'You do not have permission to edit this.\')')
+			)
+		)
 	)
 );
 
