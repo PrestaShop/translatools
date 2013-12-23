@@ -63,7 +63,20 @@ class TranslationsExtractor
 
 	public function parseDictionary($path)
 	{
-		return array();
+		if(!file_exists($path))
+			return array();
+
+		$data = file_get_contents($path);
+
+		$matches = array();
+		$n = preg_match_all('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*]\\s*=\\s*\'((?:\\\\\'|[^\'])+)\'\\s*;$/m', $data, $matches);
+
+		$dictionary = array();
+
+		for ($i=0; $i<$n; $i++)
+			$dictionary[$matches[1][$i]] = $matches[2][$i];
+
+		return $dictionary;
 	}
 
 	public function dictionaryToArray($name, $data, $global=true)
@@ -87,14 +100,27 @@ class TranslationsExtractor
 		{
 			$dictionary = array();
 			if ($this->language !== '-' && file_exists($src=$this->join($this->root_dir,str_replace('[lc]', $this->language, $name))))
-			{
 				$dictionary = $this->parseDictionary($src);
-			}
+			else if ($this->language === '-' && file_exists($src=$this->join($this->root_dir,str_replace('[lc]', 'en', $name))))
+				$dictionary = $this->parseDictionary($src);
 
 			foreach ($data as &$message)
 			{
 				if ($this->language === '-')
-					$message['translation'] = $message['message'];
+				{
+					if (isset($dictionary[$message['message']]))
+					{
+						$message['translation'] = $dictionary[$message['message']];
+					}
+					elseif (preg_match('/admin\.php$/', $name))
+					{
+						$message['translation'] = preg_replace('/:\s*$/', '', $message['message']);
+					}
+					else
+					{
+						$message['translation'] = $message['message'];
+					}
+				}
 				else
 					$message['translation'] = isset($dictionary[$message['message']]) ? $dictionary[$message['message']] : null;
 			}
@@ -656,7 +682,16 @@ class TranslationsExtractor
 
 	public function extractTabsStrings()
 	{
-		// TODO, only when not in CLI
+		if (class_exists('Tab'))
+		{
+			$id_lang = Language::getIdByIso($this->language !== '-' ? $this->language : 'en');
+			foreach(Tab::getTabs($id_lang) as $tab)
+			{
+				if ($tab['name'] != '')
+					$this->record($tab['name'], $tab['class_name'], 'translations/[lc]/tabs.php', 'tabs');
+			}
+		}
+			
 	}
 
 	public function sendAsGZIP()
@@ -692,6 +727,8 @@ class TranslationsExtractor
 				$array_name = '_LANG';
 			else if (preg_match('#(?:/|^)modules/#', $name))
 				$array_name = '_MODULE';
+			else if (preg_match('#/tabs\.php$#', $name))
+				$array_name = '_TABS';
 
 			if ($array_name !== null)
 			{
@@ -701,7 +738,7 @@ class TranslationsExtractor
 
 				$path = str_replace('[lc]', $lc, $name);
 				mkdir(dirname($path), 0777, true);
-				file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary));
+				file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
 				$add[] = $path;
 			}
 			else

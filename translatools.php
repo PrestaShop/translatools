@@ -281,4 +281,31 @@ class TranslaTools extends Module
 			'stats' => $stats
 		);
 	}
+
+	public function purgeTranslationsAction()
+	{
+		require_once dirname(__FILE__).'/classes/SkipDotsFilterIterator.php';
+
+		$diter = new RecursiveDirectoryIterator(_PS_ROOT_DIR_, RecursiveDirectoryIterator::SKIP_DOTS);
+		$filter = new SkipDotsFilterIterator($diter);
+
+		$tokill = array();
+		$killed = array();
+
+		foreach (new RecursiveIteratorIterator($filter) as $file)
+		{
+			if (preg_match('#/translations/[a-z]{2}/(?:admin|errors|pdf|fields|tabs)\.php$#', $file))
+				$tokill[] = $file;
+			elseif (preg_match('#/(?:translations|lang)/[a-z]{2}\.php$#', $file))
+				$tokill[] = $file;
+		}
+
+		foreach ($tokill as $path)
+		{
+			unlink($path);
+			$killed[] = substr($path, strlen(_PS_ROOT_DIR_)+1);
+		}
+
+		return array('killed' => $killed);
+	}
 }

@@ -11,6 +11,20 @@
 </div>
 
 <div class="panel">
+	<h3>Purge Translations</h3>
+	<div class='alert alert-warning'>
+		This will delete all translation files on your shop (except e-mails).
+	</div>
+	<form action="" method="GET">
+		{$translacheck_stay_here}
+		<input type="hidden" name="action" value="purgeTranslations">
+		<span class="confirm">
+			<button data-confirm="Really purge translations?" data-cancel="Oh no!" class="btn btn-warning">Purge Translations</button>
+		</span>
+	</form>
+</div>
+
+<div class="panel">
 	<h3>Export translations</h3>
 	<form action="" method="GET">
 		{$translacheck_stay_here}
@@ -86,3 +100,39 @@
 		<button class="btn btn-primary" name="action" value="viewStats">View Stats</button>
 	</form>
 </div>
+
+<style>
+	span.confirm>button
+	{
+		margin-right: 5px;
+	}
+</style>
+
+<script>
+	$(document).ready(function(){
+		$('button[data-confirm]').click(function(e){
+			var originalButton = $(this);
+			var container = originalButton.closest('span.confirm');
+			
+			originalButton.hide();
+
+			var actionButton = $('<button class="btn btn-danger"></button>')
+			.attr('name', originalButton.attr('name'))
+			.attr('value', originalButton.attr('value'))
+			.html(originalButton.attr('data-confirm'))
+			.appendTo(container);
+
+			var cancelButton = $('<button class="btn btn-success"></button>')
+			.html(originalButton.attr('data-cancel') || 'Cancel')
+			.appendTo(container);
+
+			cancelButton.on('click', function(){
+				originalButton.show();
+				actionButton.remove();
+				cancelButton.remove();
+			});
+
+			e.preventDefault();
+		});
+	})
+</script>
