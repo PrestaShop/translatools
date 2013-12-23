@@ -1,76 +1,67 @@
 <?php
 
-require_once dirname(__FILE__).'/../../../tools/smarty/Smarty.class.php';
-
 class SmartyLParser
 {
 	public function __construct()
 	{
-		$this->smarty = new Smarty();
-
-		$this->smarty->registerPlugin('compiler', 'l', array($this, 'smartyLFound'));
-
-		/**
-		* Define Smarty functions & modifiers so that it parses!
-		*/
-		$dummy = array($this, 'dummy');
-
-		$functions = array(
-			'getAdminToken', 
-			'hook', 
-			't', 'm', 'p', 'd', 'l',
-			'toolsConvertPrice', 'dateFormat',
-			'convertPrice', 'convertPriceWithCurrency',
-			'displayWtPrice', 'displayWtPriceWithCurrency',
-			'displayPrice', 'displayAddressDetail',
-			'getWidthSize', 'getHeightSize',
-			'summarypaginationlink'
-		);
-
-		$modifiers = array(
-			'htmlentitiesUTF8', 'convertAndFormatPrice',
-			'secureReferrer', 'truncate'
-		);
-
-		$blocks = array(
-			'assign_debug_info'
-		);
-
-		foreach ($functions as $name)
-			$this->smarty->registerPlugin('function', $name, $dummy);
-		foreach ($modifiers as $name)
-			$this->smarty->registerPlugin('modifier', $name, $dummy);
-		foreach ($blocks as $name)
-			$this->smarty->registerPlugin('block', $name, $dummy);
+		$this->pattern = '/\{l\s+s\s*=\s*/';
 	}
 
-	public function dummy()
+	public function peek($n=1)
 	{
-
+		return substr($this->string, $this->at, $n);
 	}
 
-	public function smartyLFound($params)
+	public function getc($n=1)
 	{
-		$this->strings[] = $params['s'];
+		$str = $this->peek($n);
+		$this->at += $n;
+		return $str;
 	}
 
 	public function parse($path)
 	{
 		$this->strings = array();
-		$tpl = $this->smarty->createTemplate($path);
-		try{
-			// this will fire the smartyLFound callback
-			$tpl->compileTemplateSource();
-		}
-		// Smarty will throw a BUNCH of exceptions because
-		// we're not doing the full setup, catch them silently
-		catch(Exception $e)
+		$this->string = file_get_contents($path);
+
+		$this->at = 0;
+
+		$m = array();
+		while (preg_match($this->pattern, $this->string, $m, PREG_OFFSET_CAPTURE, $this->at))
 		{
-			if ($e instanceof SmartyCompilerException)
+			$this->str = '';
+			$this->state = 'default';
+			$this->at = $m[0][1] + mb_strlen($m[0][0]);
+			while (false !== ($c=$this->getc()))
 			{
-				die(get_class($e).": ".$e->getMessage());
+				$this->str .= $c;
+				if ($this->state === 'default')
+				{
+					if ($c === '\'' || $c === '"')
+					{
+						$this->quote = $c;
+						$this->state = 'string';
+					}
+					else
+						break;
+				}
+				else if ($this->state === 'string')
+				{
+					if ($c === '\\')
+						$this->state = 'escape';
+					elseif ($c === $this->quote)
+					{
+						$this->strings[] = $this->str;
+						break;
+					}
+				}
+				else if ($this->state === 'escape')
+				{
+					$this->state = 'string';
+				}
 			}
 		}
+
 		return $this->strings;
 	}
 }

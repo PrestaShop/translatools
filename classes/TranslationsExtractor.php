@@ -401,10 +401,12 @@ class TranslationsExtractor
 			$this->listFiles($this->join($this->getAdminOverridenControllersDir(), 'admin/templates'), '/\.tpl$/', null, true)
 		);
 		$parser = new SmartyLParser();
-		foreach ($files as $n => $file)
+		foreach ($files as $file)
 		{
 			$prefix_key = $this->getAdminTPLPrefixKey($file);
-			foreach($parser->parse($file) as $string);
+			foreach($parser->parse($file) as $string)
+			{
+				
 				if ($str=$this->dequote($string))
 				{
 					$key = $prefix_key.md5($str);
@@ -415,6 +417,7 @@ class TranslationsExtractor
 						$type
 					);
 				}
+			}
 		}
 	}
 
@@ -434,6 +437,7 @@ class TranslationsExtractor
 				continue;
 			$prefix_key = substr(basename($file), 0, -4);
 			foreach($parser->parse($file) as $string)
+				
 				if ($str=$this->dequote($string))
 				{
 					$key = $prefix_key.'_'.md5($str);
