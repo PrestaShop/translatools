@@ -61,7 +61,9 @@ class SmartyLParser
 				}
 			}
 		}
-
+		
+		/*if (strpos($path, '/var/www/prestashop.1.6.fmdj.fr/pdf/delivery-slip.tpl') !== false)
+			ddd($this->strings);*/
 		return $this->strings;
 	}
 }

@@ -230,8 +230,15 @@ class TranslationsExtractor
 	{
 		if (mb_strlen($str) < 2)
 			return false;
-		if ($str[0] === $str[mb_strlen($str)-1] && ($str[0] === '\'' || $str[0] === '"'))
-			return substr($str, 1, mb_strlen($str)-2);
+		$fc = mb_substr($str, 0, 1);
+		$lc = mb_substr($str, -1);
+		/*
+		if (strstr($str, '¤'))
+		{
+			die ($str.((($fc === $lc && ($fc === '\'' || $lc === '"')))? 'OK' : 'KO'));
+		}*/
+		if ($fc === $lc && ($fc === '\'' || $lc === '"'))
+			return mb_substr($str, 1, mb_strlen($str)-2);
 		else
 			return false;
 	}
@@ -488,7 +495,7 @@ class TranslationsExtractor
 		$mod = Tools::strtolower($module);
 		
 		$tmp = array();
-		preg_match('/^(.*?)(?:\.\w+)*$/', basename($file), $tmp);
+		preg_match('/^(.*?)(?:\.tpl|\.php)$/', basename($file), $tmp);
 		$name = $tmp[1];
 		$f = Tools::strtolower($name);
 		
@@ -632,7 +639,7 @@ class TranslationsExtractor
 		$parser = new SmartyLParser();
 		foreach ($files as $file)
 		{
-			foreach($parser->parse($file) as $string);
+			foreach($parser->parse($file) as $string)
 				if ($str=$this->dequote($string))
 				{
 					$key = 'PDF'.md5($str);
