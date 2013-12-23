@@ -25,6 +25,56 @@
 </div>
 
 <div class="panel">
+	<h3>Crowdin JIPT</h3>
+
+	<div class="form-group">
+		<label for="jipt_bo_on">Enable Crowdin-JIPT in Back-Office</label>
+		<div class="row">
+			<div class="input-group col-lg-2">
+				<span class="switch prestashop-switch">
+					<input name="jipt_bo" type="radio" id="jipt_bo_on" value="1"  {if $jipt_bo == '1'} checked {/if}>
+					<label for="jipt_bo_on">
+						<i class="icon-check-sign color_success"></i> Yes
+					</label>
+					<input name="jipt_bo" type="radio" id="jipt_bo_off" value="0"  {if $jipt_bo != '1'} checked {/if}>
+					<label for="jipt_bo_off">
+						<i class="icon-ban-circle color_danger"></i> No
+					</label>
+					<a class="slide-button btn btn-default"></a>
+				</span>
+			</div>
+		</div>
+	</div>
+	
+	<div class="form-group">
+		<label for="jipt_fo_on">Enable Crowdin-JIPT in Front-Office</label>
+		<div class="row">
+			<div class="input-group col-lg-2">
+				<span class="switch prestashop-switch">
+					<input name="jipt_fo" type="radio" id="jipt_fo_on" value="1" {if $jipt_fo == '1'} checked {/if}>
+					<label for="jipt_fo_on">
+						<i class="icon-check-sign color_success"></i> Yes
+					</label>
+					<input name="jipt_fo" type="radio" id="jipt_fo_off" value="0" {if $jipt_fo != '1'} checked {/if}>
+					<label for="jipt_fo_off">
+						<i class="icon-ban-circle color_danger"></i> No
+					</label>
+					<a class="slide-button btn btn-default"></a>
+				</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<p>JIPT Virtual Language is set to <strong>{$jipt_language}</strong>.</p>
+		{if !isset($languages[$jipt_language])}
+			<p>The virtual language was not created on this shop though, you need to create it before you can use Crowdin-JIPT.</p>
+			<form method="POST">{$translacheck_stay_here}<button name="action" value="createVirtualLanguage" class="btn btn-success">Create It Now</button></form>
+		{/if}
+	</div>
+</div>
+
+<div class="panel">
 	<h3>Export translations</h3>
 	<form action="" method="GET">
 		{$translacheck_stay_here}
@@ -133,6 +183,14 @@
 			});
 
 			e.preventDefault();
+		});
+
+		$('input[name=jipt_fo]').change(function(){
+			$.post('{$translacheck_url}&action=setConfigurationValue&key=JIPT_FO&value='+$(this).val());
+		});
+
+		$('input[name=jipt_bo]').change(function(){
+			$.post('{$translacheck_url}&action=setConfigurationValue&key=JIPT_BO&value='+$(this).val());
 		});
 	})
 </script>

@@ -50,6 +50,24 @@ class TranslaTools extends Module
 		$this->description = 'Check translations norm, export strings, and maybe more.';
 	}
 
+	public function install()
+	{
+		return parent::install() && $this->registerHook('displayHeader') && $this->registerHook('actionAdminControllerSetMedia');
+	}
+
+	public function hookDisplayHeader($params)
+	{
+		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
+			return "<script src='https://cdn.crowdin.net/jipt/jipt.js'></script>";
+		else return "";
+	}
+
+	public function hookActionAdminControllerSetMedia($params)
+	{
+		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
+	}
+
 	public function getContent()
 	{
 		global $smarty;
@@ -96,7 +114,10 @@ class TranslaTools extends Module
 
 		return array(
 			'themes' => $themes,
-			'languages' => $languages
+			'languages' => $languages,
+			'jipt_bo' => Configuration::get('JIPT_BO'),
+			'jipt_fo' => Configuration::get('JIPT_FO'),
+			'jipt_language' => 'an'
 		);
 	}
 
@@ -234,11 +255,17 @@ class TranslaTools extends Module
 		);
 
 		$inputs = array();
+		$params = array();
 		foreach ($hidden as $name => $value)
+		{
 			$inputs[] = "<input type='hidden' name='$name' value='$value'>";
-		
+			$params[] = urlencode($name).'='.urlencode($value);
+		}
 		$translacheck_stay_here = implode("\n", $inputs);
+		$translacheck_url = '?'.implode('&', $params);
+
 		$smarty->assign('translacheck_stay_here', $translacheck_stay_here); 
+		$smarty->assign('translacheck_url', $translacheck_url);
 	}
 
 	public function exportTranslationsAction()
@@ -307,5 +334,32 @@ class TranslaTools extends Module
 		}
 
 		return array('killed' => $killed);
+	}
+
+	public function setConfigurationValueAction()
+	{
+		$key = Tools::getValue('key');
+		// Don't let users abuse this to change anything, whitelist the options
+		if (in_array($key, array('JIPT_BO', 'JIPT_FO')))
+			Configuration::updateValue($key, Tools::getValue('value'));
+		die();
+	}
+
+	public function createVirtualLanguageAction()
+	{
+		$this->tpl = 'default';
+
+		if (!Language::getIdByIso('an'))
+		{
+			$language = new Language();
+			$language->iso_code = 'an';
+			$language->language_code = 'an';
+			$language->name = 'Aragonese';
+			$language->save();
+			if ($language->id)
+				copy(dirname(__FILE__).'/img/an.jpg', _PS_IMG_DIR_.'/l/'.$language->id.'.jpg');
+		}
+
+		Tools::redirectAdmin('?controller=AdminModules&configure='.$this->name.'&token='.Tools::getValue('token'));
 	}
 }
