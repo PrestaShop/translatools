@@ -278,8 +278,8 @@ class TranslaTools extends Module
 		$extractor->setTheme(Tools::getValue('theme'));
 		$extractor->setLanguage(Tools::getValue('language'));
 		$extractor->setModuleParsingBehaviour(Tools::getValue('overriden_modules'), Tools::getValue('modules_storage'));
-		$extractor->extract();
-		$extractor->sendAsGZIP();
+		$extractor->extract(dirname(__FILE__).'/packs/');
+		$extractor->sendAsGZIP(dirname(__FILE__).'/packs/');
 	}
 
 	public function viewStatsAction()

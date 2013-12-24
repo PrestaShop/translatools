@@ -48,7 +48,7 @@ class TranslationsExtractor
 		$this->modules_store_where = $storeWhere;
 	}
 
-	public function extract()
+	public function extract($to_folder=null)
 	{
 		foreach ($this->sections as $section)
 		{
@@ -59,6 +59,47 @@ class TranslationsExtractor
 				die("Unknown method: $method");
 		}
 		$this->fill();
+
+		if ($to_folder && is_dir($to_folder))
+		{
+
+			$lc = $this->language !== '-' ? $this->language : 'en';
+
+			$this->rmDir($this->join($to_folder, $lc));
+
+			foreach ($this->files as $name => $contents)
+			{
+				$array_name = null;
+				if (basename($name) === 'admin.php')
+					$array_name = '_LANGADM';
+				else if (basename($name) === 'errors.php')
+					$array_name = '_ERRORS';
+				else if (basename($name) === 'pdf.php')
+					$array_name = '_LANGPDF';
+				else if (preg_match('#/lang/\[lc\]\.php$#', $name))
+					$array_name = '_LANG';
+				else if (preg_match('#(?:/|^)modules/#', $name))
+					$array_name = '_MODULE';
+				else if (preg_match('#/tabs\.php$#', $name))
+					$array_name = '_TABS';
+
+				if ($array_name !== null)
+				{
+					$dictionary = array();
+					foreach ($contents as $key => $data)
+						$dictionary[$key] = $data['translation'];
+
+					$path = $this->join($this->join($to_folder, $lc), str_replace('[lc]', $lc, $name));
+					mkdir(dirname($path), 0777, true);
+					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
+				}
+				else
+				{
+					die("Could not guess array name for file '$name'.");
+				}
+
+			}
+		}
 	}
 
 	public function parseDictionary($path)
@@ -694,74 +735,39 @@ class TranslationsExtractor
 			
 	}
 
-	public function sendAsGZIP()
+	public function sendAsGZIP($packs_dir)
 	{
 		require_once dirname(__FILE__).'/../../../tools/tar/Archive_Tar.php';
 
-		// Archive_TAR SUCKS!!! We need to uglily create a temporary dir
-		// then create all the files because Archive_TAR will mess up permissions if we do addString
-		// then create the archive
-		// and delete all the temporary stuff... with a custom `rm -R` like function, because... well, PHP.
-
-		$out = tempnam(null, 'translatools');
-		unlink($out);
-		mkdir($out);
-		chdir($out);
-
-		$arch = new Archive_Tar('archive.tar.gz', 'gz');
-
 		$lc = $this->language !== '-' ? $this->language : 'en';
+		$archname = $lc.'.tar.gz';
+
+		$dir = $this->join($packs_dir, $lc);
+
+		if (!is_dir($dir))
+			die ("Directory does not exist: '$dir'.");
+
+		chdir($dir);
+
+		$archpath = '../'.$archname;
+		$arch = new Archive_Tar($archpath, 'gz');
 
 		$add = array();
 
-		foreach ($this->files as $name => $contents)
-		{
-			$array_name = null;
-			if (basename($name) === 'admin.php')
-				$array_name = '_LANGADM';
-			else if (basename($name) === 'errors.php')
-				$array_name = '_ERRORS';
-			else if (basename($name) === 'pdf.php')
-				$array_name = '_LANGPDF';
-			else if (preg_match('#/lang/\[lc\]\.php$#', $name))
-				$array_name = '_LANG';
-			else if (preg_match('#(?:/|^)modules/#', $name))
-				$array_name = '_MODULE';
-			else if (preg_match('#/tabs\.php$#', $name))
-				$array_name = '_TABS';
-
-			if ($array_name !== null)
-			{
-				$dictionary = array();
-				foreach ($contents as $key => $data)
-					$dictionary[$key] = $data['translation'];
-
-				$path = str_replace('[lc]', $lc, $name);
-				mkdir(dirname($path), 0777, true);
-				file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
-				$add[] = $path;
-			}
-			else
-			{
-				die("Could not guess array name for file '$name'.");
-			}
-
-		}
+		foreach ($this->listFiles('.', null, null, true) as $path)
+			$add[] = preg_replace('#^\./#', '', $path);
+		
 		$arch->add($add);
 
 		ob_end_clean();
 		header('Content-Description: File Transfer');
         header('Content-Type: application/x-gzip');
-        header('Content-Disposition: attachment; filename='.$lc.'.tar.gz');
+        header('Content-Disposition: attachment; filename='.$archname);
         header('Content-Transfer-Encoding: binary');
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
-        readfile('archive.tar.gz');
-
-        // cleanup
-        $this->rmDir($out);
-
+        readfile($archpath);
         exit;
 	}
 
