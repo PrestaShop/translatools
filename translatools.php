@@ -58,6 +58,11 @@ class TranslaTools extends Module
 		&& $this->installTab();
 	}
 
+	public function uninstall()
+	{
+		return parent::uninstall() && $this->uninstallTab();
+	}
+
 	public function installTab()
 	{
 		$tab = new Tab();
@@ -98,7 +103,6 @@ class TranslaTools extends Module
 
 	public function getContent()
 	{
-		//die($this->context->link->getAdminLink('AdminTranslatools'));
 		global $smarty;
 
 		$action = Tools::getValue('action');
@@ -297,6 +301,7 @@ class TranslaTools extends Module
 
 		$smarty->assign('translatools_stay_here', $translatools_stay_here); 
 		$smarty->assign('translatools_url', $translatools_url);
+		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
 	public function exportTranslationsAction()

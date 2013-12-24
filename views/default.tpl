@@ -265,8 +265,46 @@
 	{
 		var fdbk = $('#export-to-crowdin-feedback');
 
+		var firstActionURL = '{$translatools_controller}&action=exportSources';
 
+		$.ajax({
+		  type: "POST",
+		  url: firstActionURL,
+		  success: handleExportSourcesReturn,
+		  dataType: 'json'
+		});
 
 		event.preventDefault();
+	}
+
+	function handleExportSourcesReturn(data)
+	{
+		var fdbk = $('#export-to-crowdin-feedback');
+		console.log(data);
+		if(data.success)
+		{
+			fdbk.html('<span class="success">'+data.message+'</span>');
+			if(data['next-action'])
+			{
+				fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">Processing next step...</span>');
+
+				var nextActionURL = '{$translatools_controller}&action='+data['next-action'];
+				$.ajax({
+				  type: "POST",
+				  url: nextActionURL,
+				  data: JSON.stringify(data['next-payload']),
+				  success: handleExportSourcesReturn,
+				  dataType: 'json'
+				});
+			}
+			else
+			{
+				fdbk.html("<span class='success'>Done!</span>")
+			}
+		}
+		else
+		{
+			fdbk.html('<span class="error">'+data.message+'</span>');
+		}
 	}
 </script>

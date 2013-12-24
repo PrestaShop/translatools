@@ -750,6 +750,11 @@ class TranslationsExtractor
 		chdir($dir);
 
 		$archpath = '../'.$archname;
+		
+		// Just in case...
+		if (file_exists($archpath))
+			unlink($archpath);
+
 		$arch = new Archive_Tar($archpath, 'gz');
 
 		$add = array();
