@@ -52,7 +52,35 @@ class TranslaTools extends Module
 
 	public function install()
 	{
-		return parent::install() && $this->registerHook('displayHeader') && $this->registerHook('actionAdminControllerSetMedia');
+		return parent::install() 
+		&& $this->registerHook('displayHeader') 
+		&& $this->registerHook('actionAdminControllerSetMedia')
+		&& $this->installTab();
+	}
+
+	public function installTab()
+	{
+		$tab = new Tab();
+		$tab->active = 1;
+		$tab->class_name = "AdminTranslatools";
+		$tab->name = array();
+		foreach (Language::getLanguages(true) as $lang)
+			$tab->name[$lang['id_lang']] = "AdminTranslatools";
+		$tab->id_parent = -1;
+		$tab->module = $this->name;
+		return $tab->add();
+	}
+
+	public function uninstallTab()
+	{
+		$id_tab = (int)Tab::getIdFromClassName('AdminTranslatools');
+		if ($id_tab)
+		{
+			$tab = new Tab($id_tab);
+			return $tab->delete();
+		}
+		else
+			return false;
 	}
 
 	public function hookDisplayHeader($params)
@@ -70,6 +98,7 @@ class TranslaTools extends Module
 
 	public function getContent()
 	{
+		//die($this->context->link->getAdminLink('AdminTranslatools'));
 		global $smarty;
 
 		$action = Tools::getValue('action');
@@ -117,7 +146,9 @@ class TranslaTools extends Module
 			'languages' => $languages,
 			'jipt_bo' => Configuration::get('JIPT_BO'),
 			'jipt_fo' => Configuration::get('JIPT_FO'),
-			'jipt_language' => 'an'
+			'jipt_language' => 'an',
+			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
+			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY')
 		);
 	}
 
@@ -261,11 +292,11 @@ class TranslaTools extends Module
 			$inputs[] = "<input type='hidden' name='$name' value='$value'>";
 			$params[] = urlencode($name).'='.urlencode($value);
 		}
-		$translacheck_stay_here = implode("\n", $inputs);
-		$translacheck_url = '?'.implode('&', $params);
+		$translatools_stay_here = implode("\n", $inputs);
+		$translatools_url = '?'.implode('&', $params);
 
-		$smarty->assign('translacheck_stay_here', $translacheck_stay_here); 
-		$smarty->assign('translacheck_url', $translacheck_url);
+		$smarty->assign('translatools_stay_here', $translatools_stay_here); 
+		$smarty->assign('translatools_url', $translatools_url);
 	}
 
 	public function exportTranslationsAction()
@@ -340,7 +371,7 @@ class TranslaTools extends Module
 	{
 		$key = Tools::getValue('key');
 		// Don't let users abuse this to change anything, whitelist the options
-		if (in_array($key, array('JIPT_BO', 'JIPT_FO')))
+		if (in_array($key, array('JIPT_BO', 'JIPT_FO', 'CROWDIN_PROJECT_IDENTIFIER', 'CROWDIN_PROJECT_API_KEY')))
 			Configuration::updateValue($key, Tools::getValue('value'));
 		die();
 	}
