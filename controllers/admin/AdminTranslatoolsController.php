@@ -35,19 +35,23 @@ class AdminTranslatoolsController extends ModuleAdminController
 		$m = array();
 		// Module file => modules/name
 		if (preg_match('#^modules/([^/]+)/#', $ps_path, $m))
-			return $version.'/modules/'.$m[1];
+			$path = $version.'/modules/'.$m[1];
 		// Theme module => modules/name::theme
 		else if (preg_match('#^themes/([^/]+)/modules/([^/]+)/#', $ps_path, $m))
-			return $version.'/modules/'.$m[2].'::'.$m[1];
+			$path = $version.'/modules/'.$m[2].'::'.$m[1];
 		// Theme language file => theme::name
 		else if (preg_match('#^themes/([^/]+)/lang#', $ps_path, $m))
-			return $version.'/theme::'.$m[1];
+			$path = $version.'/theme::'.$m[1];
 		// Anything else in theme => name::theme
 		else if (preg_match('#^themes/([^/]+)/#', $ps_path, $m))
-			return $version.'/'.basename($ps_path,'.php').'::'.$m[1];
+			$path = $version.'/'.basename($ps_path,'.php').'::'.$m[1];
 		// Admin, pdf, etc. => name
 		else
-			return $version.'/'.basename($ps_path,'.php');
+			$path = $version.'/'.basename($ps_path,'.php');
+
+		$path .= '.php';
+
+		return $path;
 	}
 
 	public function ajaxExportSourcesAction($payload)
@@ -82,11 +86,11 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			$tasks = array();
 
-			/*
+			
 			foreach ($dirs_to_create as $dir)
 			{
 				$tasks[] = array('action' => 'createDirectory', 'path' => $dir);
-			}*/
+			}
 
 			foreach ($files_to_export as $data)
 			{
@@ -118,7 +122,13 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if ($action['action'] === 'createDirectory')
 		{
-			$message = 'Created directory: '.$action['path'];
+			if (($res=$this->crowdin->createDirectory($action['path'])) === true)
+				$message = 'Created directory: '.$action['path'];
+			else
+			{
+				$ok = false;
+				$message = $res;
+			}
 		}
 		else if ($action['action'] === 'exportFile')
 		{
@@ -126,6 +136,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			$data['realpath'] = _PS_ROOT_DIR_.'/'.$action['data']['real_relative_path'];
 			$data['path'] = $action['data']['crowdin_path'];
+			$data['title'] = basename($data['path'], '.php');
+			//$data['export-pattern'] = $this->getCrowdinExportPattern($action['data']['real_relative_path']);
 
 			if (($res=$this->crowdin->addFile($data)) === true)
 				$message = 'Exported file: '.$action['data']['crowdin_path'];
