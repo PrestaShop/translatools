@@ -15,6 +15,46 @@ class TranslationsExtractor
 		$this->files = array();
 	}
 
+	public function buildFromTranslationFiles($dir)
+	{
+		$this->files = array();
+
+		$dir = realpath($dir);
+
+		if (!is_dir($dir))
+			return "Sources directory does not exist, please ensure that you have exported the English strings.";
+
+		foreach (new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir)
+		) as $path => $info)
+		{
+			if (preg_match('/\.php$/', $path))
+			{
+				$relpath = substr($path, strlen($dir)+1);
+
+				$n = 0;
+
+				$file = str_replace(array('/en/', '/en.php'), array('/[lc]/', '/[lc].php'), $relpath, $n);
+
+				if ($n !== 1)
+					return "File '$relpath' doesn't seem to be an English source.";
+
+				$dictionary = $this->parseDictionary($path);
+
+				$data = array();
+
+				foreach ($dictionary as $key => $value)
+				{
+					$data[$key] = array('message' => $value);
+				}
+
+				$this->files[$file] = $data;
+			}
+		}
+
+		return true;
+	}
+
 	public function getFiles()
 	{
 		return $this->files;
@@ -65,7 +105,15 @@ class TranslationsExtractor
 		}
 		$this->fill();
 
-		if ($to_folder && is_dir($to_folder))
+		if ($to_folder)
+			$this->write($to_folder);
+	}
+
+	public function write($to_folder)
+	{
+		$to_folder = realpath($to_folder);
+
+		if (is_dir($to_folder))
 		{
 
 			$lc = $this->language !== '-' ? $this->language : 'en';
@@ -92,10 +140,13 @@ class TranslationsExtractor
 				{
 					$dictionary = array();
 					foreach ($contents as $key => $data)
-						$dictionary[$key] = $data['translation'];
+						if ($data['translation'])
+							$dictionary[$key] = $data['translation'];
 
 					$path = $this->join($this->join($to_folder, $lc), str_replace('[lc]', $lc, $name));
-					mkdir(dirname($path), 0777, true);
+					
+					if (!is_dir(dirname($path)))
+						mkdir(dirname($path), 0777, true);
 					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
 				}
 				else
@@ -140,23 +191,29 @@ class TranslationsExtractor
 		return $str;
 	}
 
-	private function fill()
+	public function fill()
 	{
 		foreach ($this->files as $name => &$data)
 		{
 			$dictionary = array();
-			if ($this->language !== '-' && file_exists($src=$this->join($this->root_dir,str_replace('[lc]', $this->language, $name))))
-				$dictionary = $this->parseDictionary($src);
-			else if ($this->language === '-' && file_exists($src=$this->join($this->root_dir,str_replace('[lc]', 'en', $name))))
-				$dictionary = $this->parseDictionary($src);
+			$lang = $this->language === '-' ? 'en' : $this->language;
 
-			foreach ($data as &$message)
+			$base_source = $this->join($this->root_dir, str_replace('[lc]', $lang, $name));
+
+			$translations_sources = array(
+				$base_source
+			);
+
+			foreach ($translations_sources as $src)
+				$dictionary = array_merge($this->parseDictionary($src), $dictionary);
+
+			foreach ($data as $key => &$message)
 			{
 				if ($this->language === '-')
 				{
 					if (isset($dictionary[$message['message']]))
 					{
-						$message['translation'] = $dictionary[$message['message']];
+						$message['translation'] = $dictionary[$key];
 					}
 					elseif (preg_match('/admin\.php$/', $name))
 					{
@@ -168,7 +225,7 @@ class TranslationsExtractor
 					}
 				}
 				else
-					$message['translation'] = isset($dictionary[$message['message']]) ? $dictionary[$message['message']] : null;
+					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
 			}
 		}
 	}

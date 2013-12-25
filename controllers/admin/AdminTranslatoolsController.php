@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__).'/../../classes/CrowdinPHP.php';
+require_once dirname(__FILE__).'/../../classes/TranslationsExtractor.php';
 
 class AdminTranslatoolsController extends ModuleAdminController
 {
@@ -234,5 +235,38 @@ class AdminTranslatoolsController extends ModuleAdminController
 		}
 		else
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
+	}
+
+	public function ajaxExportTranslationsAction($payload)
+	{
+		$te = new TranslationsExtractor();
+		$te->setRootDir(_PS_ROOT_DIR_);
+
+		$built = $te->buildFromTranslationFiles(dirname(__FILE__).'/../../packs/en');
+
+		if ($built !== true)
+		{
+			return array('success' => false, 'message' => $built);
+		}
+
+		$languages = array();
+
+		// Build the necessary languages
+		foreach (Language::getLanguages() as $lang)
+		{
+			// Don't export English or Aragonese to Crowdin!
+			if ($lang['iso_code'] === 'en' || $lang['iso_code'] === 'an')
+				continue;
+
+			$te->setLanguage($lang['iso_code']);
+			$te->fill();
+			$te->write(dirname(__FILE__).'/../../packs/');
+
+			$languages[] = $lang['iso_code'];
+		}
+
+		// Reminder: take language mapping into consideration when exporting to Crowdin!
+
+		return array('success' => true, 'message' => 'yay');
 	}
 }	

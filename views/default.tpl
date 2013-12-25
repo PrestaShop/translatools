@@ -209,6 +209,24 @@
 			</div>
 		</div>
 	</form>
+
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="export-translations-to-crowdin" class="control-label col-lg-3">Export Translations to Crowdin</label>
+			<div class="col-lg-6">
+				<div class="row">
+					<div class="col-lg-4">
+						<span class="confirm">
+							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
+						</span>
+					</div>
+					<div class="col-lg-8">
+						<p class="form-control-static" id="export-translations-to-crowdin-feedback"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 	
 	<form class="form-horizontal">
 		<div class="form-group">
@@ -258,6 +276,15 @@
 
 		$('button[data-confirm]').click(function(e){
 			var originalButton = $(this);
+
+			// A label may click on the button :)
+			// abort if button is already hidden.
+			if(!originalButton.is(':visible'))
+			{
+				event.preventDefault();
+				return;
+			}
+
 			var container = originalButton.closest('span.confirm');
 			
 			originalButton.hide();
@@ -310,6 +337,8 @@
 
 	function performMultiStepAjaxAction(action, payload, fdbk, handler)
 	{
+		fdbk.html('');
+
 		var url = '{$translatools_controller}&action='+action;
 
 		$.ajax({
@@ -349,6 +378,12 @@
 		performMultiStepAjaxAction('exportSources', {}, $('#export-to-crowdin-feedback'));
 		event.preventDefault();
 	};
+
+	function exportTranslationsToCrowdin()
+	{
+		performMultiStepAjaxAction('exportTranslations', {}, $('#export-translations-to-crowdin-feedback'));
+		event.preventDefault();
+	}
 
 	function handleDownloadTranslationsReturn(data)
 	{
