@@ -79,6 +79,12 @@ class CrowdinPHP
 		}
 	}
 
+	public function downloadTranslations($language='all')
+	{
+		$url = "http://api.crowdin.net/api/project/{$this->identifier}/download/$language.zip?key={$this->key}";
+		return @file_get_contents($url);
+	}
+
 	public function info()
 	{
 		// Get project info from Crowding

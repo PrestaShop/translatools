@@ -189,10 +189,12 @@
 			<label for="export" class="control-label col-lg-3">Export Sources to Crowdin</label>
 			<div class="col-lg-6">
 				<div class="row">
-					<div class="col-lg-2">
-						<button onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
+					<div class="col-lg-4">
+						<span class="confirm">
+							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
+						</span>
 					</div>
-					<div class="col-lg-10">
+					<div class="col-lg-8">
 						<p class="form-control-static" id="export-to-crowdin-feedback"></p>
 					</div>
 				</div>
@@ -208,11 +210,53 @@
 			</div>
 		</div>
 	</form>
+	
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="export" class="control-label col-lg-3">Regenerate Crowdin Translations</label>
+			<div class="col-lg-6">
+				<div class="row">
+					<div class="col-lg-4">
+						<span class="confirm">
+							<button data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
+						</span>
+					</div>
+					<div class="col-lg-8">
+						<p class="form-control-static" id="regenerate-translations-feedback"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 
+	<form class="form-horizontal">
+		<div class="form-group">
+			<label for="export" class="control-label col-lg-3">Download translations from Crowdin</label>
+			<div class="col-lg-6">
+				<div class="row">
+					<div class="col-lg-2">
+						<button onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
+					</div>
+					<div class="col-lg-10">
+						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
 </div>
 
 <script>
 	$(document).ready(function(){
+		$('button[data-confirm]').each(function(){
+			var my = $(this);
+			if(my.attr('onclick'))
+			{
+				my.attr('data-onclick', my.attr('onclick'));
+				my.attr('onclick', '');
+			}
+		});
+
 		$('button[data-confirm]').click(function(e){
 			var originalButton = $(this);
 			var container = originalButton.closest('span.confirm');
@@ -225,15 +269,26 @@
 			.html(originalButton.attr('data-confirm'))
 			.appendTo(container);
 
+			if (originalButton.attr('data-onclick'))
+			{
+				actionButton.attr('onclick', originalButton.attr('data-onclick'));
+			}
+
 			var cancelButton = $('<button class="btn btn-success"></button>')
 			.html(originalButton.attr('data-cancel') || 'Cancel')
 			.appendTo(container);
+			console.log($([actionButton, cancelButton]));
+			
+			var buttons = [actionButton, cancelButton];
 
-			cancelButton.on('click', function(){
-				originalButton.show();
-				actionButton.remove();
-				cancelButton.remove();
-			});
+			for (var i in buttons)
+			{
+				buttons[i].on('click', function(){
+					originalButton.show();
+					actionButton.remove();
+					cancelButton.remove();
+				});
+			}
 
 			e.preventDefault();
 		});
@@ -253,7 +308,7 @@
 	{
 		$.post('{$translatools_url}&action=setConfigurationValue&key='+encodeURIComponent(input_id)+'&value='+encodeURIComponent($('#'+input_id).val()));
 		event.preventDefault();
-	}
+	};
 
 	function exportSourcesToCrowdin()
 	{
@@ -269,7 +324,7 @@
 		});
 
 		event.preventDefault();
-	}
+	};
 
 	function handleExportSourcesReturn(data)
 	{
@@ -301,4 +356,75 @@
 			fdbk.html('<span class="error">'+data.message+'</span>');
 		}
 	}
+
+	function handleDownloadTranslationsReturn(data)
+	{
+		var fdbk = $('#download-from-crowdin-feedback');
+
+		if(data.success)
+		{
+			fdbk.html('<span class="success">'+data.message+'</span>');
+		}
+		else
+		{
+			fdbk.html('<span class="error">'+data.message+'</span>');
+		}
+	};
+
+	function downloadTranslationsFromCrowdin()
+	{
+		$('#download-from-crowdin-feedback').html('<span class="neutral">Downloading...</span>');
+
+		$.ajax({
+		  type: "POST",
+		  url: '{$translatools_controller}&action=downloadTranslations',
+		  success: handleDownloadTranslationsReturn,
+		  dataType: 'json'
+		});
+		event.preventDefault();
+	};
+
+	function regenerateCrowdinTranslations()
+	{
+		var fdbk = $('#regenerate-translations-feedback');
+		fdbk.html('<span class="neutral">Regenerating, can take a while... navigating away from this page won\'t stop the process.</span>');
+
+		var url = "http://api.crowdin.net/api/project/{$CROWDIN_PROJECT_IDENTIFIER}/export?key={$CROWDIN_PROJECT_API_KEY}"
+
+		$.ajax({
+		  type: "GET",
+		  url: url,
+		  data: {
+		  	jsonp: 'handleRegenerateTranslations'
+		  },
+		  dataType: 'jsonp'
+		});
+
+		event.preventDefault();
+	};
+
+	function handleRegenerateTranslations(data)
+	{
+		var fdbk = $('#regenerate-translations-feedback');
+		if (data.success)
+		{
+			if (data.success.status === 'skipped')
+			{
+				fdbk.html('<span class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through API.</span>');
+			}
+			else if (data.success.status === 'built')
+			{
+				fdbk.html('<span class="success">Done.</span>');
+			}
+			else
+			{
+				fdbk.html('<span class="error">Maybe it worked, but return code is unknown to me.</span>');
+			}
+		}
+		else
+		{
+			fdbk.html('<span class="error">Something wrong happened, sorry.</span>');
+		}
+	};
+
 </script>

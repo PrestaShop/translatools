@@ -143,7 +143,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		{
 			return array(
 				'success' => false,
-				'message' => 'Could not find sources...'
+				'message' => 'Could not find sources, please try exporting the "As in code" language!'
 			);
 		}
 	}
@@ -199,5 +199,40 @@ class AdminTranslatoolsController extends ModuleAdminController
 				'success' => $ok,
 				'message' => $message,
 			);
+	}
+
+	public function ajaxDownloadTranslationsAction($payload)
+	{
+		$data = $this->crowdin->downloadTranslations();
+		if ($data)
+		{
+			$file = tempnam(null, 'translatools');
+			file_put_contents($file, $data);
+
+			$za = new ZipArchive();
+			$za->open($file);
+
+			for ($i=0; $i<$za->numFiles; $i++)
+			{
+				$stat = $za->statIndex($i);
+				$name = $stat['name'];
+				$m = array();
+				if (preg_match('#^'.preg_quote(_PS_VERSION_).'/(.*?\.php)$#', $name, $m))
+				{
+					$target_path = $m[1];
+					$contents = $za->getFromIndex($i);
+
+					$ok = $this->module->importTranslationFile($target_path, $contents);
+					
+					if ($ok !== true)
+						return array('success' => false, 'message' => $ok);
+				}
+
+			}
+
+			return array('success' => true, 'message' => 'Done');
+		}
+		else
+			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
 	}
 }	

@@ -27,6 +27,9 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
+require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
+
+
 class TranslaTools extends Module
 {
 	private $_html = '';
@@ -306,8 +309,6 @@ class TranslaTools extends Module
 
 	public function exportTranslationsAction()
 	{
-		require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
-
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(Tools::getValue('section'));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
@@ -320,8 +321,6 @@ class TranslaTools extends Module
 
 	public function viewStatsAction()
 	{
-		require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
-
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(Tools::getValue('section'));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
@@ -397,5 +396,83 @@ class TranslaTools extends Module
 		}
 
 		Tools::redirectAdmin('?controller=AdminModules&configure='.$this->name.'&token='.Tools::getValue('token'));
+	}
+
+	public function getPrestaShopLanguageCode($foreignCode)
+	{
+		// TODO: implement;
+		return $foreignCode;
+	}
+
+	public function importTranslationFile($path, $contents)
+	{
+		// Guess language code
+		$m = array();
+		$lc = null;
+		if (preg_match('#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs)\.php$#', $path, $m))
+			$lc = $m[1];
+		else if(preg_match('#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#', $path, $m))
+			$lc = $m[1];
+		else if(preg_match('#^themes/(?:[^/]+)/lang/(.*?)\.php$#', $path, $m))
+			$lc = $m[1];
+
+		if ($lc === null)
+			return "Could not infer language code from file named '$path'.";
+
+		// Remove empty lines, just in case
+		$contents = preg_replace('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*\\]\\s*=\\s*\'\'\\s*;$/m', '', $contents);
+		
+
+		$languageCode = $this->getPrestaShopLanguageCode($lc);
+
+		if ($languageCode === null)
+			return "Could not map language code '$lc' to a PrestaShop code.";
+
+		$path = str_replace(
+			array("/$lc/", "/$lc.php"),
+			array("/$languageCode/", "/$languageCode.php"),
+			$path
+		);
+
+		$full_path = _PS_ROOT_DIR_.'/'.$path;
+		$dir = dirname($full_path);
+
+		if (!is_dir($dir))
+			if (!@mkdir($dir, 0777, true))
+				return "Could not create directory for file '$path'.";
+
+		file_put_contents($full_path, $contents);
+
+		$this->postProcessTranslationFile($languageCode, $full_path);
+
+		return true;
+	}
+
+	public function postProcessTranslationFile($language_code, $full_path)
+	{
+		if (basename($full_path) === 'tabs.php')
+		{
+			$te = new TranslationsExtractor();
+			foreach ($te->parseDictionary($full_path) as $class => $name)
+			{
+				// Unescape the quotes
+				$name = preg_replace('/\\\*\'/', '\'', $name);
+
+				$id_lang = Language::getIdByIso($language_code);
+
+				if ($id_lang)
+				{
+					$id_tab = Db::getInstance()->getValue('SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($name).'\'');
+
+					if ($id_tab)
+					{
+						// DELETE old tab name in case it exists
+						Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'tab_lang WHERE id_tab='.(int)$id_tab.' AND id_lang='.(int)$id_lang);
+						// INSERT new tab name
+						Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'tab_lang (id_tab, id_lang, name) VALUES ('.(int)$id_tab.','.(int)$id_lang.',\''.pSQL($name).'\')');
+					}
+				}
+			}
+		}
 	}
 }

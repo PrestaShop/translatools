@@ -298,19 +298,21 @@ class TranslationsExtractor
 			return $this->join($this->root_dir, 'pdf');
 	}
 
-	public function dequote($str)
+	public function dequote($str, $unescape=false)
 	{
 		if (mb_strlen($str) < 2)
 			return false;
 		$fc = mb_substr($str, 0, 1);
 		$lc = mb_substr($str, -1);
-		/*
-		if (strstr($str, '¤'))
-		{
-			die ($str.((($fc === $lc && ($fc === '\'' || $lc === '"')))? 'OK' : 'KO'));
-		}*/
+		
 		if ($fc === $lc && ($fc === '\'' || $lc === '"'))
-			return mb_substr($str, 1, mb_strlen($str)-2);
+		{
+			$string = mb_substr($str, 1, mb_strlen($str)-2);
+			if ($unescape)
+				return preg_replace('/\\\*\'/', '\'', $string);
+			else
+				return $string;
+		}
 		else
 			return false;
 	}
@@ -322,17 +324,6 @@ class TranslationsExtractor
 
 	public function record($string, $key, $storage_file, $type)
 	{
-		/*
-		$data = array(
-			'string' => $string,
-			'key' => $key,
-			'storage_file' => $storage_file,
-			'type' => $type
-		);
-		echo "<PRE>";
-		print_r($data);
-		echo "</PRE>";*/
-
 		if (!isset($this->files[$storage_file]))
 			$this->files[$storage_file] = array();
 
