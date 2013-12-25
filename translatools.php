@@ -450,7 +450,7 @@ class TranslaTools extends Module
 
 	public function postProcessTranslationFile($language_code, $full_path)
 	{
-		if (basename($full_path) === 'tabs.php')
+		if (basename($full_path) === 'tabs.php' && $language_code === 'an')
 		{
 			$te = new TranslationsExtractor();
 			foreach ($te->parseDictionary($full_path) as $class => $name)
@@ -462,7 +462,8 @@ class TranslaTools extends Module
 
 				if ($id_lang)
 				{
-					$id_tab = Db::getInstance()->getValue('SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($name).'\'');
+					$sql = 'SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($class).'\'';
+					$id_tab = Db::getInstance()->getValue($sql);
 
 					if ($id_tab)
 					{
