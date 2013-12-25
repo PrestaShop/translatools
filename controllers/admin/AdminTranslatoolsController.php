@@ -54,8 +54,30 @@ class AdminTranslatoolsController extends ModuleAdminController
 		return $path;
 	}
 
+	public function getCrowdinExportPattern($path)
+	{
+		// Get interesting part of path,
+		// i.e. as if we were at the root of the target
+		// PrestaShop installation
+		$path_parts = explode('/translatools/packs/en/', $path);
+		$path = end($path_parts);
+		
+		$export_pattern = str_replace(
+			array('/en.php', '/en/'), 
+			array('/%two_letters_code%.php', '/%two_letters_code%/'),
+			$path
+		);
+
+		// Prepend version
+		$export_pattern = _PS_VERSION_.'/'.$export_pattern;
+
+		return $export_pattern;
+	}
+
 	public function ajaxExportSourcesAction($payload)
 	{
+		$info = $this->crowdin->info();
+
 		$path_to_sources = dirname(__FILE__).'/../../packs/en';
 
 		$files_to_export = array();
@@ -71,27 +93,40 @@ class AdminTranslatoolsController extends ModuleAdminController
 				{
 					$ps_path = substr($path, strlen($path_to_sources)+1);
 
-					$crowdin_path = $this->getCrowdinPath(_PS_VERSION_, $ps_path);
+					$dest = $this->getCrowdinPath(_PS_VERSION_, $ps_path);
 
 					$files_to_export[] = array(
 						'real_relative_path' => substr(realpath($path), strlen(_PS_ROOT_DIR_)+1),
-						'crowdin_path' => $crowdin_path
+						'dest' => $dest,
+						'add_or_update' => isset($info['files'][$dest]) ? 'update' : 'add'
 					);
 
-					$dirs_to_create[dirname($crowdin_path)] = true;
+					$dirs_to_create[dirname($dest)] = true;
 				}
 			}
 
-			$dirs_to_create = array_keys($dirs_to_create);
+			// Determine the new directories
+			$dirs_to_create = array_diff(
+				array_keys($dirs_to_create),
+				$info['directories']
+			);
 
+			// Sort them in ascending order so that
+			// we don't risk creating a dir twice
+			// (they are created with parents)
+			sort($dirs_to_create);
+
+			// List what we need to do
 			$tasks = array();
-
 			
+			// Need to create the directories
+			// before putting files in them
 			foreach ($dirs_to_create as $dir)
 			{
 				$tasks[] = array('action' => 'createDirectory', 'path' => $dir);
 			}
 
+			// Then we do the file!
 			foreach ($files_to_export as $data)
 			{
 				$tasks[] = array('action' => 'exportFile', 'data' => $data);
@@ -122,29 +157,33 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if ($action['action'] === 'createDirectory')
 		{
-			if (($res=$this->crowdin->createDirectory($action['path'])) === true)
+			$res = $this->crowdin->createDirectory($action['path']);
+
+			if ($res['success'])
 				$message = 'Created directory: '.$action['path'];
 			else
 			{
 				$ok = false;
-				$message = $res;
+				$message = $res['error']['message'];
 			}
 		}
 		else if ($action['action'] === 'exportFile')
 		{
 			$data = array();
 
-			$data['realpath'] = _PS_ROOT_DIR_.'/'.$action['data']['real_relative_path'];
-			$data['path'] = $action['data']['crowdin_path'];
-			$data['title'] = basename($data['path'], '.php');
-			//$data['export-pattern'] = $this->getCrowdinExportPattern($action['data']['real_relative_path']);
+			$data['src'] = _PS_ROOT_DIR_.'/'.$action['data']['real_relative_path'];
+			$data['dest'] = $action['data']['dest'];
+			$data['title'] = basename($data['dest'], '.php');
+			$data['export_pattern'] = $this->getCrowdinExportPattern($action['data']['real_relative_path']);
 
-			if (($res=$this->crowdin->addFile($data)) === true)
-				$message = 'Exported file: '.$action['data']['crowdin_path'];
+			$res = $this->crowdin->addOrUpdateFile($action['data']['add_or_update'], $data);
+
+			if ($res['success'])
+				$message = 'Exported file: '.$action['data']['dest'];
 			else
 			{
 				$ok = false;
-				$message = $res;
+				$message = $res['error']['message'];
 			}
 		}
 
