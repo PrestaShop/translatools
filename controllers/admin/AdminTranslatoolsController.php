@@ -69,7 +69,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		);
 
 		// Prepend version
-		$export_pattern = _PS_VERSION_.'/'.$export_pattern;
+		$export_pattern = '/'._PS_VERSION_.'/'.$export_pattern;
 
 		return $export_pattern;
 	}

@@ -22,7 +22,12 @@ class TranslationsExtractor
 
 	public function setSections($sections)
 	{
-		$this->sections = $sections;
+		$this->sections = array();
+		foreach ($sections as $key => $value)
+		{
+			if ($value == 1)
+				$this->sections[] = $key;
+		}
 	}
 
 	public function setRootDir($dir)

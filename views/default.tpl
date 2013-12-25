@@ -1,11 +1,46 @@
+{* Like the good mathematician, the good programmer is lazy. *}
+{function yesno label="Yes or No?" input_name="yes_or_no" value_on="1" value_off="0" label_on="Yes" label_off="No" value="1"}
+	{assign var=id_on value=$input_name|replace:'[':'_'|replace:']':'_'|cat:'_on'}
+	{assign var=id_off value=$input_name|replace:'[':'_'|replace:']':'_'|cat:'_off'}
+
+	<div class="form-group">
+		<label for="{$id_on}" class="control-label col-lg-3">{$label}</label>
+		<div class="col-lg-2">
+			<div class="input-group">
+				<span class="switch prestashop-switch">
+					<input name="{$input_name}" type="radio" id="{$id_on}" value="{$value_on}"{if $value==$value_on} checked{/if}>
+					<label for="{$id_on}">
+						<i class="icon-check-sign color_success"></i> {$label_on}
+					</label>
+					<input name="{$input_name}" type="radio" id="{$id_off}" value="{$value_off}"{if $value==$value_off} checked{/if}>
+					<label for="{$id_off}">
+						<i class="icon-ban-circle color_danger"></i> {$label_off}
+					</label>
+					<a class="slide-button btn btn-default"></a>
+				</span>
+			</div>
+		</div>
+	</div>
+{/function}
+
 <style>
-	select.my-input, input[type=text].my-input
-	{
-		width: 300px;
-	}
 	span.confirm>button
 	{
 		margin-right: 5px;
+	}
+	span.success
+	{
+		color: green;
+		font-weight: bold;
+	}
+	span.error
+	{
+		color: red;
+		font-weight: bold;
+	}
+	span.neutral
+	{
+		color: #333;
 	}
 </style>
 
@@ -36,46 +71,85 @@
 </div>
 
 <div class="panel">
+	<h3>Export translations</h3>
+	
+	<div class="alert alert-info">
+		Use this form to export translations.<BR/>
+	</div>
+
+	<form class="form-horizontal" action="" method="GET">
+		{$translatools_stay_here}
+		
+		{yesno label="Export Front-Office Strings" input_name="section[frontOffice]"}
+		
+		{yesno label="Export Back-Office Strings" input_name="section[backOffice]"}
+
+		{yesno label="Export Module Strings" input_name="section[modules]"}
+
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="overriden_modules">Which modules to parse?</label>
+			<div class="col-lg-6">
+				<select name="overriden_modules" id="overriden_modules">
+					<option value="both">Core and Overriden</option>
+					<option value="core">Core Only</option>
+					<option value="overriden">Overriden Only</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="modules_storage">Where to store their translations?</label>
+			<div class="col-lg-6">
+				<select name="modules_storage" id="modules_storage">
+					<option value="core">All in core</option>
+					<option value="theme">Each in its place</option>
+				</select>
+			</div>
+		</div>
+
+		{yesno label="Export Errors Strings" input_name="section[errors]"}
+		{yesno label="Export PDFs Strings" input_name="section[pdfs]"}
+		{yesno label="Export Tabs Strings" input_name="section[tabs]"}
+
+		
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="theme">Theme</label>
+			<div class="col-lg-6">
+				<select name="theme" id="theme">
+					{foreach from=$themes item=theme}
+						<option value="{$theme}">{$theme}</option>
+					{/foreach}
+				</select>
+			</div>
+			
+		</div>
+		<div class="form-group">
+			<label for="language" class="control-label col-lg-3">Export language</label>
+			<div class="col-lg-6">
+					<select name="language" id="language">
+					<option value="-">As in code (should be English)</option>
+					{foreach from=$languages item=language key=code}
+						<option value="{$code}">{$language}</option>
+					{/foreach}
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-lg-3"></div>
+			<div class="col-lg-9">
+				<button class="btn btn-primary" name="action" value="exportTranslations">Export Now</button>
+				<button class="btn btn-primary" name="action" value="viewStats">View Stats</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="panel">
 	<h3>Crowdin</h3>
 	
 	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="jipt_bo_on" class="control-label col-lg-3">Enable Crowdin-JIPT in Back-Office</label>
-			<div class="col-lg-2">
-				<div class="input-group">
-					<span class="switch prestashop-switch">
-						<input name="jipt_bo" type="radio" id="jipt_bo_on" value="1"  {if $jipt_bo == '1'} checked {/if}>
-						<label for="jipt_bo_on">
-							<i class="icon-check-sign color_success"></i> Yes
-						</label>
-						<input name="jipt_bo" type="radio" id="jipt_bo_off" value="0"  {if $jipt_bo != '1'} checked {/if}>
-						<label for="jipt_bo_off">
-							<i class="icon-ban-circle color_danger"></i> No
-						</label>
-						<a class="slide-button btn btn-default"></a>
-					</span>
-				</div>
-			</div>
-		</div>
-		
-		<div class="form-group">
-			<label for="jipt_fo_on" class="control-label col-lg-3">Enable Crowdin-JIPT in Front-Office</label>
-			<div class="col-lg-2">
-				<div class="input-group">
-					<span class="switch prestashop-switch">
-						<input name="jipt_fo" type="radio" id="jipt_fo_on" value="1" {if $jipt_fo == '1'} checked {/if}>
-						<label for="jipt_fo_on">
-							<i class="icon-check-sign color_success"></i> Yes
-						</label>
-						<input name="jipt_fo" type="radio" id="jipt_fo_off" value="0" {if $jipt_fo != '1'} checked {/if}>
-						<label for="jipt_fo_off">
-							<i class="icon-ban-circle color_danger"></i> No
-						</label>
-						<a class="slide-button btn btn-default"></a>
-					</span>
-				</div>
-			</div>
-		</div>
+		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
+
+		{yesno input_name=jipt_fo label="Enable Crowdin-JIPT in Front-Office" value=$jipt_fo}
 
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_IDENTIFIER">Project Identifier</label>
@@ -124,97 +198,17 @@
 				</div>
 			</div>
 		</div>
-	</form>
-
-</div>
-
-<div class="panel">
-	<h3>Export translations</h3>
-	<form class="form-horizontal" action="" method="GET">
-		{$translatools_stay_here}
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="front-office">Export Front-Office Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="front-office" type="checkbox" checked value="frontOffice">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="back-office">Export Back-Office Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="back-office" type="checkbox" checked value="backOffice">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="modules">Export Modules Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="modules" type="checkbox" checked value="modules">
-			</div>
-		</div>
-		
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="overriden_modules">Which modules to parse?</label>
-			<select class="col-lg-6" name="overriden_modules" id="overriden_modules">
-				<option value="both">Core and Overriden</option>
-				<option value="core">Core Only</option>
-				<option value="overriden">Overriden Only</option>
-			</select>
-		</div>
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="modules_storage">Where to store their translations?</label>
-			<select class="col-lg-6" name="modules_storage" id="modules_storage">
-				<option value="core">All in core</option>
-				<option value="theme">Each in its place</option>
-			</select>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="errors">Export Errors Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="errors" type="checkbox" checked value="errors">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="pdfs">Export PDFs Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="pdfs" type="checkbox" checked value="pdfs">
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="pdfs">Export Tabs Strings</label>
-			<div class="checkbox col-lg-9">
-				<input name="section[]" id="tabs" type="checkbox" checked value="tabs">
-			</div>
-		</div>
-		
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="theme">Theme</label>
-			<select name="theme" id="theme" class="col-lg-6">
-				{foreach from=$themes item=theme}
-					<option value="{$theme}">{$theme}</option>
-				{/foreach}
-			</select>
-		</div>
-		<div class="form-group">
-			<label for="language" class="control-label col-lg-3">Export language</label>
-			<select class="my-input" name="language" id="language" class="col-lg-6">
-				<option value="-">As in code (should be English)</option>
-				{foreach from=$languages item=language key=code}
-					<option value="{$code}">{$language}</option>
-				{/foreach}
-			</select>
-		</div>
-		<div class="form-group">
+		<div class="row">
 			<div class="col-lg-3"></div>
-			<div class="col-lg-9">
-				<button class="btn btn-primary" name="action" value="exportTranslations">Export Now</button>
-				<button class="btn btn-primary" name="action" value="viewStats">View Stats</button>
+			<div class="col-lg-6">
+				<div class="alert alert-warning">
+					<p>You need to export the 'As in code' language before pushing to Crowdin.</p>
+					<p>Exporting the 'As in code' language will download an archive containing all the strings selected for export. This is so that you can review what is exported, but, if you are satisfied with it, you don't need to do anything more with this file.</p>
+				</div>
 			</div>
 		</div>
 	</form>
+
 </div>
 
 <script>
