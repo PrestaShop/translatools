@@ -148,7 +148,6 @@
 	
 	<form class="form-horizontal">
 		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
-
 		{yesno input_name=jipt_fo label="Enable Crowdin-JIPT in Front-Office" value=$jipt_fo}
 
 		<div class="form-group">
@@ -277,7 +276,6 @@
 			var cancelButton = $('<button class="btn btn-success"></button>')
 			.html(originalButton.attr('data-cancel') || 'Cancel')
 			.appendTo(container);
-			console.log($([actionButton, cancelButton]));
 			
 			var buttons = [actionButton, cancelButton];
 
@@ -310,52 +308,47 @@
 		event.preventDefault();
 	};
 
-	function exportSourcesToCrowdin()
+	function performMultiStepAjaxAction(action, payload, fdbk, handler)
 	{
-		var fdbk = $('#export-to-crowdin-feedback');
-
-		var firstActionURL = '{$translatools_controller}&action=exportSources';
+		var url = '{$translatools_controller}&action='+action;
 
 		$.ajax({
-		  type: "POST",
-		  url: firstActionURL,
-		  success: handleExportSourcesReturn,
-		  dataType: 'json'
-		});
+			type: "POST",
+			url: url,
+			data: JSON.stringify(payload),
+			success: function(data){
+				if (handler)
+				{
+					handler(data);
+				}
+				if(data.success)
+				{
+					fdbk.html('<span class="success">'+(data.message || "Ok")+'</span>');
+					if(data['next-action'])
+					{
+						fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">(now processing next step...)</span>');
 
-		event.preventDefault();
+						performMultiStepAjaxAction(data['next-action'], data['next-payload'], fdbk, handler);
+					}
+					else
+					{
+						fdbk.html("<span class='success'>"+(data.message || "Done!")+"</span>")
+					}
+				}
+				else
+				{
+					fdbk.html('<span class="error">'+(data.message || "An unspecified error occured.")+'</span>');
+				}
+			},
+			dataType: 'json'
+		});
 	};
 
-	function handleExportSourcesReturn(data)
+	function exportSourcesToCrowdin()
 	{
-		var fdbk = $('#export-to-crowdin-feedback');
-		console.log(data);
-		if(data.success)
-		{
-			fdbk.html('<span class="success">'+data.message+'</span>');
-			if(data['next-action'])
-			{
-				fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">Processing next step...</span>');
-
-				var nextActionURL = '{$translatools_controller}&action='+data['next-action'];
-				$.ajax({
-				  type: "POST",
-				  url: nextActionURL,
-				  data: JSON.stringify(data['next-payload']),
-				  success: handleExportSourcesReturn,
-				  dataType: 'json'
-				});
-			}
-			else
-			{
-				fdbk.html("<span class='success'>Done!</span>")
-			}
-		}
-		else
-		{
-			fdbk.html('<span class="error">'+data.message+'</span>');
-		}
-	}
+		performMultiStepAjaxAction('exportSources', {}, $('#export-to-crowdin-feedback'));
+		event.preventDefault();
+	};
 
 	function handleDownloadTranslationsReturn(data)
 	{
