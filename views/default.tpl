@@ -10,13 +10,13 @@
 				<span class="switch prestashop-switch">
 					<input name="{$input_name}" type="radio" id="{$id_on}" value="{$value_on}"{if $value==$value_on} checked{/if}>
 					<label for="{$id_on}">
-						<i class="icon-check-sign color_success"></i> {$label_on}
+						{$label_on}
 					</label>
 					<input name="{$input_name}" type="radio" id="{$id_off}" value="{$value_off}"{if $value==$value_off} checked{/if}>
 					<label for="{$id_off}">
-						<i class="icon-ban-circle color_danger"></i> {$label_off}
+						{$label_off}
 					</label>
-					<a class="slide-button btn btn-default"></a>
+					<a class="slide-button btn"></a>
 				</span>
 			</div>
 		</div>

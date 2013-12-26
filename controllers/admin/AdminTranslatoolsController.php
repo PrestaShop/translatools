@@ -301,4 +301,36 @@ class AdminTranslatoolsController extends ModuleAdminController
 			'next-payload' => $tasks
 		);
 	}
+
+	public function ajaxSwitchVirtualLanguageAction($payload)
+	{
+		$jipt_id_lang = Language::getIdByIso('an');
+
+		if ($payload['value'])
+		{
+			if ($jipt_id_lang)
+			{
+				Configuration::updateValue('JIPT_PREVIOUS_ID_LANG', $this->context->employee->id_lang);
+
+				$this->context->employee->id_lang = $jipt_id_lang;
+				$this->context->employee->save();
+
+				return array('success' => true, 'language' => $jipt_id_lang);
+			}
+
+			return array('success' => false, 'language' => $this->context->employee->id_lang);
+		}
+		else
+		{
+			$language_to_set = Configuration::get('JIPT_PREVIOUS_ID_LANG');
+
+			if ($language_to_set == $jipt_id_lang || !$language_to_set)
+				$language_to_set = Configuration::get('PS_LANG_DEFAULT');
+
+			$this->context->employee->id_lang = $language_to_set;
+			$this->context->employee->save();
+			Configuration::deleteByName('JIPT_PREVIOUS_ID_LANG');
+			return array('success' => true, 'language' => $language_to_set);
+		}
+	}
 }	

@@ -58,6 +58,7 @@ class TranslaTools extends Module
 		return parent::install() 
 		&& $this->registerHook('displayHeader') 
 		&& $this->registerHook('actionAdminControllerSetMedia')
+		&& $this->registerHook('displayBackOfficeFooter')
 		&& $this->installTab();
 	}
 
@@ -102,6 +103,15 @@ class TranslaTools extends Module
 	{
 		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
 			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
+	}
+
+	public function hookDisplayBackOfficeFooter($params)
+	{	
+		$live_translation_enabled = Configuration::get('JIPT_PREVIOUS_ID_LANG') ? 1 : 0;
+		global $smarty;
+		$smarty->assign('live_translation_enabled', $live_translation_enabled);
+		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
+		return $smarty->fetch(dirname(__FILE__).'/views/backOfficeFooter.tpl');
 	}
 
 	public function getContent()
