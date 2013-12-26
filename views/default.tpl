@@ -108,7 +108,6 @@
 					{/foreach}
 				</select>
 			</div>
-			
 		</div>
 		<div class="form-group">
 			<label for="language" class="control-label col-lg-3">Export language</label>
@@ -252,14 +251,34 @@
 </div>
 
 <div class="panel">
-	<h3>Translation overriding coherence</h3>
-	<div class='alert alert-info'>
-		This will check that the strings used in overriden templates are the same as the ones in the original modules.
-	</div>
-	<form action="" method="GET">
+	<h3>Translation Linting</h3>
+	<form class="form-horizontal" action="" method="GET">
 		{$translatools_stay_here}
 		<input type="hidden" name="action" value="checkCoherence">
-		<button class="btn btn-primary">Check Now</button>
+		<div class="form-group">
+			<label for="check-coherence" class="control-label col-lg-3">Check Overriding Coherence</label>
+			<div class="col-lg-6">
+				<button class="btn btn-primary">Check!</button>
+			</div>
+		</div>
+	</form>
+	
+	<form action="" class="form-horizontal">
+		{$translatools_stay_here}
+		<input type="hidden" name="action" value="checkLUse">
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="check_l">Check use of "l" in templates</label>
+			<div class="col-lg-6">
+				<select name="theme" id="theme_lint">
+					{foreach from=$themes item=theme}
+						<option value="{$theme}">{$theme}</option>
+					{/foreach}
+				</select>
+			</div>
+			<div class="col-lg-3">
+				<button class="btn" id="check_l">Check!</button>
+			</div>
+		</div>
 	</form>
 </div>
 

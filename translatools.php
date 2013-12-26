@@ -28,6 +28,7 @@ if (!defined('_PS_VERSION_'))
 	exit;
 
 require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
+require_once dirname(__FILE__).'/classes/SmartyFunctionCallParser.php';
 
 
 class TranslaTools extends Module
@@ -495,4 +496,44 @@ class TranslaTools extends Module
 			}
 		}
 	}
+
+	public function checkLUseAction()
+	{
+		$issues = array();
+		$root_dirs = array(_PS_MODULE_DIR_, _PS_ALL_THEMES_DIR_.Tools::getValue('theme').'/modules/');
+		foreach ($root_dirs as $root_dir)
+			foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root_dir))
+				as $path => $info)
+				if (preg_match('/\.tpl$/', $path))
+				{
+					$problems = $this->lintLTpl($path);
+					if (count($problems) > 0)
+						$issues[substr($path, strlen(_PS_ROOT_DIR_)+1)] = $problems;
+				}
+
+		return array('issues' => $issues);
+	}
+
+	public function lintLTpl($path)
+	{
+		$problems = array();
+
+		$parser = new SmartyFunctionCallParser(file_get_contents($path), 'l');
+		$matches = $parser->parse();
+
+		foreach ($matches as $arguments)
+		{
+			if (!isset($arguments['mod']))
+			{
+				$problem = "Missing 'mod' argument.";
+				if (!isset($problems[$problem]))
+					$problems[$problem] = 0;
+
+				$problems[$problem] += 1;
+			}
+		}
+
+		return $problems;
+	}
+
 }
