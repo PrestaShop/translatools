@@ -48,7 +48,10 @@ class CrowdinPHP
 	public function makeRequest($method, $data)
 	{
 		// We like JSON. With this, Crowdin will return JSON. JSON is good.
-		$data['json'] = true;
+		if (isset($data['json']) && $data['json'] === false)
+			unset($data['json']);
+		else
+			$data['json'] = true;
 
 		$url = "http://api.crowdin.net/api/project/{$this->identifier}/$method?key={$this->key}";
 
@@ -56,8 +59,10 @@ class CrowdinPHP
 		curl_setopt($ch, CURLOPT_POST, true);                                                                     
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->flatten($data));                                                                 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$raw_response = curl_exec($ch);
-		$result = json_decode($raw_response, true);
+		$result = curl_exec($ch);
+		//ddd(curl_getinfo($ch));
+		if (isset($data['json']))
+			$result = json_decode($result, true);
 		return $result;
 	}
 
@@ -164,5 +169,26 @@ class CrowdinPHP
 	public function createDirectory($path)
 	{
 		return $this->makeRequest('add-directory', array('name' => $path));
+	}
+
+	public function uploadTranslations($language, $src, $dest)
+	{
+		$data = array(
+			'files' => array(
+				$dest => $this->file($src)
+			),
+			'language' => $language,
+			'import_duplicates' => 0,
+			'import_eq_suggestions' => 0,
+			'auto_approve_imported' => 0,
+			'json' => false
+		);
+
+		$response = $this->makeRequest('upload-translation', $data);
+		// Seems this call returns nothing in case of success :) !
+		if ($response)
+			return $response['error']['message'];
+		else
+			return true;
 	}
 }

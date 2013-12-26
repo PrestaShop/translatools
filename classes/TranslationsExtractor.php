@@ -112,6 +112,7 @@ class TranslationsExtractor
 	public function write($to_folder)
 	{
 		$to_folder = realpath($to_folder);
+		$whrote = array();
 
 		if (is_dir($to_folder))
 		{
@@ -148,6 +149,7 @@ class TranslationsExtractor
 					if (!is_dir(dirname($path)))
 						mkdir(dirname($path), 0777, true);
 					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
+					$wrote[] = $path;
 				}
 				else
 				{
@@ -156,6 +158,8 @@ class TranslationsExtractor
 
 			}
 		}
+
+		return $wrote;
 	}
 
 	public function parseDictionary($path)

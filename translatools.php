@@ -404,6 +404,12 @@ class TranslaTools extends Module
 		return $foreignCode;
 	}
 
+	public function getCrowdinLanguageCode($prestashopCode)
+	{
+		// TODO: implement;
+		return $prestashopCode;
+	}
+
 	public function importTranslationFile($path, $contents)
 	{
 		// Guess language code

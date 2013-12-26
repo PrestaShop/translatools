@@ -337,8 +337,6 @@
 
 	function performMultiStepAjaxAction(action, payload, fdbk, handler)
 	{
-		fdbk.html('');
-
 		var url = '{$translatools_controller}&action='+action;
 
 		$.ajax({
@@ -375,13 +373,17 @@
 
 	function exportSourcesToCrowdin()
 	{
-		performMultiStepAjaxAction('exportSources', {}, $('#export-to-crowdin-feedback'));
+		var fdbk = $('#export-to-crowdin-feedback');
+		fdbk.html('');
+		performMultiStepAjaxAction('exportSources', {}, fdbk);
 		event.preventDefault();
 	};
 
 	function exportTranslationsToCrowdin()
 	{
-		performMultiStepAjaxAction('exportTranslations', {}, $('#export-translations-to-crowdin-feedback'));
+		var fdbk = $('#export-translations-to-crowdin-feedback');
+		fdbk.html('');
+		performMultiStepAjaxAction('exportTranslations', {}, fdbk);
 		event.preventDefault();
 	}
 

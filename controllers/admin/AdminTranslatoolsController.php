@@ -130,7 +130,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 			// Then we do the file!
 			foreach ($files_to_export as $data)
 			{
-				$tasks[] = array('action' => 'exportFile', 'data' => $data);
+				$tasks[] = array('action' => 'exportSourceFile', 'data' => $data);
 			}
 
 			return array(
@@ -168,7 +168,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$message = $res['error']['message'];
 			}
 		}
-		else if ($action['action'] === 'exportFile')
+		else if ($action['action'] === 'exportSourceFile')
 		{
 			$data = array();
 
@@ -185,6 +185,21 @@ class AdminTranslatoolsController extends ModuleAdminController
 			{
 				$ok = false;
 				$message = $res['error']['message'];
+			}
+		}
+		else if ($action['action'] === 'exportTranslationFile')
+		{
+			$resp = $this->crowdin->uploadTranslations(
+				$action['language'],
+				_PS_ROOT_DIR_.$action['relsrc'],
+				$action['dest']
+			);
+			if ($resp === true)
+				$message = 'Exported translations ('.$action['language'].') for: '.$action['dest'];				
+			else
+			{
+				$ok = false;
+				$message = $resp;
 			}
 		}
 
@@ -249,7 +264,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 			return array('success' => false, 'message' => $built);
 		}
 
-		$languages = array();
+		$tasks = array();
 
 		// Build the necessary languages
 		foreach (Language::getLanguages() as $lang)
@@ -258,15 +273,32 @@ class AdminTranslatoolsController extends ModuleAdminController
 			if ($lang['iso_code'] === 'en' || $lang['iso_code'] === 'an')
 				continue;
 
+			$packs_root = realpath(dirname(__FILE__).'/../../packs/');
+
 			$te->setLanguage($lang['iso_code']);
 			$te->fill();
-			$te->write(dirname(__FILE__).'/../../packs/');
+			$wrote = $te->write($packs_root);
 
-			$languages[] = $lang['iso_code'];
+			foreach ($wrote as $file)
+			{
+				$relpath = substr($file, strlen(_PS_ROOT_DIR_)+1);
+				$tasks[] = array(
+					'action' => 'exportTranslationFile',
+					'language' => $this->module->getCrowdinLanguageCode($lang['iso_code']),
+					'relsrc' => $relpath,
+					'dest' => $this->getCrowdinPath(
+						_PS_VERSION_,
+						substr($file, strlen($packs_root.'/'.$lang['iso_code'])+1)
+					)
+				);
+			}
 		}
 
-		// Reminder: take language mapping into consideration when exporting to Crowdin!
-
-		return array('success' => true, 'message' => 'yay');
+		return array(
+			'success' => true,
+			'message' => 'Built packs, exporting now.',
+			'next-action' => 'dequeue',
+			'next-payload' => $tasks
+		);
 	}
 }	
