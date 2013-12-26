@@ -107,6 +107,9 @@ class TranslaTools extends Module
 
 	public function hookDisplayBackOfficeFooter($params)
 	{	
+		if (!Configuration::get('JIPT_BO'))
+			continue;
+		
 		$live_translation_enabled = Configuration::get('JIPT_PREVIOUS_ID_LANG') ? 1 : 0;
 		global $smarty;
 		$smarty->assign('live_translation_enabled', $live_translation_enabled);

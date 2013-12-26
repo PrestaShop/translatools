@@ -246,7 +246,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			}
 
-			return array('success' => true, 'message' => 'Done');
+			return array('success' => true, 'message' => 'Done :)');
 		}
 		else
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');

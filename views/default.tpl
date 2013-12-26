@@ -208,7 +208,7 @@
 							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
 						</span>
 					</div>
-					<div class="col-lg-8">
+					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="export-translations-to-crowdin-feedback"></p>
 					</div>
 				</div>
@@ -226,7 +226,7 @@
 							<button data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
 						</span>
 					</div>
-					<div class="col-lg-8">
+					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="regenerate-translations-feedback"></p>
 					</div>
 				</div>
@@ -239,10 +239,10 @@
 			<label for="export" class="control-label col-lg-3">Download translations from Crowdin</label>
 			<div class="col-lg-6">
 				<div class="row">
-					<div class="col-lg-2">
+					<div class="col-lg-4">
 						<button onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
 					</div>
-					<div class="col-lg-10">
+					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
 					</div>
 				</div>
@@ -440,7 +440,7 @@
 		{
 			if (data.success.status === 'skipped')
 			{
-				fdbk.html('<span class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through API.</span>');
+				fdbk.html('<span class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through the API.</span>');
 			}
 			else if (data.success.status === 'built')
 			{
