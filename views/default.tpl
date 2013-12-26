@@ -45,18 +45,6 @@
 </style>
 
 <div class="panel">
-	<h3>Translation overriding coherence</h3>
-	<div class='alert alert-info'>
-		This will check that the strings used in overriden templates are the same as the ones in the original modules.
-	</div>
-	<form action="" method="GET">
-		{$translatools_stay_here}
-		<input type="hidden" name="action" value="checkCoherence">
-		<button class="btn btn-primary">Check Now</button>
-	</form>
-</div>
-
-<div class="panel">
 	<h3>Purge Translations</h3>
 	<div class='alert alert-warning'>
 		This will delete all translation files on your shop (except e-mails).
@@ -260,6 +248,18 @@
 				</div>
 			</div>
 		</div>
+	</form>
+</div>
+
+<div class="panel">
+	<h3>Translation overriding coherence</h3>
+	<div class='alert alert-info'>
+		This will check that the strings used in overriden templates are the same as the ones in the original modules.
+	</div>
+	<form action="" method="GET">
+		{$translatools_stay_here}
+		<input type="hidden" name="action" value="checkCoherence">
+		<button class="btn btn-primary">Check Now</button>
 	</form>
 </div>
 

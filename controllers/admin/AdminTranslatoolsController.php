@@ -189,17 +189,17 @@ class AdminTranslatoolsController extends ModuleAdminController
 		}
 		else if ($action['action'] === 'exportTranslationFile')
 		{
-			$resp = $this->crowdin->uploadTranslations(
+			$res = $this->crowdin->uploadTranslations(
 				$action['language'],
-				_PS_ROOT_DIR_.$action['relsrc'],
+				_PS_ROOT_DIR_.'/'.$action['relsrc'],
 				$action['dest']
 			);
-			if ($resp === true)
+			if ($res['success'])
 				$message = 'Exported translations ('.$action['language'].') for: '.$action['dest'];				
 			else
 			{
 				$ok = false;
-				$message = $resp;
+				$message = $res['error']['message'];
 			}
 		}
 
@@ -213,7 +213,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		else
 			return array(
 				'success' => $ok,
-				'message' => $message,
+				'message' => 'Done :)',
 			);
 	}
 

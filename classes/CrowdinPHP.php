@@ -55,12 +55,13 @@ class CrowdinPHP
 
 		$url = "http://api.crowdin.net/api/project/{$this->identifier}/$method?key={$this->key}";
 
+		$payload = $this->flatten($data);
+
 		$ch = curl_init($url);                                                                      
-		curl_setopt($ch, CURLOPT_POST, true);                                                                     
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->flatten($data));                                                                 
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);                                                                 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
-		//ddd(curl_getinfo($ch));
 		if (isset($data['json']))
 			$result = json_decode($result, true);
 		return $result;
@@ -173,6 +174,9 @@ class CrowdinPHP
 
 	public function uploadTranslations($language, $src, $dest)
 	{
+		if (!file_exists($src))
+			return "Could not find source file for '$dest' in '$language'";
+
 		$data = array(
 			'files' => array(
 				$dest => $this->file($src)
@@ -181,14 +185,8 @@ class CrowdinPHP
 			'import_duplicates' => 0,
 			'import_eq_suggestions' => 0,
 			'auto_approve_imported' => 0,
-			'json' => false
 		);
 
-		$response = $this->makeRequest('upload-translation', $data);
-		// Seems this call returns nothing in case of success :) !
-		if ($response)
-			return $response['error']['message'];
-		else
-			return true;
+		return $this->makeRequest('upload-translation', $data);
 	}
 }
