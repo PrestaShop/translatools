@@ -7,6 +7,7 @@
 */
 
 require_once dirname(__FILE__).'/../classes/PHPFunctionCallParser.php';
+require_once dirname(__FILE__).'/../classes/SmartyFunctionCallParser.php';
 
 $fixtures = array(
 	array(
@@ -131,5 +132,131 @@ foreach ($fixtures as $fixture)
 		die();
 	}
 }
+
+$fixtures = array(
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s="hello"}',
+		'expected' => array(
+			array(
+				's' => '"hello"'
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s="hello" mod=\'hi\'}',
+		'expected' => array(
+			array(
+				's' => '"hello"',
+				'mod' => "'hi'"
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello mod=\'hi\'}',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => "'hi'"
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello      mod=[hi]  }',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => "[hi]"
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello      mod=["hi"]  }',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => '["hi"]'
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello      mod=["h]i"]  }',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => '["h]i"]'
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello   mod=["h]i}"]  }',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => '["h]i}"]'
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=\'Showing %1$d - %2$d of 1 item\' sprintf=[$productShowingStart, $productShowing]}',
+		'expected' => array(
+			array(
+				's' => '\'Showing %1$d - %2$d of 1 item\'',
+				'sprintf' => '[$productShowingStart, $productShowing]'
+			)
+		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=hello   mod="h=plop"  }',
+		'expected' => array(
+			array(
+				's' => 'hello',
+				'mod' => '"h=plop"'
+			)
+		)
+	)
+);
+
+foreach ($fixtures as $fixture)
+{
+	$parser = new SmartyFunctionCallParser($fixture['string'], $fixture['function_name']);
+
+	$result = $parser->parse();
+
+	if($result !== $fixture['expected'])
+	{
+		echo "Not good!<BR/>";
+
+		echo "<p>Expected:<BR/><pre>";
+		print_r($fixture['expected']);
+		echo "</pre></p><p>But got:<BR/><pre>";
+		print_r($result);
+		echo "</pre>";
+		echo "<p>Parser State:</p>";
+		echo "<pre>";
+		print_r($parser->getStates());
+		echo "</pre>";
+		die();
+	}
+}
+
+
 
 echo "<BR>\nTests done! (success)";
