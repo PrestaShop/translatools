@@ -523,9 +523,24 @@ class TranslaTools extends Module
 
 		foreach ($matches as $arguments)
 		{
+			$problem = null;
 			if (!isset($arguments['mod']))
+				$problem = "Missing 'mod' argument. [s: {$arguments['s']}]";
+			else if (isset($arguments['mod']))
 			{
-				$problem = "Missing 'mod' argument.";
+				$m  = array();
+				preg_match('#(?:^|/)modules/([^/]+)/#', $path, $m);
+				$module = $m[1];
+				$mod = TranslationsExtractor::dequote($arguments['mod']);
+				if (!$mod)
+					$mod = $arguments['mod'];
+				if ($mod !== $module)
+					$problem = "Wrong 'mod' argument, '$mod' instead of '$module'.";
+			}
+				
+
+			if ($problem !== null)
+			{
 				if (!isset($problems[$problem]))
 					$problems[$problem] = 0;
 

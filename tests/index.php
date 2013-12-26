@@ -231,6 +231,17 @@ $fixtures = array(
 				'mod' => '"h=plop"'
 			)
 		)
+	),
+
+	array(
+		'function_name' => 'l',
+		'string' => '{l s=\'Thumbnails:\' mod=\'blockcategories\'}',
+		'expected' => array(
+			array(
+				's' => '\'Thumbnails:\'',
+				'mod' => '\'blockcategories\''
+			)
+		)
 	)
 );
 

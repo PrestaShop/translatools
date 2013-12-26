@@ -359,7 +359,7 @@ class TranslationsExtractor
 			return $this->join($this->root_dir, 'pdf');
 	}
 
-	public function dequote($str, $unescape=false)
+	public static function dequote($str, $unescape=false)
 	{
 		if (mb_strlen($str) < 2)
 			return false;
@@ -477,7 +477,7 @@ class TranslationsExtractor
 			$parser->setString(file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=$this->dequote($m['arguments'][0]))
+				if ($str=self::dequote($m['arguments'][0]))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -511,7 +511,7 @@ class TranslationsExtractor
 			$parser->setString(file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=$this->dequote($m['arguments'][0]))
+				if ($str=self::dequote($m['arguments'][0]))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -538,7 +538,7 @@ class TranslationsExtractor
 			foreach($parser->parse($file) as $string)
 			{
 				
-				if ($str=$this->dequote($string))
+				if ($str=self::dequote($string))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -569,7 +569,7 @@ class TranslationsExtractor
 			$prefix_key = substr(basename($file), 0, -4);
 			foreach($parser->parse($file) as $string)
 				
-				if ($str=$this->dequote($string))
+				if ($str=self::dequote($string))
 				{
 					$key = $prefix_key.'_'.md5($str);
 					$this->record(
@@ -597,7 +597,7 @@ class TranslationsExtractor
 			$parser->setString(file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if (count($m['arguments']) > 0 && $str=$this->dequote($m['arguments'][0]))
+				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
 				{
 					$key = md5($str);
 					$this->record(
@@ -674,7 +674,7 @@ class TranslationsExtractor
 							$parser->setString(file_get_contents($file));
 							while ($m=$parser->getMatch())
 							{
-								if ($str=$this->dequote($m['arguments'][0]))
+								if ($str=self::dequote($m['arguments'][0]))
 								{
 									$key = $this->getModuleKey($kind, $module, $file, $str);
 									$this->record(
@@ -701,7 +701,7 @@ class TranslationsExtractor
 							$storage_file = $this->getModuleStorageFile($kind, $module, $file);
 
 							foreach($parser->parse($file) as $string)
-								if ($str=$this->dequote($string))
+								if ($str=self::dequote($string))
 								{
 									$key = $this->getModuleKey($kind, $module, $file, $str);
 									$this->record(
@@ -738,7 +738,7 @@ class TranslationsExtractor
 			$parser->setString(file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=$this->dequote($m['arguments'][0]))
+				if ($str=self::dequote($m['arguments'][0]))
 				{
 					$key = 'PDF'.md5($str);
 					$this->record(
@@ -764,7 +764,7 @@ class TranslationsExtractor
 		foreach ($files as $file)
 		{
 			foreach($parser->parse($file) as $string)
-				if ($str=$this->dequote($string))
+				if ($str=self::dequote($string))
 				{
 					$key = 'PDF'.md5($str);
 					$this->record(
