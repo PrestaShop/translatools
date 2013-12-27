@@ -161,7 +161,6 @@ class TranslaTools extends Module
 
 	public function defaultAction()
 	{
-
 		$modules_not_found = array();
 
 		foreach ($this->getNativeModules() as $module)
