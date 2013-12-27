@@ -95,7 +95,6 @@ class CrowdinPHP
 	{
 		// Get project info from Crowding
 		$response = $this->makeRequest('info', array());
-		
 		// Make it into a nicer form
 		$info = array(
 			'languages' => array(),

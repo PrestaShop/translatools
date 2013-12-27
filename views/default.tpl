@@ -53,7 +53,7 @@
 		{$translatools_stay_here}
 		<input type="hidden" name="action" value="purgeTranslations">
 		<span class="confirm">
-			<button data-confirm="Really purge translations?" data-cancel="Oh no!" class="btn btn-warning">Purge Translations</button>
+			<button name="action" value="purgeTranslations" data-confirm="Really purge translations?" data-cancel="Oh no!" class="btn btn-warning">Purge Translations</button>
 		</span>
 	</form>
 </div>
@@ -73,9 +73,30 @@
 		{yesno label="Export Back-Office Strings" input_name="section[backOffice]"}
 
 		{yesno label="Export Module Strings" input_name="section[modules]"}
+	
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="filter_modules">Which modules to parse?</label>
+			<div class="col-lg-6">
+				<select name="filter_modules" id="filter_modules">
+					<option value="native" selected>Native</option>
+					<option value="all">All</option>
+				</select>
+			</div>
+		</div>
+	
+		{if $modules_not_found_warning}
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-lg-6">
+					<div class="alert alert-warning">
+						<strong>Warning: </strong>{$modules_not_found_warning}	
+					</div>
+				</div>
+			</div>
+		{/if}
 
 		<div class="form-group">
-			<label class="control-label col-lg-3" for="overriden_modules">Which modules to parse?</label>
+			<label class="control-label col-lg-3" for="overriden_modules">Which types of modules to parse?</label>
 			<div class="col-lg-6">
 				<select name="overriden_modules" id="overriden_modules">
 					<option value="both">Core and Overriden</option>
@@ -164,8 +185,7 @@
 		<div class="col-lg-6">
 			<p class="help-block">JIPT Virtual Language is set to <strong>{$jipt_language}</strong>.</p>
 			{if !isset($languages[$jipt_language])}
-				<p class="alert alert-info">The virtual language was not created on this shop though, you need to create it before you can use Crowdin-JIPT.</p>
-				<form method="POST">{$translatools_stay_here}<button name="action" value="createVirtualLanguage" class="btn btn-success">Create It Now</button></form>
+				<form method="POST">{$translatools_stay_here}<p class="alert alert-info">The virtual language was not created on this shop though, you need to <button name="action" value="createVirtualLanguage" class="btn btn-primary">Create It</button> before you can use Crowdin-JIPT.</p></form>
 			{/if}
 		</div>
 	</div>
@@ -267,7 +287,7 @@
 		{$translatools_stay_here}
 		<input type="hidden" name="action" value="checkLUse">
 		<div class="form-group">
-			<label class="control-label col-lg-3" for="check_l">Check use of "l" in templates</label>
+			<label class="control-label col-lg-3" for="check_l">Check use of translation functions</label>
 			<div class="col-lg-6">
 				<select name="theme" id="theme_lint">
 					{foreach from=$themes item=theme}
@@ -372,7 +392,7 @@
 					fdbk.html('<span class="success">'+(data.message || "Ok")+'</span>');
 					if(data['next-action'])
 					{
-						fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">(now processing next step...)</span>');
+						fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">...</span>');
 
 						performMultiStepAjaxAction(data['next-action'], data['next-payload'], fdbk, handler);
 					}
@@ -463,7 +483,7 @@
 			}
 			else if (data.success.status === 'built')
 			{
-				fdbk.html('<span class="success">Done.</span>');
+				fdbk.html('<span class="success">Done :)</span>');
 			}
 			else
 			{

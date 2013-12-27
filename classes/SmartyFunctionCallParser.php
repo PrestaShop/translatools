@@ -117,6 +117,7 @@ class SmartyFunctionCallParser extends SimpleParser
 				}
 				else if ($this->getState() === 'escape')
 				{
+					$this->token .= $c;
 					$this->popState();
 				}
 
