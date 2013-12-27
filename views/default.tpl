@@ -73,9 +73,30 @@
 		{yesno label="Export Back-Office Strings" input_name="section[backOffice]"}
 
 		{yesno label="Export Module Strings" input_name="section[modules]"}
+	
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="filter_modules">Which modules to parse?</label>
+			<div class="col-lg-6">
+				<select name="filter_modules" id="filter_modules">
+					<option value="native" selected>Native</option>
+					<option value="all">All</option>
+				</select>
+			</div>
+		</div>
+	
+		{if $modules_not_found_warning}
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-lg-6">
+					<div class="alert alert-warning">
+						<strong>Warning: </strong>{$modules_not_found_warning}	
+					</div>
+				</div>
+			</div>
+		{/if}
 
 		<div class="form-group">
-			<label class="control-label col-lg-3" for="overriden_modules">Which modules to parse?</label>
+			<label class="control-label col-lg-3" for="overriden_modules">Which types of modules to parse?</label>
 			<div class="col-lg-6">
 				<select name="overriden_modules" id="overriden_modules">
 					<option value="both">Core and Overriden</option>

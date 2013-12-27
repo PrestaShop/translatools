@@ -150,8 +150,30 @@ class TranslaTools extends Module
 
 	}
 
+	public function getNativeModules()
+	{
+		return array_map('trim', 
+			explode("\n", 
+				file_get_contents(dirname(__FILE__).'/data/native_modules')
+			)
+		);
+	}
+
 	public function defaultAction()
 	{
+		$modules_not_found = array();
+
+		foreach ($this->getNativeModules() as $module)
+		{
+			if (!is_dir(_PS_MODULE_DIR_.$module))
+				$modules_not_found[] = $module;
+		}
+
+		if (count($modules_not_found) > 0)
+			$modules_not_found_warning = "The following native modules were not found in your installation: ".implode(', ', $modules_not_found).'.';
+		else
+			$modules_not_found_warning = false;
+
 		$themes = array();
 		foreach (scandir(_PS_ALL_THEMES_DIR_) as $entry)
 			if (!preg_match('/^\./', $entry) && is_dir(_PS_ALL_THEMES_DIR_.$entry))
@@ -167,6 +189,7 @@ class TranslaTools extends Module
 			'languages' => $languages,
 			'jipt_bo' => Configuration::get('JIPT_BO'),
 			'jipt_fo' => Configuration::get('JIPT_FO'),
+			'modules_not_found_warning' => $modules_not_found_warning,
 			'jipt_language' => 'an',
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY')
@@ -323,12 +346,18 @@ class TranslaTools extends Module
 
 	public function exportTranslationsAction()
 	{
+		if (Tools::getValue('filter_modules') === 'native')
+			$module_filter = $this->getNativeModules();
+		else
+			$module_filter = null;
+
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(Tools::getValue('section'));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
 		$extractor->setTheme(Tools::getValue('theme'));
 		$extractor->setLanguage(Tools::getValue('language'));
 		$extractor->setModuleParsingBehaviour(Tools::getValue('overriden_modules'), Tools::getValue('modules_storage'));
+		$extractor->setModuleFilter($module_filter);
 		$extractor->extract(dirname(__FILE__).'/packs/');
 		$extractor->sendAsGZIP(dirname(__FILE__).'/packs/');
 	}

@@ -15,6 +15,11 @@ class TranslationsExtractor
 		$this->files = array();
 	}
 
+	public function setModuleFilter($filter=null)
+	{
+		$this->module_filter = $filter;
+	}
+
 	public function buildFromTranslationFiles($dir)
 	{
 		$this->files = array();
@@ -657,6 +662,9 @@ class TranslationsExtractor
 		{
 			foreach (scandir($dir) as $module)
 			{
+				if ($this->module_filter && is_array($this->module_filter) && !in_array($module, $this->module_filter))
+					continue;
+
 				if (!preg_match('/^\./', $module))
 					if (is_dir($module_root=$this->join($dir, $module)))
 					{
