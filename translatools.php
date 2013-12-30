@@ -579,10 +579,9 @@ class TranslaTools extends Module
 				{
 					$quote = $arguments['s'][0];
 					$otherquote = $quote === '"' ? "'" : '"';
-					$type = $otherquote === '"' ? 'double' : 'single';
 					$wrongescape = '\\'.$otherquote;
 					if (strpos($str, $wrongescape) !== false)
-						$problem = 'Unnecessary '.$type.' quote escaping in: '.$arguments['s'];
+						$problem = 'Superfluous quote escaping in: '.$arguments['s'];
 				}
 			}
 				

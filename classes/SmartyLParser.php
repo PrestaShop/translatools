@@ -21,8 +21,13 @@ class SmartyLParser
 
 	public function parse($path)
 	{
+		return $this->parseString(file_get_contents($path));
+	}
+
+	public function parseString($string)
+	{
 		$this->strings = array();
-		$this->string = file_get_contents($path);
+		$this->string = $string;
 
 		$this->at = 0;
 
@@ -61,9 +66,7 @@ class SmartyLParser
 				}
 			}
 		}
-		
-		/*if (strpos($path, '/var/www/prestashop.1.6.fmdj.fr/pdf/delivery-slip.tpl') !== false)
-			ddd($this->strings);*/
+
 		return $this->strings;
 	}
 }

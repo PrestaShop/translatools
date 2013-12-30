@@ -52,9 +52,7 @@
 	<form action="" method="GET">
 		{$translatools_stay_here}
 		<input type="hidden" name="action" value="purgeTranslations">
-		<span class="confirm">
-			<button name="action" value="purgeTranslations" data-confirm="Really purge translations?" data-cancel="Oh no!" class="btn btn-warning">Purge Translations</button>
-		</span>
+		<button name="action" value="purgeTranslations" class="btn btn-warning">Purge Translations</button>
 	</form>
 </div>
 
@@ -354,6 +352,7 @@
 				});
 			}
 
+			
 			e.preventDefault();
 		});
 

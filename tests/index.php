@@ -8,6 +8,7 @@
 
 require_once dirname(__FILE__).'/../classes/PHPFunctionCallParser.php';
 require_once dirname(__FILE__).'/../classes/SmartyFunctionCallParser.php';
+require_once dirname(__FILE__).'/../classes/SmartyLParser.php';
 
 $fixtures = array(
 	array(
@@ -267,6 +268,37 @@ foreach ($fixtures as $fixture)
 		die();
 	}
 }
+
+$fixtures = array(
+	array(
+		'string' => "{l s=':' mod='blocklayered'}",
+		'expected' => array("':'")
+	),
+	array(
+		'string' => "{if \$data.name}{\$data.name}{else}{l s='Text #'}{\$index}{/if}{l s=':'}<b>{\$data.value}",
+		'expected' => array("'Text #'", "':'")
+	)
+);
+
+foreach ($fixtures as $fixture)
+{
+	$parser = new SmartyLParser();
+
+	$result = $parser->parseString($fixture['string']);
+
+	if($result !== $fixture['expected'])
+	{
+		echo "Not good!<BR/>";
+
+		echo "<p>Expected:<BR/><pre>";
+		print_r($fixture['expected']);
+		echo "</pre></p><p>But got:<BR/><pre>";
+		print_r($result);
+		echo "</pre>";
+		die();
+	}
+}
+
 
 
 

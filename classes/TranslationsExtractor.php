@@ -377,7 +377,17 @@ class TranslationsExtractor
 			if ($unescape)
 				return preg_replace('/\\\*\'/', '\'', $string);
 			else
+			{
+				// As per: https://github.com/djfm/PrestaShop/commit/9ae63c6ecffd4f2a1679e2b6f9f8f1e969b64342
+				if ($fc === '"')
+				{
+					// Escape single quotes because the core will do it when looking for the translation of this string
+					$string = str_replace('\'', '\\\'', $string);
+					// Unescape double quotes
+					$string = preg_replace('/\\\\+"/', '"', $string);
+				}
 				return $string;
+			}
 		}
 		else
 			return false;
@@ -540,6 +550,7 @@ class TranslationsExtractor
 		foreach ($files as $file)
 		{
 			$prefix_key = $this->getAdminTPLPrefixKey($file);
+			
 			foreach($parser->parse($file) as $string)
 			{
 				
