@@ -129,7 +129,9 @@ class TranslationsExtractor
 			foreach ($this->files as $name => $contents)
 			{
 				$array_name = null;
-				if (basename($name) === 'admin.php')
+				if (preg_match('#lang_content\.php$#', $name))
+					$array_name = '_LANGMAIL';
+				else if (basename($name) === 'admin.php')
 					$array_name = '_LANGADM';
 				else if (basename($name) === 'errors.php')
 					$array_name = '_ERRORS';
@@ -141,6 +143,8 @@ class TranslationsExtractor
 					$array_name = '_MODULE';
 				else if (preg_match('#/tabs\.php$#', $name))
 					$array_name = '_TABS';
+				else if (preg_match('#^mails/#', $name))
+					$array_name = '_LANGMAIL';
 
 				if ($array_name !== null)
 				{
@@ -193,7 +197,8 @@ class TranslationsExtractor
 		$str .= '$'.$name." = array();\n\n";
 
 		foreach ($data as $key => $value)
-			$str .= '$'.$name.'['.$this->quote($key).'] = '.$this->quote($value).";\n";
+			if (trim($value) != '')
+				$str .= '$'.$name.'['.$this->quote($key).'] = '.$this->quote($value).";\n";
 
 		$str .= "\n\nreturn ".'$'.$name.";\n";
 
@@ -595,6 +600,65 @@ class TranslationsExtractor
 						$type
 					);
 				}
+		}
+	}
+
+	public function extractMailSubjectsStrings()
+	{
+		$files = $this->listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
+		
+		$storage_file = 'mails/[lc]/lang.php';
+		$type = 'mailSubjects';
+
+		foreach ($files as $file)
+		{
+			$parser = new PHPFunctionCallParser();
+			$parser->setPattern('Mail\s*::\s*l');
+			$parser->setString(file_get_contents($file));
+			while ($m=$parser->getMatch())
+			{
+				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
+				{
+					$key = $str;
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+			}
+		}
+	}
+
+	public function extractMailContentStrings()
+	{
+		$files = $this->listFiles(
+			$this->join($this->getModulesDir(),'emailgenerator/templates'), 
+			'#emailgenerator/templates/[^/]+/.*?\.php$#', null, true
+		);
+
+		$storage_file = 'modules/emailgenerator/templates_translations/[lc]/lang_content.php';
+		$type = 'mailContent';
+
+		foreach ($files as $file)
+		{
+			$parser = new PHPFunctionCallParser();
+			$parser->setPattern('\bt');
+			$parser->setString(file_get_contents($file));
+			while ($m=$parser->getMatch())
+			{
+				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
+				{
+					$key = $str;
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						$type
+					);
+				}
+			}
 		}
 	}
 

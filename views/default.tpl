@@ -116,6 +116,8 @@
 		{yesno label="Export Errors Strings" input_name="section[errors]"}
 		{yesno label="Export PDFs Strings" input_name="section[pdfs]"}
 		{yesno label="Export Tabs Strings" input_name="section[tabs]"}
+		{yesno label="Export Mail Subject Strings" input_name="section[mailSubjects]"}
+		{yesno label="Export Mail Content Strings" input_name="section[mailContent]"}
 
 		
 		<div class="form-group">

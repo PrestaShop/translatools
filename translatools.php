@@ -350,6 +350,20 @@ class TranslaTools extends Module
 		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
+	public static function getNewTranslationsExtractor($language, $theme=null)
+	{
+		$extractor = new TranslationsExtractor();
+		$extractor->setRootDir(_PS_ROOT_DIR_);
+		if ($theme === null)
+		{
+			$theme = Context::getContext()->shop->theme_name;
+		}
+		$extractor->setLanguage($language);
+		$extractor->setTheme($theme);
+
+		return $extractor;
+	}
+
 	public function exportTranslationsAction()
 	{
 		if (Tools::getValue('filter_modules') === 'native')

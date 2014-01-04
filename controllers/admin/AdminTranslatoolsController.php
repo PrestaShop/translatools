@@ -34,8 +34,10 @@ class AdminTranslatoolsController extends ModuleAdminController
 	public function getCrowdinPath($version, $ps_path)
 	{
 		$m = array();
+		if (basename($ps_path) === 'lang_content.php')
+			$path = $version.'/email_contents';
 		// Module file => modules/name
-		if (preg_match('#^modules/([^/]+)/#', $ps_path, $m))
+		else if (preg_match('#^modules/([^/]+)/#', $ps_path, $m))
 			$path = $version.'/modules/'.$m[1];
 		// Theme module => modules/name::theme
 		else if (preg_match('#^themes/([^/]+)/modules/([^/]+)/#', $ps_path, $m))
@@ -46,6 +48,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 		// Anything else in theme => name::theme
 		else if (preg_match('#^themes/([^/]+)/#', $ps_path, $m))
 			$path = $version.'/'.basename($ps_path,'.php').'::'.$m[1];
+		else if (preg_match('#^mails/.*?/lang.php$#', $ps_path))
+			$path = $version.'/email_subjects';
 		// Admin, pdf, etc. => name
 		else
 			$path = $version.'/'.basename($ps_path,'.php');
