@@ -464,12 +464,20 @@ class TranslaTools extends Module
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
 		// TODO: implement;
+		if($foreignCode === 'zh-CN')
+		{
+			return 'zh';
+		}
 		return $foreignCode;
 	}
 
 	public function getCrowdinLanguageCode($prestashopCode)
 	{
 		// TODO: implement;
+		if($prestashopCode === 'zh')
+		{
+			return 'zh-CN';
+		}
 		return $prestashopCode;
 	}
 

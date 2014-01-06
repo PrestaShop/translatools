@@ -270,16 +270,29 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		$tasks = array();
 
+		$languages = array();
+		if ($payload['language'] === '*')
+		{
+			foreach (Language::getLanguages() as $lang)
+			{
+				$languages[] = $lang['iso_code'];
+			}
+		}
+		else
+		{
+			$languages[] = $payload['language'];
+		}
+
 		// Build the necessary languages
-		foreach (Language::getLanguages() as $lang)
+		foreach ($languages as $code)
 		{
 			// Don't export English or Aragonese to Crowdin!
-			if ($lang['iso_code'] === 'en' || $lang['iso_code'] === 'an')
+			if ($code === 'en' || $code === 'an')
 				continue;
 
 			$packs_root = realpath(dirname(__FILE__).'/../../packs/');
 
-			$te->setLanguage($lang['iso_code']);
+			$te->setLanguage($code);
 			$te->fill();
 			$wrote = $te->write($packs_root);
 
@@ -288,11 +301,11 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$relpath = substr($file, strlen(_PS_ROOT_DIR_)+1);
 				$tasks[] = array(
 					'action' => 'exportTranslationFile',
-					'language' => $this->module->getCrowdinLanguageCode($lang['iso_code']),
+					'language' => $this->module->getCrowdinLanguageCode($code),
 					'relsrc' => $relpath,
 					'dest' => $this->getCrowdinPath(
 						_PS_VERSION_,
-						substr($file, strlen($packs_root.'/'.$lang['iso_code'])+1)
+						substr($file, strlen($packs_root.'/'.$code)+1)
 					)
 				);
 			}

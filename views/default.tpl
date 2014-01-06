@@ -223,12 +223,20 @@
 			<label for="export-translations-to-crowdin" class="control-label col-lg-3">Export Translations to Crowdin</label>
 			<div class="col-lg-6">
 				<div class="row">
+					<div class="col-lg-2">
+						<select name="language" id="export-translations-language">
+							<option value="*">All languages</option>
+							{foreach from=$languages item=language key=code}
+								<option value="{$code}">{$language}</option>
+							{/foreach}
+						</select>
+					</div>
 					<div class="col-lg-4">
 						<span class="confirm">
 							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
 						</span>
 					</div>
-					<div class="col-lg-8 feedback">
+					<div class="col-lg-6 feedback">
 						<p class="form-control-static" id="export-translations-to-crowdin-feedback"></p>
 					</div>
 				</div>
@@ -424,7 +432,9 @@
 	{
 		var fdbk = $('#export-translations-to-crowdin-feedback');
 		fdbk.html('');
-		performMultiStepAjaxAction('exportTranslations', {}, fdbk);
+		performMultiStepAjaxAction('exportTranslations', {
+			language: $('#export-translations-language').val()
+		}, fdbk);
 		event.preventDefault();
 	}
 
