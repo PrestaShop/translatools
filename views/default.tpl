@@ -118,6 +118,7 @@
 		{yesno label="Export Tabs Strings" input_name="section[tabs]"}
 		{yesno label="Export Mail Subject Strings" input_name="section[mailSubjects]"}
 		{yesno label="Export Mail Content Strings" input_name="section[mailContent]"}
+		{yesno label="Export Generated Emails" input_name="section[generatedEmails]"}
 
 		
 		<div class="form-group">

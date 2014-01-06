@@ -13,6 +13,7 @@ class TranslationsExtractor
 		$this->modules_store_where = 'core';
 		$this->language = "-";
 		$this->files = array();
+		$this->raw_files = array();
 	}
 
 	public function setModuleFilter($filter=null)
@@ -165,6 +166,14 @@ class TranslationsExtractor
 					die("Could not guess array name for file '$name'.");
 				}
 
+			}
+
+			foreach ($this->raw_files as $name => $contents)
+			{
+				$path = $this->join($to_folder, $lc.'/'.$name);
+				if (!is_dir(dirname($path)))
+					mkdir(dirname($path), 0777, true);
+				file_put_contents($path, $contents);
 			}
 		}
 
@@ -659,6 +668,26 @@ class TranslationsExtractor
 					);
 				}
 			}
+		}
+	}
+
+	public function extractGeneratedEmailsStrings()
+	{
+		$module_emails = $this->listFiles(
+			$this->getModulesDir(),
+			'#'.preg_quote(preg_replace('#/$#', '', $this->getModulesDir())).'/[^/]+/mails/'.$this->language.'/(.*?)\.(?:txt|html)$#',
+			null,
+			true
+		);
+		$core_emails = $this->listFiles(
+			$this->join($this->root_dir, 'mails/'.$this->language),
+			'#\.(?:txt|html)$#'
+		);
+		$files = array_merge($module_emails, $core_emails);
+		
+		foreach ($files as $path)
+		{
+			$this->raw_files[substr($path, strlen($this->root_dir)+1)] = file_get_contents($path);
 		}
 	}
 

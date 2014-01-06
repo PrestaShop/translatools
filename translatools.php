@@ -484,6 +484,10 @@ class TranslaTools extends Module
 			$lc = $m[1];
 		else if(preg_match('#^themes/(?:[^/]+)/lang/(.*?)\.php$#', $path, $m))
 			$lc = $m[1];
+		else if(preg_match('#mails/([^/]+)/lang.php$#', $path, $m))
+			$lc = $m[1];
+		else if(basename($path) === 'lang_content.php')
+			return true;
 
 		if ($lc === null)
 			return "Could not infer language code from file named '$path'.";
