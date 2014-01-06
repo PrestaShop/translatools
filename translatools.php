@@ -111,7 +111,7 @@ class TranslaTools extends Module
 		if (!Configuration::get('JIPT_BO'))
 			return;
 		
-		$live_translation_enabled = Configuration::get('JIPT_PREVIOUS_ID_LANG') ? 1 : 0;
+		$live_translation_enabled = ($this->context->cookie->JIPT_PREVIOUS_ID_LANG ? 1 : 0) || $this->context->language->iso_code === 'an';
 		global $smarty;
 		$smarty->assign('live_translation_enabled', $live_translation_enabled);
 		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));

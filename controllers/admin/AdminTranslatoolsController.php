@@ -327,7 +327,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 		{
 			if ($jipt_id_lang)
 			{
-				Configuration::updateValue('JIPT_PREVIOUS_ID_LANG', $this->context->employee->id_lang);
+				$this->context->cookie->JIPT_PREVIOUS_ID_LANG = $this->context->employee->id_lang;
+
 
 				$this->context->employee->id_lang = $jipt_id_lang;
 				$this->context->employee->save();
@@ -339,14 +340,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 		}
 		else
 		{
-			$language_to_set = Configuration::get('JIPT_PREVIOUS_ID_LANG');
+			$language_to_set = $this->context->cookie->JIPT_PREVIOUS_ID_LANG;
 
 			if ($language_to_set == $jipt_id_lang || !$language_to_set)
 				$language_to_set = Configuration::get('PS_LANG_DEFAULT');
 
 			$this->context->employee->id_lang = $language_to_set;
 			$this->context->employee->save();
-			Configuration::deleteByName('JIPT_PREVIOUS_ID_LANG');
+			unset($this->context->cookie->JIPT_PREVIOUS_ID_LANG);
 			return array('success' => true, 'language' => $language_to_set);
 		}
 	}
