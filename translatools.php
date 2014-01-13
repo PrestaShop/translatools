@@ -60,6 +60,7 @@ class TranslaTools extends Module
 		&& $this->registerHook('displayHeader') 
 		&& $this->registerHook('actionAdminControllerSetMedia')
 		&& $this->registerHook('displayBackOfficeFooter')
+		&& $this->registerHook('displayBackOfficeHeader')
 		&& $this->installTab();
 	}
 
@@ -93,17 +94,44 @@ class TranslaTools extends Module
 			return false;
 	}
 
+	public function getCrowdinSnippet()
+	{
+		return <<<EOS
+<script type="text/javascript">
+var _jipt = [];
+_jipt.push(['project', 'prestashop-official']);
+(function()
+{
+	var script = document.createElement('script');
+	script.async = true;
+	script.src = "//cdn.crowdin.net/jipt/jipt.js";
+	document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+EOS;
+	}
+
 	public function hookDisplayHeader($params)
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
-			return "<script src='https://cdn.crowdin.net/jipt/jipt.js'></script>";
+		{
+			return $this->getCrowdinSnippet();
+		}
+		else return "";
+	}
+
+	public function hookDisplayBackOfficeHeader($params)
+	{
+		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
+			return $this->getCrowdinSnippet();
 		else return "";
 	}
 
 	public function hookActionAdminControllerSetMedia($params)
 	{
+		/*
 		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
-			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');*/
 	}
 
 	public function hookDisplayBackOfficeFooter($params)
