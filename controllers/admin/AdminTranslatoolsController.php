@@ -6,7 +6,7 @@ require_once dirname(__FILE__).'/../../classes/FilesLister.php';
 
 class AdminTranslatoolsController extends ModuleAdminController
 {
-	public function __construct()
+	public function __construct($standalone=false)
 	{
 		$this->bootstrap = true;
 		$this->crowdin = new CrowdinPHP(
@@ -15,8 +15,12 @@ class AdminTranslatoolsController extends ModuleAdminController
 		);
 		
 		parent::__construct();
-		if (!$this->module->active)
-			Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
+
+		if (!$standalone)
+		{		
+			if (!$this->module->active)
+				Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
+		}
 	}
 
 	public function run()
@@ -241,7 +245,10 @@ class AdminTranslatoolsController extends ModuleAdminController
 					$target_path = $m[1];
 					$contents = $za->getFromIndex($i);
 
-					$ok = $this->module->importTranslationFile($target_path, $contents);
+					$only = array();
+					if (is_array($payload) && isset($payload['only_virtual']) && $payload['only_virtual'])
+						$only[] = 'an';
+					$ok = $this->module->importTranslationFile($target_path, $contents, $only);
 					
 					if ($ok !== true)
 						return array('success' => false, 'message' => $ok);

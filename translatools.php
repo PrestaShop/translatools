@@ -58,20 +58,22 @@ class TranslaTools extends Module
 
 	public function install()
 	{
-		Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', 'prestashop-official');
-		Configuration::updateValue('JIPT_FO', '1');
-		Configuration::updateValue('JIPT_BO', '1');
-
-		$this->createVirtualLanguage();
-		$ttc = new AdminTranslatoolsController();
-		$ttc->ajaxDownloadTranslationsAction(null);
-
-		return parent::install() 
+		$ok = parent::install() 
 		&& $this->registerHook('displayHeader') 
 		&& $this->registerHook('actionAdminControllerSetMedia')
 		&& $this->registerHook('displayBackOfficeFooter')
 		&& $this->registerHook('displayBackOfficeHeader')
 		&& $this->installTab();
+
+		Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', 'prestashop-official');
+		Configuration::updateValue('JIPT_FO', '1');
+		Configuration::updateValue('JIPT_BO', '1');
+
+		$this->createVirtualLanguage();
+		$ttc = new AdminTranslatoolsController(true);
+		$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
+
+		return $ok;
 	}
 
 	public function uninstall()
@@ -509,7 +511,7 @@ class TranslaTools extends Module
 		return $prestashopCode;
 	}
 
-	public function importTranslationFile($path, $contents)
+	public function importTranslationFile($path, $contents, $languages = array())
 	{
 		// Guess language code
 		$m = array();
@@ -533,6 +535,9 @@ class TranslaTools extends Module
 		
 
 		$languageCode = $this->getPrestaShopLanguageCode($lc);
+
+		if (count($languages) > 0 && !in_array($languageCode, $languages))
+			return true;
 
 		if ($languageCode === null)
 			return "Could not map language code '$lc' to a PrestaShop code.";
