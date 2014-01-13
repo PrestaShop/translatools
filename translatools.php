@@ -52,11 +52,16 @@ class TranslaTools extends Module
 		parent::__construct();	
 
 		$this->displayName = 'TranslaTools';
-		$this->description = 'Check translations norm, export strings, and maybe more.';
+		$this->description = 'Crowdin integration and more!';
 	}
 
 	public function install()
 	{
+		Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', 'prestashop-official');
+		Configuration::updateValue('JIPT_FO', '1');
+		Configuration::updateValue('JIPT_BO', '1');
+		$this->createVirtualLanguage();
+
 		return parent::install() 
 		&& $this->registerHook('displayHeader') 
 		&& $this->registerHook('actionAdminControllerSetMedia')
@@ -457,10 +462,8 @@ class TranslaTools extends Module
 		die();
 	}
 
-	public function createVirtualLanguageAction()
+	public function createVirtualLanguage()
 	{
-		$this->tpl = 'default';
-
 		if (!Language::getIdByIso('an'))
 		{
 			$language = new Language();
@@ -471,6 +474,13 @@ class TranslaTools extends Module
 			if ($language->id)
 				copy(dirname(__FILE__).'/img/an.jpg', _PS_IMG_DIR_.'/l/'.$language->id.'.jpg');
 		}
+	}
+
+	public function createVirtualLanguageAction()
+	{
+		$this->tpl = 'default';
+
+		$this->createVirtualLanguage();
 
 		Tools::redirectAdmin('?controller=AdminModules&configure='.$this->name.'&token='.Tools::getValue('token'));
 	}
