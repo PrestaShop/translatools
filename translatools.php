@@ -94,29 +94,12 @@ class TranslaTools extends Module
 			return false;
 	}
 
-	public function getCrowdinSnippet()
-	{
-		return <<<EOS
-<script type="text/javascript">
-var _jipt = [];
-_jipt.push(['project', 'prestashop-official']);
-(function()
-{
-	var script = document.createElement('script');
-	script.async = true;
-	script.src = "//cdn.crowdin.net/jipt/jipt.js";
-	document.getElementsByTagName('head')[0].appendChild(script);
-})();
-</script>
-EOS;
-	}
-
 	public function hookDisplayHeader($params)
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
-			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
-			return $this->display(__FILE__, 'views/header.tpl');
+			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
+			return $this->display(__FILE__, 'views/jipt.tpl');
 		}
 		else return "";
 	}
@@ -124,15 +107,15 @@ EOS;
 	public function hookDisplayBackOfficeHeader($params)
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
-			return $this->getCrowdinSnippet();
+		{
+			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
+			return $this->display(__FILE__, 'views/jipt.tpl');
+		}
 		else return "";
 	}
 
 	public function hookActionAdminControllerSetMedia($params)
 	{
-		/*
-		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
-			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');*/
 	}
 
 	public function hookDisplayBackOfficeFooter($params)
