@@ -85,9 +85,19 @@ class CrowdinPHP
 		}
 	}
 
+	// This method will use the public download link if $language === all
+	// (this doens't require privileges if the project has allowed public downloads)
+	// If $language is different from 'all' it will use the private API
 	public function downloadTranslations($language='all')
 	{
-		$url = "http://api.crowdin.net/api/project/{$this->identifier}/download/$language.zip?key={$this->key}";
+		if ($language === 'all')
+		{
+			$url = "http://crowdin.net/download/project/{$this->identifier}.zip";
+		}
+		else
+		{
+			$url = "http://api.crowdin.net/api/project/{$this->identifier}/download/$language.zip?key={$this->key}";
+		}
 		return @file_get_contents($url);
 	}
 

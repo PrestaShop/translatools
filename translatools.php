@@ -115,7 +115,8 @@ EOS;
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
-			return $this->getCrowdinSnippet();
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
+			return $this->display(__FILE__, 'views/header.tpl');
 		}
 		else return "";
 	}
@@ -123,15 +124,14 @@ EOS;
 	public function hookDisplayBackOfficeHeader($params)
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
-			return $this->getCrowdinSnippet();
+			return "<script>var _jipt=[['project', 'prestashop-official']];</script>";
 		else return "";
 	}
 
 	public function hookActionAdminControllerSetMedia($params)
 	{
-		/*
 		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
-			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');*/
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
 	}
 
 	public function hookDisplayBackOfficeFooter($params)
@@ -143,7 +143,7 @@ EOS;
 		global $smarty;
 		$smarty->assign('live_translation_enabled', $live_translation_enabled);
 		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
-		return $smarty->fetch(dirname(__FILE__).'/views/backOfficeFooter.tpl');
+		return $smarty->fetch(__FILE__, '/views/backOfficeFooter.tpl');
 	}
 
 	public function getContent()
@@ -217,6 +217,14 @@ EOS;
 		$languages = array();
 		foreach (Language::getLanguages() as $l)
 			$languages[$l['iso_code']] = $l['name'];
+
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST' && Tools::getValue('update_api_settings'))
+		{
+			Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', Tools::getValue('CROWDIN_PROJECT_IDENTIFIER'));
+			Configuration::updateValue('CROWDIN_PROJECT_API_KEY', Tools::getValue('CROWDIN_PROJECT_API_KEY'));
+			Tools::redirectAdmin($_SERVER['REQUEST_URI']);
+		}
 
 		return array(
 			'themes' => $themes,

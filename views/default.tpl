@@ -52,7 +52,7 @@
 	<form action="" method="GET">
 		{$translatools_stay_here}
 		<input type="hidden" name="action" value="purgeTranslations">
-		<button name="action" value="purgeTranslations" class="btn btn-warning">Purge Translations</button>
+		<button onclick="javascript:return confirm('Really purge all translations??');" name="action" value="purgeTranslations" class="btn btn-warning">Purge Translations</button>
 	</form>
 </div>
 
@@ -153,32 +153,42 @@
 </div>
 
 <div class="panel">
+	<h3>Crowdin API</h3>
+	<form method="POST" class="form-horizontal">
+		{$translatools_stay_here}
+		<input type="hidden" name="update_api_settings" value="1">
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_IDENTIFIER">Project Identifier</label>
+			<div class="col-lg-9">
+				<div class="row">
+					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_PROJECT_IDENTIFIER}" id="CROWDIN_PROJECT_IDENTIFIER" name="CROWDIN_PROJECT_IDENTIFIER" type="text" placeholder="prestashop-test-api"></div>
+				</div>
+				
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_API_KEY">Project API Key</label>
+			<div class="col-lg-9">
+				<div class="row">
+					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_PROJECT_API_KEY}" id="CROWDIN_PROJECT_API_KEY" name="CROWDIN_PROJECT_API_KEY" type="text" placeholder="a2f1g5e8a6b7d4g5e2c1234a5e6f8c33"></div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-lg-3"></div>
+			<div class="col-lg-8">
+				<button class="btn btn-default">Save</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="panel">
 	<h3>Crowdin</h3>
 	
 	<form class="form-horizontal">
 		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
 		{yesno input_name=jipt_fo label="Enable Crowdin-JIPT in Front-Office" value=$jipt_fo}
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_IDENTIFIER">Project Identifier</label>
-			<div class="col-lg-9">
-				<div class="row">
-					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_PROJECT_IDENTIFIER}" id="CROWDIN_PROJECT_IDENTIFIER" type="text" placeholder="prestashop-test-api"></div>
-					<div class="col-lg-4"><button onclick="javascript:updateConfigValue('CROWDIN_PROJECT_IDENTIFIER');" type="button" class="btn btn-success"><i class="icon-ok"></i> Save</button></div>
-				</div>
-				
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_API_KEY">Project Identifier</label>
-			<div class="col-lg-9">
-				<div class="row">
-					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_PROJECT_API_KEY}" id="CROWDIN_PROJECT_API_KEY" type="text" placeholder="a2f1g5e8a6b7d4g5e2c1234a5e6f8c33"></div>
-					<div class="col-lg-4"><button onclick="javascript:updateConfigValue('CROWDIN_PROJECT_API_KEY');" type="button" class="btn btn-success"><i class="icon-ok"></i> Save</button></div>
-				</div>
-			</div>
-		</div>
 	</form>
 
 	<div class="row">
@@ -191,77 +201,78 @@
 		</div>
 	</div>
 	
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="export" class="control-label col-lg-3">Export Sources to Crowdin</label>
-			<div class="col-lg-6">
-				<div class="row">
-					<div class="col-lg-4">
-						<span class="confirm">
-							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
-						</span>
-					</div>
-					<div class="col-lg-8">
-						<p class="form-control-static" id="export-to-crowdin-feedback"></p>
+	{if isset($CROWDIN_PROJECT_API_KEY) and ($CROWDIN_PROJECT_API_KEY != '')}
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="export" class="control-label col-lg-3">Export Sources to Crowdin</label>
+				<div class="col-lg-6">
+					<div class="row">
+						<div class="col-lg-4">
+							<span class="confirm">
+								<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
+							</span>
+						</div>
+						<div class="col-lg-8">
+							<p class="form-control-static" id="export-to-crowdin-feedback"></p>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-lg-3"></div>
-			<div class="col-lg-6">
-				<div class="alert alert-warning">
-					<p>You need to export the 'As in code' language before pushing to Crowdin.</p>
-					<p>Exporting the 'As in code' language will download an archive containing all the strings selected for export. This is so that you can review what is exported, but, if you are satisfied with it, you don't need to do anything more with this file.</p>
+			<div class="row">
+				<div class="col-lg-3"></div>
+				<div class="col-lg-6">
+					<div class="alert alert-warning">
+						<p>You need to export the 'As in code' language before pushing to Crowdin.</p>
+						<p>Exporting the 'As in code' language will download an archive containing all the strings selected for export. This is so that you can review what is exported, but, if you are satisfied with it, you don't need to do anything more with this file.</p>
+					</div>
 				</div>
 			</div>
-		</div>
-	</form>
+		</form>
 
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="export-translations-to-crowdin" class="control-label col-lg-3">Export Translations to Crowdin</label>
-			<div class="col-lg-6">
-				<div class="row">
-					<div class="col-lg-2">
-						<select name="language" id="export-translations-language">
-							<option value="*">All languages</option>
-							{foreach from=$languages item=language key=code}
-								<option value="{$code}">{$language}</option>
-							{/foreach}
-						</select>
-					</div>
-					<div class="col-lg-4">
-						<span class="confirm">
-							<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
-						</span>
-					</div>
-					<div class="col-lg-6 feedback">
-						<p class="form-control-static" id="export-translations-to-crowdin-feedback"></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
-	
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label for="export" class="control-label col-lg-3">Regenerate Crowdin Translations</label>
-			<div class="col-lg-6">
-				<div class="row">
-					<div class="col-lg-4">
-						<span class="confirm">
-							<button data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
-						</span>
-					</div>
-					<div class="col-lg-8 feedback">
-						<p class="form-control-static" id="regenerate-translations-feedback"></p>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="export-translations-to-crowdin" class="control-label col-lg-3">Export Translations to Crowdin</label>
+				<div class="col-lg-6">
+					<div class="row">
+						<div class="col-lg-2">
+							<select name="language" id="export-translations-language">
+								<option value="*">All languages</option>
+								{foreach from=$languages item=language key=code}
+									<option value="{$code}">{$language}</option>
+								{/foreach}
+							</select>
+						</div>
+						<div class="col-lg-4">
+							<span class="confirm">
+								<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
+							</span>
+						</div>
+						<div class="col-lg-6 feedback">
+							<p class="form-control-static" id="export-translations-to-crowdin-feedback"></p>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-	</form>
-
+		</form>
+		
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="export" class="control-label col-lg-3">Regenerate Crowdin Translations</label>
+				<div class="col-lg-6">
+					<div class="row">
+						<div class="col-lg-4">
+							<span class="confirm">
+								<button data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
+							</span>
+						</div>
+						<div class="col-lg-8 feedback">
+							<p class="form-control-static" id="regenerate-translations-feedback"></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</form>
+	{/if}
 	<form class="form-horizontal">
 		<div class="form-group">
 			<label for="export" class="control-label col-lg-3">Download translations from Crowdin</label>
