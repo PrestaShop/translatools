@@ -30,6 +30,7 @@ if (!defined('_PS_VERSION_'))
 require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
 require_once dirname(__FILE__).'/classes/FilesLister.php';
 require_once dirname(__FILE__).'/classes/SmartyFunctionCallParser.php';
+require_once dirname(__FILE__).'/controllers/admin/AdminTranslatoolsController.php';
 
 
 class TranslaTools extends Module
@@ -60,7 +61,10 @@ class TranslaTools extends Module
 		Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', 'prestashop-official');
 		Configuration::updateValue('JIPT_FO', '1');
 		Configuration::updateValue('JIPT_BO', '1');
+
 		$this->createVirtualLanguage();
+		$ttc = new AdminTranslatoolsController();
+		$ttc->ajaxDownloadTranslationsAction(null);
 
 		return parent::install() 
 		&& $this->registerHook('displayHeader') 
