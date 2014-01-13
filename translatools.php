@@ -96,7 +96,7 @@ class TranslaTools extends Module
 
 	public function hookDisplayHeader($params)
 	{
-		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
+		if (Configuration::get('CROWDIN_PROJECT_IDENTIFIER') && Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
 			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
 			return $this->display(__FILE__, 'views/jipt.tpl');
@@ -106,7 +106,7 @@ class TranslaTools extends Module
 
 	public function hookDisplayBackOfficeHeader($params)
 	{
-		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
+		if (Configuration::get('CROWDIN_PROJECT_IDENTIFIER') && Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
 			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
 			return $this->display(__FILE__, 'views/jipt.tpl');
