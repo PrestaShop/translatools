@@ -1,0 +1,1 @@
+{addJsDef _jipt=array(['project', $CROWDIN_PROJECT_IDENTIFIER])}

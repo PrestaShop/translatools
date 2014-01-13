@@ -98,8 +98,9 @@ class TranslaTools extends Module
 	{
 		if (Configuration::get('CROWDIN_PROJECT_IDENTIFIER') && Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
 			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
-			return $this->display(__FILE__, 'views/jipt.tpl');
+			return $this->display(__FILE__, 'views/header.tpl');
 		}
 		else return "";
 	}

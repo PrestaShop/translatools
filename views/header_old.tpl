@@ -1,1 +1,0 @@
-{addJsDef _jipt=array(['project', 'prestashop-official'])}
