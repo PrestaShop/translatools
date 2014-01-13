@@ -2,6 +2,7 @@
 
 require_once dirname(__FILE__).'/../../classes/CrowdinPHP.php';
 require_once dirname(__FILE__).'/../../classes/TranslationsExtractor.php';
+require_once dirname(__FILE__).'/../../classes/FilesLister.php';
 
 class AdminTranslatoolsController extends ModuleAdminController
 {
@@ -90,9 +91,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if (is_dir($path_to_sources))
 		{
-			foreach (new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($path_to_sources)
-			) as $path => $data)
+			foreach (FilesLister::listFiles($path_to_sources, null, null, true) as $path)
 			{
 				if (preg_match('/(?:[a-z]{2}|admin|pdf|errors|tabs)\.php$/', $path))
 				{

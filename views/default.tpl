@@ -190,7 +190,7 @@
 		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
 		{yesno input_name=jipt_fo label="Enable Crowdin-JIPT in Front-Office" value=$jipt_fo}
 	</form>
-
+	
 	<div class="row">
 		<div class="col-lg-3"></div>
 		<div class="col-lg-6">

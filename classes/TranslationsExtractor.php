@@ -4,6 +4,7 @@
 
 require dirname(__FILE__).'/PHPFunctionCallParser.php';
 require dirname(__FILE__).'/SmartyLParser.php';
+require dirname(__FILE__).'/FilesLister.php';
 
 class TranslationsExtractor
 {
@@ -30,9 +31,7 @@ class TranslationsExtractor
 		if (!is_dir($dir))
 			return "Sources directory does not exist, please ensure that you have exported the English strings.";
 
-		foreach (new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir)
-		) as $path => $info)
+		foreach (FilesLister::listFiles($dir, null, null, true) as $path)
 		{
 			if (preg_match('/\.php$/', $path))
 			{
@@ -253,44 +252,10 @@ class TranslationsExtractor
 		}
 	}
 
-	public function join($root, $path)
+	public function join($a, $b)
 	{
-		return preg_replace('#/+$#', '', $root).'/'.preg_replace('#^/+#', '', $path);
+		return FilesLister::join($a, $b);
 	}
-
-	// $whitelist affects only files, while $blacklist affects directories too.
-	// $blacklist is used to skip recursion, while $whitelist controls which files
-	// are returned.
-	public function listFiles($dir, $whitelist=null, $blacklist=null, $recurse=false)
-	{
-		$files = array();
-
-		if (!is_dir($dir))
-			return $files;
-
-		foreach (scandir($dir) as $file)
-		{
-			if ($file === '.' || $file === '..')
-				continue;
-
-			$path = $this->join($dir, $file);
-			if ($blacklist !== null && preg_match($blacklist, $path))
-				continue;
-			if ($whitelist !== null && !preg_match($whitelist, $path) && !is_dir($path))
-				continue;
-
-			if (is_dir($path) and $recurse)
-			{
-				$files = array_merge($files, $this->listFiles($path, $whitelist, $blacklist, $recurse));
-			}
-			else if (!is_dir($path))
-				$files[] = $path;
-		}
-
-		return $files;
-	}
-
-	
 
 	public function getAdminControllersDir()
 	{
@@ -485,9 +450,9 @@ class TranslationsExtractor
 		/*                  Regular PHP files                         */
 		/**************************************************************/
 		$files = array_merge(
-			$this->listFiles($this->getAdminControllersDir(), '/\.php$/'),
-			$this->listFiles($this->getAdminOverridenControllersDir(), '/\.php$/'),
-			$this->listFiles($this->getHelpersDir(), '/\.php$/'),
+			FilesLister::listFiles($this->getAdminControllersDir(), '/\.php$/'),
+			FilesLister::listFiles($this->getAdminOverridenControllersDir(), '/\.php$/'),
+			FilesLister::listFiles($this->getHelpersDir(), '/\.php$/'),
 			array(
 				$this->getAdminControllerPath(),
 				$this->getPaymentModulePath()
@@ -557,8 +522,8 @@ class TranslationsExtractor
 		/*                  Templates                                 */
 		/**************************************************************/
 		$files = array_merge(
-			$this->listFiles($this->join($this->getAdminDir(), 'themes'), '/\.tpl$/', null, true),
-			$this->listFiles($this->join($this->getAdminOverridenControllersDir(), 'admin/templates'), '/\.tpl$/', null, true)
+			FilesLister::listFiles($this->join($this->getAdminDir(), 'themes'), '/\.tpl$/', null, true),
+			FilesLister::listFiles($this->join($this->getAdminOverridenControllersDir(), 'admin/templates'), '/\.tpl$/', null, true)
 		);
 		$parser = new SmartyLParser();
 		foreach ($files as $file)
@@ -585,8 +550,8 @@ class TranslationsExtractor
 	public function extractFrontOfficeStrings()
 	{
 		$files = array_merge(
-			$this->listFiles($this->join($this->getThemesDir(), $this->theme), '/\.tpl$/', '#/modules/#', true),
-			$this->listFiles($this->getThemesDir(), '/\.tpl$/')
+			FilesLister::listFiles($this->join($this->getThemesDir(), $this->theme), '/\.tpl$/', '#/modules/#', true),
+			FilesLister::listFiles($this->getThemesDir(), '/\.tpl$/')
 			// + override?
 		);
 		$storage_file = 'themes/'.$this->theme.'/lang/[lc].php';
@@ -614,7 +579,7 @@ class TranslationsExtractor
 
 	public function extractMailSubjectsStrings()
 	{
-		$files = $this->listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
+		$files = FilesLister::listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
 		
 		$storage_file = 'mails/[lc]/lang.php';
 		$type = 'mailSubjects';
@@ -642,7 +607,7 @@ class TranslationsExtractor
 
 	public function extractMailContentStrings()
 	{
-		$files = $this->listFiles(
+		$files = FilesLister::listFiles(
 			$this->join($this->getModulesDir(),'emailgenerator/templates'), 
 			'#emailgenerator/templates/[^/]+/.*?\.php$#', null, true
 		);
@@ -673,13 +638,13 @@ class TranslationsExtractor
 
 	public function extractGeneratedEmailsStrings()
 	{
-		$module_emails = $this->listFiles(
+		$module_emails = FilesLister::listFiles(
 			$this->getModulesDir(),
 			'#'.preg_quote(preg_replace('#/$#', '', $this->getModulesDir())).'/[^/]+/mails/'.$this->language.'/(.*?)\.(?:txt|html)$#',
 			null,
 			true
 		);
-		$core_emails = $this->listFiles(
+		$core_emails = FilesLister::listFiles(
 			$this->join($this->root_dir, 'mails/'.$this->language),
 			'#\.(?:txt|html)$#'
 		);
@@ -693,7 +658,7 @@ class TranslationsExtractor
 
 	public function extractErrorsStrings()
 	{
-		$files = $this->listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
+		$files = FilesLister::listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
 		
 		$storage_file = 'translations/[lc]/errors.php';
 		$type = 'errors';
@@ -776,7 +741,7 @@ class TranslationsExtractor
 						/*                        PHP files                           */
 						/**************************************************************/
 
-						$files = $this->listFiles($module_root, '/\.php$/', null, true);
+						$files = FilesLister::listFiles($module_root, '/\.php$/', null, true);
 
 						foreach ($files as $file)
 						{
@@ -803,7 +768,7 @@ class TranslationsExtractor
 						/*                        Templates                           */
 						/**************************************************************/
 
-						$files = $this->listFiles($module_root, '/\.tpl$/', null, true);
+						$files = FilesLister::listFiles($module_root, '/\.tpl$/', null, true);
 						$parser = new SmartyLParser();
 						foreach ($files as $file)
 						{
@@ -837,8 +802,8 @@ class TranslationsExtractor
 		/**************************************************************/
 
 		$files = array_merge(
-			$this->listFiles($this->join($this->getClassesDir(), 'pdf'), '/\.php$/'),
-			$this->listFiles($this->join($this->getOverrideDir(), 'classes/pdf'), '/\.php$/')
+			FilesLister::listFiles($this->join($this->getClassesDir(), 'pdf'), '/\.php$/'),
+			FilesLister::listFiles($this->join($this->getOverrideDir(), 'classes/pdf'), '/\.php$/')
 		);	
 
 		$storage_file = 'translations/[lc]/pdf.php';
@@ -868,8 +833,8 @@ class TranslationsExtractor
 		/**************************************************************/
 
 		$files = array_merge(
-			$this->listFiles($this->getPdfsDir(), '/\.tpl$/'),
-			$this->listFiles($this->join($this->getThemesDir(), $this->theme.'/pdf'), '/\.tpl$/')
+			FilesLister::listFiles($this->getPdfsDir(), '/\.tpl$/'),
+			FilesLister::listFiles($this->join($this->getThemesDir(), $this->theme.'/pdf'), '/\.tpl$/')
 		);
 
 		$parser = new SmartyLParser();
@@ -928,7 +893,7 @@ class TranslationsExtractor
 
 		$add = array();
 
-		foreach ($this->listFiles('.', null, null, true) as $path)
+		foreach (FilesLister::listFiles('.', null, null, true) as $path)
 			$add[] = preg_replace('#^\./#', '', $path);
 		
 		$arch->add($add);

@@ -28,6 +28,7 @@ if (!defined('_PS_VERSION_'))
 	exit;
 
 require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
+require_once dirname(__FILE__).'/classes/FilesLister.php';
 require_once dirname(__FILE__).'/classes/SmartyFunctionCallParser.php';
 
 
@@ -239,20 +240,17 @@ class TranslaTools extends Module
 					$module_root = $theme_modules_root.$module;
 					if ($module[0] !== '.' and is_dir($module_root))
 					{
-						$rdi = new RecursiveDirectoryIterator($module_root);
-						$rdi->setFlags(RecursiveDirectoryIterator::SKIP_DOTS);
-						foreach (new RecursiveIteratorIterator($rdi) as $overriden_path)
-							if (preg_match('/\.tpl$/', $overriden_path))
-							{
-								$original_path = _PS_MODULE_DIR_.substr($overriden_path, strlen($theme_modules_root));
-								$differences = $this->getDifferences('tpl', $overriden_path, $original_path);
-								if (count($differences) > 0)
-									$deltas[] = array(
-										'overriden_file' => substr($overriden_path, strlen(_PS_ROOT_DIR_)),
-										'original_file' => file_exists($original_path) ? substr($original_path, strlen(_PS_ROOT_DIR_)) : false,
-										'differences' => $differences
-									);
-							}
+						foreach (FilesLister::listFiles($module_root, '/\.tpl$/', null, true) as $overriden_path)
+						{
+							$original_path = _PS_MODULE_DIR_.substr($overriden_path, strlen($theme_modules_root));
+							$differences = $this->getDifferences('tpl', $overriden_path, $original_path);
+							if (count($differences) > 0)
+								$deltas[] = array(
+									'overriden_file' => substr($overriden_path, strlen(_PS_ROOT_DIR_)),
+									'original_file' => file_exists($original_path) ? substr($original_path, strlen(_PS_ROOT_DIR_)) : false,
+									'differences' => $differences
+								);
+						}
 					}
 				}
 			}
@@ -430,15 +428,10 @@ class TranslaTools extends Module
 
 	public function purgeTranslationsAction()
 	{
-		require_once dirname(__FILE__).'/classes/SkipDotsFilterIterator.php';
-
-		$diter = new RecursiveDirectoryIterator(_PS_ROOT_DIR_, RecursiveDirectoryIterator::SKIP_DOTS);
-		$filter = new SkipDotsFilterIterator($diter);
-
 		$tokill = array();
 		$killed = array();
 
-		foreach (new RecursiveIteratorIterator($filter) as $file)
+		foreach (FilesLister::listFiles(_PS_ROOT_DIR_, null, null, true) as $file)
 		{
 			if (preg_match('#/translations/[a-z]{2}/(?:admin|errors|pdf|fields|tabs)\.php$#', $file))
 				$tokill[] = $file;
@@ -584,9 +577,8 @@ class TranslaTools extends Module
 		$issues = array();
 		$root_dirs = array(_PS_MODULE_DIR_, _PS_ALL_THEMES_DIR_.Tools::getValue('theme').'/modules/');
 		foreach ($root_dirs as $root_dir)
-			foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root_dir))
-				as $path => $info)
-				if (preg_match('/\.tpl$/', $path))
+			foreach (FilesLister::listFiles(_PS_ROOT_DIR_, '/\.tpl$/', null, true) as $path)
+				if (preg_match('#/modules/#', $path) && !preg_match('#/controllers/modules/#', $path))
 				{
 					$problems = $this->lintLTpl($path);
 					if (count($problems) > 0)
