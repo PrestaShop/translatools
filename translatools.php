@@ -124,14 +124,15 @@ EOS;
 	public function hookDisplayBackOfficeHeader($params)
 	{
 		if (Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
-			return "<script>var _jipt=[['project', 'prestashop-official']];</script>";
+			return $this->getCrowdinSnippet();
 		else return "";
 	}
 
 	public function hookActionAdminControllerSetMedia($params)
 	{
+		/*
 		if (Configuration::get('JIPT_BO') == '1' && $this->context->language->iso_code === 'an')
-			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
+			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');*/
 	}
 
 	public function hookDisplayBackOfficeFooter($params)
@@ -143,7 +144,7 @@ EOS;
 		global $smarty;
 		$smarty->assign('live_translation_enabled', $live_translation_enabled);
 		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
-		return $smarty->fetch(__FILE__, '/views/backOfficeFooter.tpl');
+		return $this->display(__FILE__, '/views/backOfficeFooter.tpl');
 	}
 
 	public function getContent()
