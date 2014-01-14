@@ -145,8 +145,8 @@
 		<div class="form-group">
 			<div class="col-lg-3"></div>
 			<div class="col-lg-9">
-				<button class="btn btn-primary" name="action" value="exportTranslations">Export Now</button>
-				<button class="btn btn-primary" name="action" value="viewStats">View Stats</button>
+				<button  class="btn btn-primary" name="action" value="exportTranslations">Export Now</button>
+				<button  class="btn btn-primary" name="action" value="viewStats">View Stats</button>
 			</div>
 		</div>
 	</form>
@@ -209,7 +209,7 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<span class="confirm">
-								<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
+								<button type="button" data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportSourcesToCrowdin();" id="export" class="btn btn-warning">Export!</button>
 							</span>
 						</div>
 						<div class="col-lg-8">
@@ -244,7 +244,7 @@
 						</div>
 						<div class="col-lg-4">
 							<span class="confirm">
-								<button data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
+								<button type="button" data-confirm="Are you sure?" data-cancel="No" onclick="javascript:exportTranslationsToCrowdin();" id="export-translations-to-crowdin" class="btn btn-warning">Export!</button>
 							</span>
 						</div>
 						<div class="col-lg-6 feedback">
@@ -262,7 +262,7 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<span class="confirm">
-								<button data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
+								<button type="button" data-confirm="Sure?" data-cancel="Well, no thanks." onclick="javascript:regenerateCrowdinTranslations();" class="btn btn-default">Regenerate!</button>
 							</span>
 						</div>
 						<div class="col-lg-8 feedback">
@@ -279,7 +279,7 @@
 			<div class="col-lg-6">
 				<div class="row">
 					<div class="col-lg-4">
-						<button onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
+						<button type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
 					</div>
 					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>

@@ -491,24 +491,35 @@ class TranslaTools extends Module
 		Tools::redirectAdmin('?controller=AdminModules&configure='.$this->name.'&token='.Tools::getValue('token'));
 	}
 
+	// Crowdin => PrestaShop
+	public static $languageMapping = array(
+		'zh-CN' => 'zh',
+		'sr-CS' => 'sr'
+	);
+
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
-		// TODO: implement;
-		if($foreignCode === 'zh-CN')
-		{
-			return 'zh';
-		}
-		return $foreignCode;
+		if (isset(self::$languageMapping[$foreignCode])) 
+			return self::$$languageMapping[$foreignCode];
+		else
+			return $foreignCode;
 	}
 
 	public function getCrowdinLanguageCode($prestashopCode)
 	{
-		// TODO: implement;
-		if($prestashopCode === 'zh')
+		static $reverseLanguageMapping;
+		if (!is_array($reverseLanguageMapping))
 		{
-			return 'zh-CN';
+			$reverseLanguageMapping = array();
+			foreach (static::$languageMapping as $crowdin => $prestashop)
+			{
+				$reverseLanguageMapping[$prestashop] = $crowdin;
+			}
 		}
-		return $prestashopCode;
+		if (isset($reverseLanguageMapping[$prestashopCode])) 
+			return $reverseLanguageMapping[$prestashopCode];
+		else
+			return $prestashopCode;
 	}
 
 	public function importTranslationFile($path, $contents, $languages = array())
