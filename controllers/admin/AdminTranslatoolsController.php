@@ -79,7 +79,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		);
 
 		// Prepend version
-		$export_pattern = '/'._PS_VERSION_.'/'.$export_pattern;
+		$export_pattern = '/'.$this->module->getPackVersion().'/'.$export_pattern;
 
 		return $export_pattern;
 	}
@@ -101,7 +101,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				{
 					$ps_path = substr($path, strlen($path_to_sources)+1);
 
-					$dest = $this->getCrowdinPath(_PS_VERSION_, $ps_path);
+					$dest = $this->getCrowdinPath($this->module->getPackVersion(), $ps_path);
 
 					$files_to_export[] = array(
 						'real_relative_path' => FilesLister::cleanPath(substr(realpath($path), strlen(_PS_ROOT_DIR_)+1)),
@@ -240,7 +240,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$stat = $za->statIndex($i);
 				$name = $stat['name'];
 				$m = array();
-				$exp = '#^'.preg_quote(_PS_VERSION_).'/(.*?\.php)$#';
+				$exp = '#^'.preg_quote($this->module->getPackVersion()).'/(.*?\.php)$#';
 				if (preg_match($exp, $name, $m))
 				{
 					$target_path = $m[1];
@@ -310,7 +310,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 					'language' => $this->module->getCrowdinLanguageCode($code),
 					'relsrc' => $relpath,
 					'dest' => $this->getCrowdinPath(
-						_PS_VERSION_,
+						$this->module->getPackVersion(),
 						substr($file, strlen($packs_root.'/'.$code)+1)
 					)
 				);

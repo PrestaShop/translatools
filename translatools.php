@@ -187,6 +187,16 @@ class TranslaTools extends Module
 		);
 	}
 
+	public function getPackVersion()
+	{
+		$m = array();
+		if (preg_match('/^(\d+\.\d+)/', _PS_VERSION_, $m))
+		{
+			return $m[1];
+		}
+		return _PS_VERSION_;
+	}
+
 	public function defaultAction()
 	{
 		$modules_not_found = array();
