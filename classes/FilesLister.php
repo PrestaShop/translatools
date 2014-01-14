@@ -4,6 +4,7 @@ class FilesLister
 {
 	public static function listFiles($dir, $whitelist=null, $blacklist=null, $recurse=false)
 	{
+		$dir = self::cleanPath($dir);
 		$files = array();
 
 		if (!is_dir($dir))
@@ -33,6 +34,11 @@ class FilesLister
 
 	public static function join($root, $path)
 	{
-		return preg_replace('#/+$#', '', $root).'/'.preg_replace('#^/+#', '', $path);
+		return self::cleanPath(preg_replace('#/+$#', '', $root)).'/'.self::cleanPath(preg_replace('#^/+#', '', $path));
+	}
+
+	public static function cleanPath($path)
+	{
+		return str_replace('\\', '/', $path);
 	}
 }

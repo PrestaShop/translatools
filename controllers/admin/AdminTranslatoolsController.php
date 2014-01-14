@@ -104,7 +104,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 					$dest = $this->getCrowdinPath(_PS_VERSION_, $ps_path);
 
 					$files_to_export[] = array(
-						'real_relative_path' => substr(realpath($path), strlen(_PS_ROOT_DIR_)+1),
+						'real_relative_path' => FilesLister::cleanPath(substr(realpath($path), strlen(_PS_ROOT_DIR_)+1)),
 						'dest' => $dest,
 						'add_or_update' => isset($info['files'][$dest]) ? 'update' : 'add'
 					);
@@ -240,7 +240,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$stat = $za->statIndex($i);
 				$name = $stat['name'];
 				$m = array();
-				if (preg_match('#^'.preg_quote(_PS_VERSION_).'/(.*?\.php)$#', $name, $m))
+				$exp = '#^'.preg_quote(_PS_VERSION_).'/(.*?\.php)$#';
+				if (preg_match($exp, $name, $m))
 				{
 					$target_path = $m[1];
 					$contents = $za->getFromIndex($i);
@@ -301,7 +302,6 @@ class AdminTranslatoolsController extends ModuleAdminController
 			$te->setLanguage($code);
 			$te->fill();
 			$wrote = $te->write($packs_root);
-
 			foreach ($wrote as $file)
 			{
 				$relpath = substr($file, strlen(_PS_ROOT_DIR_)+1);

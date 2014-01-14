@@ -26,7 +26,7 @@ class TranslationsExtractor
 	{
 		$this->files = array();
 
-		$dir = realpath($dir);
+		$dir = FilesLister::cleanPath(realpath($dir));
 
 		if (!is_dir($dir))
 			return "Sources directory does not exist, please ensure that you have exported the English strings.";
@@ -77,7 +77,7 @@ class TranslationsExtractor
 
 	public function setRootDir($dir)
 	{
-		$this->root_dir = $dir;
+		$this->root_dir = FilesLister::cleanPath($dir);
 	}
 
 	public function setTheme($theme)
@@ -116,12 +116,16 @@ class TranslationsExtractor
 
 	public function write($to_folder)
 	{
-		$to_folder = realpath($to_folder);
-		$whrote = array();
+		$wrote = array();
+
+		if (!is_dir($to_folder))
+		{
+			if (!@mkdir($to_folder, 0777, true))
+				return $wrote;
+		}
 
 		if (is_dir($to_folder))
 		{
-
 			$lc = $this->language !== '-' ? $this->language : 'en';
 
 			$this->rmDir($this->join($to_folder, $lc));
@@ -879,7 +883,7 @@ class TranslationsExtractor
 		$dir = $this->join($packs_dir, $lc);
 
 		if (!is_dir($dir))
-			die ("Directory does not exist: '$dir'.");
+			die ("TranslationsExtractor: Directory does not exist: '$dir'.");
 
 		chdir($dir);
 
