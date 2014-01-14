@@ -9,7 +9,7 @@ class SmartyLParser
 
 	public function peek($n=1)
 	{
-		return substr($this->string, $this->at, $n);
+		return mb_substr($this->string, $this->at, $n);
 	}
 
 	public function getc($n=1)

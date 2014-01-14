@@ -57,9 +57,11 @@ class CrowdinPHP
 
 		$payload = $this->flatten($data);
 
-		$ch = curl_init($url);                                                                      
+		$ch = curl_init($url);
+
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);                                                                 
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$result = curl_exec($ch);
 		if (isset($data['json']))
@@ -139,7 +141,8 @@ class CrowdinPHP
 		{
 			$data = array(
 				'files' => array(
-					$params['dest'] => $this->file($params['src'])		
+					$params['dest'] => $this->file($params['src'])
+
 				)
 			);
 
@@ -154,13 +157,15 @@ class CrowdinPHP
 				$data['export_patterns'] = array($params['dest'] => $params['export_pattern']);
 
 			return $this->makeRequest($add_or_update.'-file', $data);
-			
+
 		}
 		else
 			return array(
-				'success' => false, 
+				'success' => false,
+
 				'error' => array(
-					'code' => -1, 
+					'code' => -1,
+
 					'message' => 'Local file does not exist'
 				)
 			);

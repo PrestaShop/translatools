@@ -17,7 +17,7 @@ class TranslationsExtractor
 		$this->raw_files = array();
 	}
 
-	public function setModuleFilter($filter=null)
+	public function setModuleFilter($filter = null)
 	{
 		$this->module_filter = $filter;
 	}
@@ -35,7 +35,7 @@ class TranslationsExtractor
 		{
 			if (preg_match('/\.php$/', $path))
 			{
-				$relpath = substr($path, strlen($dir)+1);
+				$relpath = Tools::substr($path, Tools::strlen($dir)+1);
 
 				$n = 0;
 
@@ -98,11 +98,12 @@ class TranslationsExtractor
 		$this->modules_store_where = $storeWhere;
 	}
 
-	public function extract($to_folder=null)
+	public function extract($to_folder = null)
 	{
+
 		foreach ($this->sections as $section)
 		{
-			$method = 'extract'.ucfirst($section).'Strings';
+			$method = 'extract'.Tools::ucfirst($section).'Strings';
 			if (is_callable(array($this, $method)))
 				$this->$method();
 			else
@@ -158,7 +159,7 @@ class TranslationsExtractor
 							$dictionary[$key] = $data['translation'];
 
 					$path = $this->join($this->join($to_folder, $lc), str_replace('[lc]', $lc, $name));
-					
+
 					if (!is_dir(dirname($path)))
 						mkdir(dirname($path), 0777, true);
 					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
@@ -188,20 +189,20 @@ class TranslationsExtractor
 		if(!file_exists($path))
 			return array();
 
-		$data = file_get_contents($path);
+		$data = Tools::file_get_contents($path);
 
 		$matches = array();
 		$n = preg_match_all('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*]\\s*=\\s*\'((?:\\\\\'|[^\'])+)\'\\s*;$/m', $data, $matches);
 
 		$dictionary = array();
 
-		for ($i=0; $i<$n; $i++)
+		for ($i = 0; $i<$n; $i++)
 			$dictionary[$matches[1][$i]] = $matches[2][$i];
 
 		return $dictionary;
 	}
 
-	public function dictionaryToArray($name, $data, $global=true)
+	public function dictionaryToArray($name, $data, $global = true)
 	{
 		$str = "<?php\n\n";
 		if ($global)
@@ -304,7 +305,8 @@ class TranslationsExtractor
 		if (defined('_PS_CLASS_DIR_'))
 			return $this->join(_PS_CLASS_DIR_, 'controller/AdminController.php');
 		else
-			return $this->join($this->root_dir, 'classes/controller/AdminController.php');	
+			return $this->join($this->root_dir, 'classes/controller/AdminController.php');
+
 	}
 
 	public function getPaymentModulePath()
@@ -347,13 +349,13 @@ class TranslationsExtractor
 			return $this->join($this->root_dir, 'pdf');
 	}
 
-	public static function dequote($str, $unescape=false)
+	public static function dequote($str, $unescape = false)
 	{
 		if (mb_strlen($str) < 2)
 			return false;
 		$fc = mb_substr($str, 0, 1);
 		$lc = mb_substr($str, -1);
-		
+
 		if ($fc === $lc && ($fc === '\'' || $lc === '"'))
 		{
 			$string = mb_substr($str, 1, mb_strlen($str)-2);
@@ -396,7 +398,7 @@ class TranslationsExtractor
 	{
 		$prefix_key = basename($file);
 		if (strpos($file, 'Controller.php') !== false)
-			$prefix_key = basename(substr($file, 0, -14));
+			$prefix_key = basename(Tools::substr($file, 0, -14));
 		else if (strpos($file, 'Helper') !== false)
 			$prefix_key = 'Helper';
 
@@ -413,7 +415,7 @@ class TranslationsExtractor
 		// get controller name instead of file name
 		$prefix_key = Tools::toCamelCase(str_replace($this->getAdminDir().'/themes', '', $file), true);
 		$pos = strrpos($prefix_key, '/');
-		$tmp = substr($prefix_key, 0, $pos);
+		$tmp = Tools::substr($prefix_key, 0, $pos);
 
 		if (preg_match('#controllers#', $tmp))
 		{
@@ -421,16 +423,16 @@ class TranslationsExtractor
 			$override = array_search('override', $parent_class);
 			if ($override !== false)
 				// case override/controllers/admin/templates/controller_name
-				$prefix_key = 'Admin'.ucfirst($parent_class[$override + 4]);
+				$prefix_key = 'Admin'.Tools::ucfirst($parent_class[$override + 4]);
 			else
 			{
 				// case admin_name/themes/theme_name/template/controllers/controller_name
 				$key = array_search('controllers', $parent_class);
-				$prefix_key = 'Admin'.ucfirst($parent_class[$key + 1]);
+				$prefix_key = 'Admin'.Tools::ucfirst($parent_class[$key + 1]);
 			}
 		}
 		else
-			$prefix_key = 'Admin'.ucfirst(substr($tmp, strrpos($tmp, '/') + 1, $pos));
+			$prefix_key = 'Admin'.Tools::ucfirst(Tools::substr($tmp, strrpos($tmp, '/') + 1, $pos));
 
 		// Adding list, form, option in Helper Translations
 		$list_prefix_key = array('AdminHelpers', 'AdminList', 'AdminView', 'AdminOptions', 'AdminForm', 'AdminHelpAccess');
@@ -472,10 +474,10 @@ class TranslationsExtractor
 
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('\$this\s*->\s*l');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=self::dequote($m['arguments'][0]))
+				if ($str = self::dequote($m['arguments'][0]))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -506,10 +508,10 @@ class TranslationsExtractor
 
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('Translate\s*::\s*getAdminTranslation');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=self::dequote($m['arguments'][0]))
+				if ($str = self::dequote($m['arguments'][0]))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -533,11 +535,11 @@ class TranslationsExtractor
 		foreach ($files as $file)
 		{
 			$prefix_key = $this->getAdminTPLPrefixKey($file);
-			
+
 			foreach($parser->parse($file) as $string)
 			{
-				
-				if ($str=self::dequote($string))
+
+				if ($str = self::dequote($string))
 				{
 					$key = $prefix_key.md5($str);
 					$this->record(
@@ -565,10 +567,10 @@ class TranslationsExtractor
 		{
 			if (basename($file) === 'debug.tpl')
 				continue;
-			$prefix_key = substr(basename($file), 0, -4);
+			$prefix_key = Tools::substr(basename($file), 0, -4);
 			foreach($parser->parse($file) as $string)
-				
-				if ($str=self::dequote($string))
+
+				if ($str = self::dequote($string))
 				{
 					$key = $prefix_key.'_'.md5($str);
 					$this->record(
@@ -584,7 +586,7 @@ class TranslationsExtractor
 	public function extractMailSubjectsStrings()
 	{
 		$files = FilesLister::listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
-		
+
 		$storage_file = 'mails/[lc]/lang.php';
 		$type = 'mailSubjects';
 
@@ -592,10 +594,10 @@ class TranslationsExtractor
 		{
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('Mail\s*::\s*l');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
+				if (count($m['arguments']) > 0 && $str = self::dequote($m['arguments'][0]))
 				{
 					$key = $str;
 					$this->record(
@@ -612,7 +614,8 @@ class TranslationsExtractor
 	public function extractMailContentStrings()
 	{
 		$files = FilesLister::listFiles(
-			$this->join($this->getModulesDir(),'emailgenerator/templates'), 
+			$this->join($this->getModulesDir(),'emailgenerator/templates'),
+
 			'#emailgenerator/templates/[^/]+/.*?\.php$#', null, true
 		);
 
@@ -623,10 +626,10 @@ class TranslationsExtractor
 		{
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('\bt');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
+				if (count($m['arguments']) > 0 && $str = self::dequote($m['arguments'][0]))
 				{
 					$key = $str;
 					$this->record(
@@ -653,17 +656,17 @@ class TranslationsExtractor
 			'#\.(?:txt|html)$#'
 		);
 		$files = array_merge($module_emails, $core_emails);
-		
+
 		foreach ($files as $path)
 		{
-			$this->raw_files[substr($path, strlen($this->root_dir)+1)] = file_get_contents($path);
+			$this->raw_files[Tools::substr($path, Tools::strlen($this->root_dir)+1)] = Tools::file_get_contents($path);
 		}
 	}
 
 	public function extractErrorsStrings()
 	{
 		$files = FilesLister::listFiles($this->root_dir, '/\.php$/', '#/tools/|/cache/|\.tpl\.php$|/[a-z]{2}\.php$#', true);
-		
+
 		$storage_file = 'translations/[lc]/errors.php';
 		$type = 'errors';
 		$tstart = time();
@@ -672,10 +675,10 @@ class TranslationsExtractor
 		{
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('Tools\s*::\s*displayError');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if (count($m['arguments']) > 0 && $str=self::dequote($m['arguments'][0]))
+				if (count($m['arguments']) > 0 && $str = self::dequote($m['arguments'][0]))
 				{
 					$key = md5($str);
 					$this->record(
@@ -695,12 +698,12 @@ class TranslationsExtractor
 	public function getModuleKey($kind, $module, $file, $str)
 	{
 		$mod = Tools::strtolower($module);
-		
+
 		$tmp = array();
 		preg_match('/^(.*?)(?:\.tpl|\.php)$/', basename($file), $tmp);
 		$name = $tmp[1];
 		$f = Tools::strtolower($name);
-		
+
 		$md5 = md5($str);
 
 		if ($this->modules_store_where === 'core')
@@ -725,7 +728,8 @@ class TranslationsExtractor
 	public function extractModulesStrings()
 	{
 		$root_dirs = array(
-			'core' => $this->getModulesDir(), 
+			'core' => $this->getModulesDir(),
+
 			'overriden' => $this->join($this->getThemesDir(), $this->theme.'/modules')
 		);
 
@@ -752,10 +756,10 @@ class TranslationsExtractor
 							$storage_file = $this->getModuleStorageFile($kind, $module, $file);
 							$parser = new PHPFunctionCallParser();
 							$parser->setPattern('->\s*l');
-							$parser->setString(file_get_contents($file));
+							$parser->setString(Tools::file_get_contents($file));
 							while ($m=$parser->getMatch())
 							{
-								if ($str=self::dequote($m['arguments'][0]))
+								if ($str = self::dequote($m['arguments'][0]))
 								{
 									$key = $this->getModuleKey($kind, $module, $file, $str);
 									$this->record(
@@ -782,7 +786,7 @@ class TranslationsExtractor
 							$storage_file = $this->getModuleStorageFile($kind, $module, $file);
 
 							foreach($parser->parse($file) as $string)
-								if ($str=self::dequote($string))
+								if ($str = self::dequote($string))
 								{
 									$key = $this->getModuleKey($kind, $module, $file, $str);
 									$this->record(
@@ -794,7 +798,8 @@ class TranslationsExtractor
 								}
 						}
 					}
-			} 
+			}
+
 		}
 
 	}
@@ -808,7 +813,7 @@ class TranslationsExtractor
 		$files = array_merge(
 			FilesLister::listFiles($this->join($this->getClassesDir(), 'pdf'), '/\.php$/'),
 			FilesLister::listFiles($this->join($this->getOverrideDir(), 'classes/pdf'), '/\.php$/')
-		);	
+		);
 
 		$storage_file = 'translations/[lc]/pdf.php';
 		$type = 'pdfs';
@@ -816,10 +821,10 @@ class TranslationsExtractor
 		{
 			$parser = new PHPFunctionCallParser();
 			$parser->setPattern('HTMLTemplate\w*\s*::\s*l');
-			$parser->setString(file_get_contents($file));
+			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str=self::dequote($m['arguments'][0]))
+				if ($str = self::dequote($m['arguments'][0]))
 				{
 					$key = 'PDF'.md5($str);
 					$this->record(
@@ -845,7 +850,7 @@ class TranslationsExtractor
 		foreach ($files as $file)
 		{
 			foreach($parser->parse($file) as $string)
-				if ($str=self::dequote($string))
+				if ($str = self::dequote($string))
 				{
 					$key = 'PDF'.md5($str);
 					$this->record(
@@ -870,7 +875,7 @@ class TranslationsExtractor
 					$this->record($tab['name'], $tab['class_name'], 'translations/[lc]/tabs.php', 'tabs');
 			}
 		}
-			
+
 	}
 
 	public function sendAsGZIP($packs_dir)
@@ -888,7 +893,7 @@ class TranslationsExtractor
 		chdir($dir);
 
 		$archpath = '../'.$archname;
-		
+
 		// Just in case...
 		if (file_exists($archpath))
 			unlink($archpath);
@@ -899,7 +904,7 @@ class TranslationsExtractor
 
 		foreach (FilesLister::listFiles('.', null, null, true) as $path)
 			$add[] = preg_replace('#^\./#', '', $path);
-		
+
 		$arch->add($add);
 
 		ob_end_clean();

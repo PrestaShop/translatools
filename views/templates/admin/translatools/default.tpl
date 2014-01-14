@@ -4,17 +4,17 @@
 	{assign var=id_off value=$input_name|replace:'[':'_'|replace:']':'_'|cat:'_off'}
 
 	<div class="form-group">
-		<label for="{$id_on}" class="control-label col-lg-3">{$label}</label>
+		<label for="{$id_on}" class="control-label col-lg-3">{$label|escape:'htmlall':'UTF-8'}</label>
 		<div class="col-lg-2">
 			<div class="input-group">
 				<span class="switch prestashop-switch">
 					<input name="{$input_name}" type="radio" id="{$id_on}" value="{$value_on}"{if $value==$value_on} checked{/if}>
 					<label for="{$id_on}">
-						{$label_on}
+						{$label_on|escape:'htmlall':'UTF-8'}
 					</label>
 					<input name="{$input_name}" type="radio" id="{$id_off}" value="{$value_off}"{if $value==$value_off} checked{/if}>
 					<label for="{$id_off}">
-						{$label_off}
+						{$label_off|escape:'htmlall':'UTF-8'}
 					</label>
 					<a class="slide-button btn"></a>
 				</span>
@@ -87,7 +87,7 @@
 				<div class="col-lg-3"></div>
 				<div class="col-lg-6">
 					<div class="alert alert-warning">
-						<strong>Warning: </strong>{$modules_not_found_warning}	
+						<strong>Warning: </strong>{$modules_not_found_warning|escape:'htmlall':'UTF-8'}	
 					</div>
 				</div>
 			</div>
@@ -126,7 +126,7 @@
 			<div class="col-lg-6">
 				<select name="theme" id="theme">
 					{foreach from=$themes item=theme}
-						<option value="{$theme}">{$theme}</option>
+						<option value="{$theme}">{$theme|escape:'htmlall':'UTF-8'}</option>
 					{/foreach}
 				</select>
 			</div>
@@ -137,7 +137,7 @@
 					<select name="language" id="language">
 					<option value="-">As in code (should be English)</option>
 					{foreach from=$languages item=language key=code}
-						<option value="{$code}">{$language}</option>
+						<option value="{$code}">{$language|escape:'htmlall':'UTF-8'}</option>
 					{/foreach}
 				</select>
 			</div>
@@ -238,7 +238,7 @@
 							<select name="language" id="export-translations-language">
 								<option value="*">All languages</option>
 								{foreach from=$languages item=language key=code}
-									<option value="{$code}">{$language}</option>
+									<option value="{$code}">{$language|escape:'htmlall':'UTF-8'}</option>
 								{/foreach}
 							</select>
 						</div>

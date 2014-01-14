@@ -3,9 +3,9 @@
 	{foreach from=$issues key=file item=problems}
 		{foreach from=$problems key=problem item=n}
 			<tr>
-				<td>{$file}</td>
-				<td>{$problem}</td>
-				<td>{$n}</td>
+				<td>{$file|escape:'htmlall':'UTF-8'}</td>
+				<td>{$problem|escape:'htmlall':'UTF-8'}</td>
+				<td>{$n|escape:'htmlall':'UTF-8'}</td>
 			</tr>
 		{/foreach}
 	{/foreach}	

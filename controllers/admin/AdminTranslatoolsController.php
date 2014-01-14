@@ -26,14 +26,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 	public function run()
 	{
 		$action = Tools::getValue('action');
-		$method = 'ajax'.ucfirst($action).'Action';
+		$method = 'ajax'.Tools::ucfirst($action).'Action';
 		if (is_callable(array($this, $method)))
 		{
-			$payload = json_decode(file_get_contents('php://input'), true);
-			die(json_encode($this->$method($payload)));
+			$payload = Tools::jsonDecode(file_get_contents('php://input'), true);
+			die(Tools::jsonEncode($this->$method($payload)));
 		}
 		else
-			die(json_encode(array('success' => false)));
+			die(Tools::jsonEncode(array('success' => false)));
 	}
 
 	public function getCrowdinPath($version, $ps_path)
@@ -99,12 +99,12 @@ class AdminTranslatoolsController extends ModuleAdminController
 			{
 				if (preg_match('/(?:[a-z]{2}|admin|pdf|errors|tabs)\.php$/', $path))
 				{
-					$ps_path = substr($path, strlen($path_to_sources)+1);
+					$ps_path = Tools::substr($path, Tools::strlen($path_to_sources)+1);
 
 					$dest = $this->getCrowdinPath($this->module->getPackVersion(), $ps_path);
 
 					$files_to_export[] = array(
-						'real_relative_path' => FilesLister::cleanPath(substr(realpath($path), strlen(_PS_ROOT_DIR_)+1)),
+						'real_relative_path' => FilesLister::cleanPath(Tools::substr(realpath($path), Tools::strlen(_PS_ROOT_DIR_)+1)),
 						'dest' => $dest,
 						'add_or_update' => isset($info['files'][$dest]) ? 'update' : 'add'
 					);
@@ -304,14 +304,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 			$wrote = $te->write($packs_root);
 			foreach ($wrote as $file)
 			{
-				$relpath = substr($file, strlen(_PS_ROOT_DIR_)+1);
+				$relpath = Tools::substr($file, Tools::strlen(_PS_ROOT_DIR_)+1);
 				$tasks[] = array(
 					'action' => 'exportTranslationFile',
 					'language' => $this->module->getCrowdinLanguageCode($code),
 					'relsrc' => $relpath,
 					'dest' => $this->getCrowdinPath(
 						$this->module->getPackVersion(),
-						substr($file, strlen($packs_root.'/'.$code)+1)
+						Tools::substr($file, Tools::strlen($packs_root.'/'.$code)+1)
 					)
 				);
 			}

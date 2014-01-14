@@ -20,12 +20,12 @@ class TranslationsLinter
 					{
 						foreach (FilesLister::listFiles($module_root, '/\.tpl$/', null, true) as $overriden_path)
 						{
-							$original_path = _PS_MODULE_DIR_.substr($overriden_path, strlen($theme_modules_root));
+							$original_path = _PS_MODULE_DIR_.Tools::substr($overriden_path, Tools::strlen($theme_modules_root));
 							$differences = $this->getDifferences('tpl', $overriden_path, $original_path);
 							if (count($differences) > 0)
 								$deltas[] = array(
-									'overriden_file' => substr($overriden_path, strlen(_PS_ROOT_DIR_)),
-									'original_file' => file_exists($original_path) ? substr($original_path, strlen(_PS_ROOT_DIR_)) : false,
+									'overriden_file' => Tools::substr($overriden_path, Tools::strlen(_PS_ROOT_DIR_)),
+									'original_file' => file_exists($original_path) ? Tools::substr($original_path, Tools::strlen(_PS_ROOT_DIR_)) : false,
 									'differences' => $differences
 								);
 						}
@@ -49,7 +49,7 @@ class TranslationsLinter
 				{
 					$problems = $this->lintLTpl($path);
 					if (count($problems) > 0)
-						$issues[substr($path, strlen(_PS_ROOT_DIR_)+1)] = $problems;
+						$issues[Tools::substr($path, Tools::strlen(_PS_ROOT_DIR_)+1)] = $problems;
 				}
 
 		return array('issues' => $issues);
@@ -68,7 +68,7 @@ class TranslationsLinter
 			'/\{l\s*s=\"'._PS_TRANS_PATTERN_.'\"/U'
 		);
 
-		$data = file_get_contents($path);
+		$data = Tools::file_get_contents($path);
 
 		$strings = array();
 
@@ -106,8 +106,8 @@ class TranslationsLinter
 		preg_match_all('/\w+/', $str, $list);
 		$bow = array();
 		foreach ($list[0] as $word)
-			if (strlen($word) > 3)
-				$bow[] = strtolower($word);
+			if (Tools::strlen($word) > 3)
+				$bow[] = Tools::strtolower($word);
 			
 		return array_unique($bow);
 	}
@@ -143,7 +143,7 @@ class TranslationsLinter
 	{
 		$problems = array();
 
-		$parser = new SmartyFunctionCallParser(file_get_contents($path), 'l');
+		$parser = new SmartyFunctionCallParser(Tools::file_get_contents($path), 'l');
 		$matches = $parser->parse();
 
 		foreach ($matches as $arguments)

@@ -48,7 +48,9 @@ class TranslaTools extends Module
 		$this->name = 'translatools';
 		$this->version = '0.6';
 		$this->author = 'fmdj';
+		$this->tab = 'administration';
 		
+		//TODO: Add warning curl
 
 		$this->bootstrap = true;
 		parent::__construct();	
@@ -113,7 +115,7 @@ class TranslaTools extends Module
 		{
 			$this->context->controller->addJS('https://cdn.crowdin.net/jipt/jipt.js');
 			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
-			return $this->display(__FILE__, 'views/header.tpl');
+			return $this->display(__FILE__, 'views/templates/hook/header.tpl');
 		}
 		else return "";
 	}
@@ -123,7 +125,7 @@ class TranslaTools extends Module
 		if (Configuration::get('CROWDIN_PROJECT_IDENTIFIER') && Configuration::get('JIPT_FO') == '1' && $this->context->language->iso_code === 'an')
 		{
 			$this->smarty->assign('CROWDIN_PROJECT_IDENTIFIER', Configuration::get('CROWDIN_PROJECT_IDENTIFIER'));
-			return $this->display(__FILE__, 'views/jipt.tpl');
+			return $this->display(__FILE__, 'views/templates/hook/jipt.tpl');
 		}
 		else return "";
 	}
@@ -138,16 +140,14 @@ class TranslaTools extends Module
 			return;
 		
 		$live_translation_enabled = ($this->context->cookie->JIPT_PREVIOUS_ID_LANG ? 1 : 0) || $this->context->language->iso_code === 'an';
-		global $smarty;
-		$smarty->assign('live_translation_enabled', $live_translation_enabled);
-		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
-		return $this->display(__FILE__, '/views/backOfficeFooter.tpl');
+		
+		$this->context->smarty->assign('live_translation_enabled', $live_translation_enabled);
+		$this->context->smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
+		return $this->display(__FILE__, '/views/templates/hook/backOfficeFooter.tpl');
 	}
 
 	public function getContent()
 	{
-		global $smarty;
-
 		$action = Tools::getValue('action');
 		if ($action == '')
 			$action = 'default';
@@ -159,14 +159,14 @@ class TranslaTools extends Module
 			$template_parameters = $this->$method();
 			if (is_array($template_parameters))
 			{
-				$smarty->assign($template_parameters);
+				$this->context->smarty->assign($template_parameters);
 			}
 			if (file_exists($tpl_path=dirname(__FILE__).'/views/'.$this->tpl.'.tpl')
 				||
 				file_exists($tpl_path=dirname(__FILE__).'/views/templates/admin/translatools/'.$this->tpl.'.tpl'))
 			{
 				$this->assignDefaultSmartyParameters();
-				return $smarty->fetch($tpl_path);
+				return $this->context->smarty->fetch($tpl_path);
 			}
 			else
 				return "Could not find template for: '$action'";
@@ -182,7 +182,7 @@ class TranslaTools extends Module
 	{
 		return array_map('trim', 
 			explode("\n", 
-				file_get_contents(dirname(__FILE__).'/data/native_modules')
+				Tools::file_get_contents(dirname(__FILE__).'/data/native_modules')
 			)
 		);
 	}
@@ -250,7 +250,6 @@ class TranslaTools extends Module
 
 	public function assignDefaultSmartyParameters()
 	{
-		global $smarty;
 		$hidden = array(
 			'token' => Tools::getValue('token'),
 			'configure' => $this->name,
@@ -267,9 +266,9 @@ class TranslaTools extends Module
 		$translatools_stay_here = implode("\n", $inputs);
 		$translatools_url = '?'.implode('&', $params);
 
-		$smarty->assign('translatools_stay_here', $translatools_stay_here); 
-		$smarty->assign('translatools_url', $translatools_url);
-		$smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
+		$this->context->smarty->assign('translatools_stay_here', $translatools_stay_here); 
+		$this->context->smarty->assign('translatools_url', $translatools_url);
+		$this->context->smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
 	public function exportTranslationsAction()
@@ -332,7 +331,7 @@ class TranslaTools extends Module
 		foreach ($tokill as $path)
 		{
 			unlink($path);
-			$killed[] = substr($path, strlen(_PS_ROOT_DIR_)+1);
+			$killed[] = substr($path, Tools::strlen(_PS_ROOT_DIR_)+1);
 		}
 
 		return array('killed' => $killed);
@@ -408,13 +407,13 @@ class TranslaTools extends Module
 		$lc = null;
 		if (preg_match('#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs)\.php$#', $path, $m))
 			$lc = $m[1];
-		else if(preg_match('#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#', $path, $m))
+		elseif(preg_match('#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#', $path, $m))
 			$lc = $m[1];
-		else if(preg_match('#^themes/(?:[^/]+)/lang/(.*?)\.php$#', $path, $m))
+		elseif(preg_match('#^themes/(?:[^/]+)/lang/(.*?)\.php$#', $path, $m))
 			$lc = $m[1];
-		else if(preg_match('#mails/([^/]+)/lang.php$#', $path, $m))
+		elseif(preg_match('#mails/([^/]+)/lang.php$#', $path, $m))
 			$lc = $m[1];
-		else if(basename($path) === 'lang_content.php')
+		elseif(basename($path) === 'lang_content.php')
 			return true;
 
 		if ($lc === null)

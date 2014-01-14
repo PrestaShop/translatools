@@ -2,7 +2,7 @@
 
 class FilesLister
 {
-	public static function listFiles($dir, $whitelist=null, $blacklist=null, $recurse=false)
+	public static function listFiles($dir, $whitelist = null, $blacklist = null, $recurse = false)
 	{
 		$dir = self::cleanPath($dir);
 		$files = array();
@@ -22,10 +22,8 @@ class FilesLister
 				continue;
 
 			if (is_dir($path) and $recurse)
-			{
 				$files = array_merge($files, static::listFiles($path, $whitelist, $blacklist, $recurse));
-			}
-			else if (!is_dir($path))
+			elseif (!is_dir($path))
 				$files[] = $path;
 		}
 
