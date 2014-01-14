@@ -22,7 +22,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
 		}
 	}
-
+	
 	public function run()
 	{
 		$action = Tools::getValue('action');

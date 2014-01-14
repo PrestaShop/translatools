@@ -2,8 +2,8 @@
 
 @ini_set('display_errors', 'on');
 
-require dirname(__FILE__).'/PHPFunctionCallParser.php';
-require dirname(__FILE__).'/SmartyLParser.php';
+require dirname(__FILE__).'/parsing/PHPFunctionCallParser.php';
+require dirname(__FILE__).'/parsing/SmartyLParser.php';
 require dirname(__FILE__).'/FilesLister.php';
 
 class TranslationsExtractor
