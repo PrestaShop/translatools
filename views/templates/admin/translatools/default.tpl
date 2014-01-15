@@ -62,10 +62,6 @@
 
 <div class="panel">
 	<h3>Export translations</h3>
-	
-	<div class="alert alert-info">
-		<p>You can use this panel to export translations from PrestaShop.</p>
-	</div>
 
 	<form class="form-horizontal" action="{$link->getAdminLink('AdminTranslatools')}" method="POST">
 				
