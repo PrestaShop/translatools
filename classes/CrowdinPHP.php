@@ -10,10 +10,12 @@ class CrowdinPHP
 		$this->identifier = $project_identifier;
 		$this->key = $api_key;
 	}
-
-	// Starting with PHP 5.5, the '@' syntax to upload files is deprecated
-	// so use the new way (curl_file_create) if possible,
-	// else use the old one.
+	
+	/*
+	Starting with PHP 5.5, the '@' syntax to upload files is deprecated
+	so use the new way (curl_file_create) if possible,
+	else use the old one.
+	*/
 	public function file($path)
 	{
 		if (function_exists('curl_file_create'))
@@ -22,12 +24,14 @@ class CrowdinPHP
 			return '@'.realpath($path);
 	}
 
-	// Transform a multi-dimensional array into a 2d one,
-	// so that it can be used properly by curl (curl is dumb).
-	// E.g.: [a => [b => c]] is transformed into: [a[b] => c]
-	// If you pass [a => [b => c]] to CURLOPT_POSTFIELDS
-	// it will assume [b => c] is a string!
-	// Passing [a[b] => c] works, though, hence this function.
+	/* 
+	Transform a multi-dimensional array into a 2d one,
+	so that it can be used properly by curl (curl is dumb).
+	E.g.: [a => [b => c]] is transformed into: [a[b] => c]
+	If you pass [a => [b => c]] to CURLOPT_POSTFIELDS
+	it will assume [b => c] is a string!
+	Passing [a[b] => c] works, though, hence this function.
+	*/
 	private function flatten($array)
 	{
 		$out = array();
@@ -43,8 +47,10 @@ class CrowdinPHP
 		return $out;
 	}
 
-	// Make a request to the Crowdin API (http://crowdin.net/page/api), return result as JSON.
-	// Takes care of authentication.
+	/*
+	Make a request to the Crowdin API (http://crowdin.net/page/api), return result as JSON.
+	Takes care of authentication.
+	*/
 	public function makeRequest($method, $data)
 	{
 		// We like JSON. With this, Crowdin will return JSON. JSON is good.
@@ -87,9 +93,11 @@ class CrowdinPHP
 		}
 	}
 
-	// This method will use the public download link if $language === all
-	// (this doens't require privileges if the project has allowed public downloads)
-	// If $language is different from 'all' it will use the private API
+	/*
+	This method will use the public download link if $language === all
+	(this doens't require privileges if the project has allowed public downloads)
+	If $language is different from 'all' it will use the private API
+	*/
 	public function downloadTranslations($language='all')
 	{
 		if ($language === 'all')
@@ -127,14 +135,16 @@ class CrowdinPHP
 		return $info;
 	}
 
-	// Add or update a file to crowdin
-	// Data is an array with the following MANDATORY keys:
-	// - dest: target path
-	// - src: local path
-	// Optional keys are:
-	// - type
-	// - title
-	// - export_pattern
+	/*
+	Add or update a file to crowdin
+	Data is an array with the following MANDATORY keys:
+	- dest: target path
+	- src: local path
+	Optional keys are:
+	- type
+	- title
+	- export_pattern
+	*/
 	public function addOrUpdateFile($add_or_update, $params)
 	{
 		if (file_exists($params['src']))
