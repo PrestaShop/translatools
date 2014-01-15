@@ -50,7 +50,7 @@ class TranslaTools extends Module
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
 		
-		//TODO: Add warning curl
+		//TODO: Add warning curl ($this->warning = 'blah blah';)
 
 		$this->bootstrap = true;
 		parent::__construct();	
@@ -73,8 +73,12 @@ class TranslaTools extends Module
 		Configuration::updateValue('JIPT_BO', '1');
 
 		$this->createVirtualLanguage();
-		$ttc = new AdminTranslatoolsController(true);
-		$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
+
+		if (count($this->nonWritableDirectories()) === 0)
+		{
+			$ttc = new AdminTranslatoolsController(true);
+			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
+		}
 
 		return $ok;
 	}
@@ -144,6 +148,62 @@ class TranslaTools extends Module
 		$this->context->smarty->assign('live_translation_enabled', $live_translation_enabled);
 		$this->context->smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
 		return $this->display(__FILE__, '/views/templates/hook/backOfficeFooter.tpl');
+	}
+
+	public function nonWritableDirectories()
+	{
+		$nonWritable = array();
+		$directories = array();
+		foreach (scandir(_PS_MODULE_DIR_) as $entry)
+		{
+			if ($entry[0] !== '.' && is_dir(_PS_MODULE_DIR_.$entry))
+			{
+				$directories[] = FilesLister::join(_PS_MODULE_DIR_, "$entry/translations");
+			}
+		}
+		foreach (scandir(_PS_ALL_THEMES_DIR_) as $entry)
+		{
+			if ($entry[0] !== '.' && is_dir(_PS_ALL_THEMES_DIR_.$entry))
+			{
+				$directories[] = FilesLister::join(_PS_ALL_THEMES_DIR_, "$entry/lang");
+			}
+		}
+		$directories[] = FilesLister::join(_PS_ROOT_DIR_, 'translations');
+		$directories[] = FilesLister::join(_PS_ROOT_DIR_, 'mails');
+		$directories[] = FilesLister::join(_PS_MODULE_DIR_, 'translatools/packs');
+
+		if (is_dir( FilesLister::join(_PS_MODULE_DIR_, 'emailgenerator')))
+			$directories[] = FilesLister::join(_PS_MODULE_DIR_, 'emailgenerator/templates_translations');
+
+		foreach ($directories as $dir)
+		{
+			$writable = false;
+			if (file_exists($dir) && is_writable($dir))
+				$writable = true;
+			else if (!file_exists($dir))
+			{
+				$parent = $dir;
+				while (($parent = preg_replace('#/[^/]+/?$#', '', $parent)) !== '')
+				{
+					if (file_exists($parent))
+					{
+						if (is_writable($parent))
+						{
+							$writable = true;
+							break;
+						}
+						else
+							break;
+					}
+				}
+					
+			}
+
+			if (!$writable)
+				$nonWritable[] = Tools::substr($dir, 1+Tools::strlen(FilesLister::cleanPath(_PS_ROOT_DIR_)));
+		}
+
+		return $nonWritable;
 	}
 
 	public function getContent()
@@ -217,7 +277,8 @@ class TranslaTools extends Module
 			'modules_not_found_warning' => $modules_not_found_warning,
 			'jipt_language' => 'an',
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
-			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY')
+			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
+			'non_writable_directories' => $this->nonWritableDirectories()
 		);
 	}
 

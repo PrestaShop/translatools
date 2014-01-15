@@ -44,15 +44,17 @@
 	}
 </style>
 
-<div class="panel">
-	<h3>Purge Translations</h3>
-	<div class='alert alert-warning'>
-		This will delete all translation files on your shop (except e-mails).
+{if $non_writable_directories|count > 0}
+	<div class="alert alert-warning">
+		<p><strong>Warning:</strong> Some folders in which this module may need to create files cannot be written to. This will likely prevent you from using the module to its full potential.</p>
+		<p>Please try to adjust file permissions so that your web server may be able to create the following directories (if they do not exist) and write into them:</p>
+		<ul>
+			{foreach from=$non_writable_directories item=dir}
+				<li>{$dir}</li>
+			{/foreach}
+		</ul>
 	</div>
-	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=purgeTranslations" method="POST">
-		<button onclick="javascript:return confirm('Really purge all translations??');" class="btn btn-warning">Purge Translations</button>
-	</form>
-</div>
+{/if}
 
 <div class="panel">
 	<h3>Export translations</h3>
@@ -180,7 +182,7 @@
 </div>
 
 <div class="panel">
-	<h3>Crowdin</h3>
+	<h3>Crowdin Integration</h3>
 	
 	<form class="form-horizontal">
 		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
@@ -311,6 +313,16 @@
 				<button class="btn" id="check_l">Check!</button>
 			</div>
 		</div>
+	</form>
+</div>
+
+<div class="panel">
+	<h3>Purge Translations</h3>
+	<div class='alert alert-warning'>
+		This will delete all translation files on your shop (except e-mails).
+	</div>
+	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=purgeTranslations" method="POST">
+		<button onclick="javascript:return confirm('Really purge all translations??');" class="btn btn-warning">Purge Translations</button>
 	</form>
 </div>
 
