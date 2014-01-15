@@ -49,10 +49,8 @@
 	<div class='alert alert-warning'>
 		This will delete all translation files on your shop (except e-mails).
 	</div>
-	<form action="" method="GET">
-		{$translatools_stay_here}
-		<input type="hidden" name="action" value="purgeTranslations">
-		<button onclick="javascript:return confirm('Really purge all translations??');" name="action" value="purgeTranslations" class="btn btn-warning">Purge Translations</button>
+	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=purgeTranslations" method="POST">
+		<button onclick="javascript:return confirm('Really purge all translations??');" class="btn btn-warning">Purge Translations</button>
 	</form>
 </div>
 
@@ -63,9 +61,8 @@
 		Use this form to export translations.<BR/>
 	</div>
 
-	<form class="form-horizontal" action="" method="GET">
-		{$translatools_stay_here}
-		
+	<form class="form-horizontal" action="{$link->getAdminLink('AdminTranslatools')}" method="POST">
+				
 		{yesno label="Export Front-Office Strings" input_name="section[frontOffice]"}
 		
 		{yesno label="Export Back-Office Strings" input_name="section[backOffice]"}
@@ -154,8 +151,7 @@
 
 <div class="panel">
 	<h3>Crowdin API</h3>
-	<form method="POST" class="form-horizontal">
-		{$translatools_stay_here}
+	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=default" method="POST" class="form-horizontal">
 		<input type="hidden" name="update_api_settings" value="1">
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="CROWDIN_PROJECT_IDENTIFIER">Project Identifier</label>
@@ -292,20 +288,16 @@
 
 <div class="panel">
 	<h3>Translation Linting</h3>
-	<form class="form-horizontal" action="" method="GET">
-		{$translatools_stay_here}
-		<input type="hidden" name="action" value="checkCoherence">
+	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkCoherence" method="POST" class="form-horizontal">
 		<div class="form-group">
 			<label for="check-coherence" class="control-label col-lg-3">Check Overriding Coherence</label>
 			<div class="col-lg-6">
-				<button class="btn btn-primary">Check!</button>
+				<button type="submit" class="btn btn-primary">Check!</button>
 			</div>
 		</div>
 	</form>
 	
-	<form action="" class="form-horizontal">
-		{$translatools_stay_here}
-		<input type="hidden" name="action" value="checkLUse">
+	<form method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkLUse" class="form-horizontal">
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="check_l">Check use of translation functions</label>
 			<div class="col-lg-6">
@@ -379,25 +371,25 @@
 		});
 
 		$('input[name=jipt_fo]').change(function(){
-			$.post('{$translatools_url}&action=setConfigurationValue&key=JIPT_FO&value='+$(this).val());
+			$.post('{$link->getAdminLink("AdminTranslatools")}&action=setConfigurationValue&key=JIPT_FO&value='+$(this).val());
 			event.preventDefault();
 		});
 
 		$('input[name=jipt_bo]').change(function(){
-			$.post('{$translatools_url}&action=setConfigurationValue&key=JIPT_BO&value='+$(this).val());
+			$.post('{$link->getAdminLink("AdminTranslatools")}&action=setConfigurationValue&key=JIPT_BO&value='+$(this).val());
 			event.preventDefault();
 		});
 	});
 
 	function updateConfigValue(input_id)
 	{
-		$.post('{$translatools_url}&action=setConfigurationValue&key='+encodeURIComponent(input_id)+'&value='+encodeURIComponent($('#'+input_id).val()));
+		$.post('{$link->getAdminLink("AdminTranslatools")}&action=setConfigurationValue&key='+encodeURIComponent(input_id)+'&value='+encodeURIComponent($('#'+input_id).val()));
 		event.preventDefault();
 	};
 
 	function performMultiStepAjaxAction(action, payload, fdbk, handler)
 	{
-		var url = '{$translatools_controller}&action='+action;
+		var url = '{$link->getAdminLink("AdminTranslatools")}&action='+action+'&ajax=1';
 
 		$.ajax({
 			type: "POST",
@@ -469,7 +461,7 @@
 
 		$.ajax({
 		  type: "POST",
-		  url: '{$translatools_controller}&action=downloadTranslations',
+		  url: '{$link->getAdminLink("AdminTranslatools")}&action=downloadTranslations&ajax=1',
 		  success: handleDownloadTranslationsReturn,
 		  dataType: 'json'
 		});

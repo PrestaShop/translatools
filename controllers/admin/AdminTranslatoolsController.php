@@ -22,18 +22,36 @@ class AdminTranslatoolsController extends ModuleAdminController
 				Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
 		}
 	}
-	
-	public function run()
+
+	public function init()
 	{
 		$action = Tools::getValue('action');
-		$method = 'ajax'.Tools::ucfirst($action).'Action';
-		if (is_callable(array($this, $method)))
+		$this->action = $action ? $action : 'default';
+		$this->template = basename($this->action).'.tpl';
+
+		parent::init();
+	}
+
+	public function postProcess()
+	{
+		if ($this->action && !$this->ajax && !method_exists($this, 'process'.Tools::ucfirst($this->action)))
 		{
-			$payload = Tools::jsonDecode(file_get_contents('php://input'), true);
-			die(Tools::jsonEncode($this->$method($payload)));
+			$method = $this->action.'Action';
+			$this->module->assignDefaultSmartyParameters();
+			$data = $this->module->$method();
+			if (is_array($data))
+				$this->context->smarty->assign($data);
+		}
+		else if ($this->action && $this->ajax && !method_exists($this, 'ajaxProcess'.Tools::ucfirst($this->action)))
+		{
+			$method = 'ajax'.Tools::ucfirst($this->action).'Action';
+			$data = $this->$method(Tools::jsonDecode(Tools::file_get_contents('php://input'), true));
+			die (Tools::jsonEncode($data));
 		}
 		else
-			die(Tools::jsonEncode(array('success' => false)));
+		{
+			parent::postProcess();
+		}
 	}
 
 	public function getCrowdinPath($version, $ps_path)

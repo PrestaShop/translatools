@@ -773,7 +773,7 @@ class TranslationsExtractor
 		{
 			foreach (scandir($dir) as $module)
 			{
-				if ($this->module_filter && is_array($this->module_filter) && !in_array($module, $this->module_filter))
+				if (isset($this->module_filter) && is_array($this->module_filter) && !in_array($module, $this->module_filter))
 					continue;
 
 				if (!preg_match('/^\./', $module))
