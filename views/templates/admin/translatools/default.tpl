@@ -275,8 +275,8 @@
 			<label for="export" class="control-label col-lg-3">Install translations from Crowdin</label>
 			<div class="col-lg-6">
 				<div class="alert alert-info">
-					<p>Downloading the translations from crowdin will install the latest translation files from Crowdin onto your Shop.</p>
-					<p>You should run this action regularly during pre release times if you want to be able to use JIPT on all the strings in PrestaShop.</p>
+					<p>This will install the latest translation files from Crowdin onto your Shop.</p>
+					<p>You should run this action regularly during pre release times if you want to be able to use Live Translation on all the strings in PrestaShop.</p>
 				</div>
 				<div class="alert alert-warning">
 					<p><strong>Warning:</strong> Downloading translations from Crowdin will overwrite all or most of your own translations, in all languages. Only proceed if you really know what you're doing!</p>
