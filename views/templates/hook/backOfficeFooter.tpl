@@ -15,7 +15,7 @@
 	{
 		$.ajax({
 			type: 'POST',
-			url: '{$translatools_controller}&action=switchVirtualLanguage',
+			url: '{$link->getAdminLink("AdminTranslatools")}&action=switchVirtualLanguage&ajax=1',
 			data: JSON.stringify({
 				value: yesno
 			}),
