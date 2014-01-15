@@ -191,6 +191,11 @@ class TranslationsExtractor
 
 		$data = Tools::file_get_contents($path);
 
+		return self::parseDictionaryFromString($data);
+	}
+
+	public static function parseDictionaryFromString($data)
+	{
 		$matches = array();
 		$n = preg_match_all('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*]\\s*=\\s*\'((?:\\\\\'|[^\'])+)\'\\s*;$/m', $data, $matches);
 
@@ -253,6 +258,35 @@ class TranslationsExtractor
 				}
 				else
 					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
+			}
+		}
+	}
+
+	public function diffFromArrayOfDictionaries($lc, $files)
+	{
+		foreach ($this->files as $name => &$data)
+		{
+			$lcname = str_replace('[lc]', $lc, $name);
+			if (isset($files[$lcname]))
+			{
+				foreach ($data as $key => $message)
+				{
+					if (
+						(
+							isset($files[$lcname]) 
+							&& isset($files[$lcname][$key]) 
+							&& $files[$lcname][$key] === $message['translation']
+						)
+						|| !$message['translation']
+					)
+					{
+						unset($data[$key]);
+					}
+				}
+			}
+			if (count($data) === 0)
+			{
+				unset($this->files[$name]);
 			}
 		}
 	}

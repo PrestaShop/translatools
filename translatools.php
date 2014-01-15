@@ -400,6 +400,35 @@ class TranslaTools extends Module
 			return $prestashopCode;
 	}
 
+	public function guessLanguageCodeFromPath($path)
+	{
+		$exps = array(
+			'#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs)\.php$#',
+			'#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#',
+			'#(?:^|/)themes/(?:[^/]+)/lang/(.*?)\.php$#',
+			'#(?:^|/)mails/([^/]+)/lang.php$#',
+			'#(?:^|/)templates_translations/([^/]+)/lang_content\.php$#'
+		);
+
+		$m = array();
+		foreach ($exps as $exp)
+			if (preg_match($exp, $path, $m))
+				return $m[1];
+		
+		return false;
+	}
+
+	public function getPrestaShopPathFromCrowdinPath($path)
+	{
+		$crowdin_code = $this->guessLanguageCodeFromPath($path);
+		if ($crowdin_code === false)
+			return false;
+
+		$lc = $this->getPrestaShopLanguageCode($crowdin_code);
+
+		return str_replace(array("/$crowdin_code/", "/$crowdin_code.php"), array("/$lc/", "/$lc.php"), $path);
+	}
+
 	public function importTranslationFile($path, $contents, $languages = array())
 	{
 		// Guess language code

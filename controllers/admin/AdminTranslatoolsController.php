@@ -224,6 +224,45 @@ class AdminTranslatoolsController extends ModuleAdminController
 			);
 	}
 
+	public function getTranslationsFromCrowdin($prestashop_language_code)
+	{
+		$files = array();
+
+		$lc = $this->module->getCrowdinLanguageCode($prestashop_language_code);
+		$data = $this->crowdin->downloadTranslations($lc);
+		$file = tempnam(null, 'translatools');
+		file_put_contents($file, $data);
+		$za = new ZipArchive();
+		$za->open($file);
+
+		$te = new TranslationsExtractor();
+
+		for ($i=0; $i<$za->numFiles; $i++)
+		{
+			$stat = $za->statIndex($i);
+			$name = $stat['name'];
+			$m = array();
+			$exp = '#^'.preg_quote($this->module->getPackVersion()).'/(.*?\.php)$#';
+			if (preg_match($exp, $name, $m))
+			{
+				$target_path = $this->module->getPrestaShopPathFromCrowdinPath($m[1]);
+
+				if ($target_path !== false)
+				{
+					$contents = $za->getFromIndex($i);
+					$files[$target_path] = $te::parseDictionaryFromString($contents);
+				}
+			}
+		}
+
+		return $files;
+	}
+
+	public function ajaxTestAction()
+	{
+		ddd($this->getTranslationsFromCrowdin('fr'));
+	}
+
 	public function ajaxDownloadTranslationsAction($payload)
 	{
 		$data = $this->crowdin->downloadTranslations();
@@ -301,6 +340,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			$te->setLanguage($code);
 			$te->fill();
+			// Remove identical translations
+			$te->diffFromArrayOfDictionaries($code, $this->getTranslationsFromCrowdin($code));
 			$wrote = $te->write($packs_root);
 			foreach ($wrote as $file)
 			{
