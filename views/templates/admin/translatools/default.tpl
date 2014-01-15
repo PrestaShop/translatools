@@ -44,6 +44,10 @@
 	}
 </style>
 
+<div class="alert alert-warning">
+	<p><strong>Warning:</strong> This module should never be used on a production shop!</p>
+</div>
+
 {if $non_writable_directories|count > 0}
 	<div class="alert alert-warning">
 		<p><strong>Warning:</strong> Some folders in which this module may need to create files cannot be written to. This will likely prevent you from using the module to its full potential.</p>
@@ -60,7 +64,7 @@
 	<h3>Export translations</h3>
 	
 	<div class="alert alert-info">
-		Use this form to export translations.<BR/>
+		<p>You can use this panel to export translations from PrestaShop.</p>
 	</div>
 
 	<form class="form-horizontal" action="{$link->getAdminLink('AdminTranslatools')}" method="POST">
@@ -153,6 +157,10 @@
 
 <div class="panel">
 	<h3>Crowdin API</h3>
+	<div class="alert alert-info">
+		<p>Only the project idenfifier is required here (to use Just In Place Translation). The default value should be fine.</p>
+		<p>If you are not an administrator of the PrestaShop Crowdin project you should not need to worry about the API Key and leave it blank. It is used to unlock advanced features that are not needed by translators.</p>
+	</div>
 	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=default" method="POST" class="form-horizontal">
 		<input type="hidden" name="update_api_settings" value="1">
 		<div class="form-group">
@@ -277,11 +285,26 @@
 			<div class="col-lg-6">
 				<div class="row">
 					<div class="col-lg-4">
-						<button type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
+						<span class="confirm">
+							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
+						</span>
 					</div>
 					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
 					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-3"></div>
+			<div class="col-lg-6">
+				<div class="alert alert-info">
+						<p>Downloading the translations from crowdin will install the latest translation files from Crowdin onto your Shop.</p>
+						<p>You should run this action regularly during pre release times if you want to be able to use JIPT on all the strings in PrestaShop.</p>
+					</div>
+				<div class="alert alert-warning">
+					<p><strong>Warning:</strong> Downloading translations from Crowdin will overwrite all or most of your own translations, in all languages. Only proceed if you really know what you're doing!</p>
+					<p>This action will install translation files for all supported languages, even if they are not installed on your shop. So this will create a lot of files!</p>
 				</div>
 			</div>
 		</div>
