@@ -1,11 +1,11 @@
 <form>
 	{if $live_translation_enabled == 1}
 		<button onclick="javascript:toggleLiveTranslation(false);" type="button" class="btn btn-default">
-			Disable JIPT		
+			Disable Live Translation		
 		</button>
 	{else}
 		<button onclick="javascript:toggleLiveTranslation(true);" type="button" class="btn btn-success">
-			Enable JIPT
+			Enable Live Translation
 		</button>
 	{/if}
 </form>

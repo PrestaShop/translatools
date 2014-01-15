@@ -74,7 +74,7 @@ class TranslaTools extends Module
 
 		$this->createVirtualLanguage();
 
-		if (count($this->nonWritableDirectories()) === 0)
+		if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_ && count($this->nonWritableDirectories()) === 0)
 		{
 			$ttc = new AdminTranslatoolsController(true);
 			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
@@ -364,7 +364,7 @@ class TranslaTools extends Module
 			$language = new Language();
 			$language->iso_code = 'an';
 			$language->language_code = 'an';
-			$language->name = 'Aragonese';
+			$language->name = 'Live Translation';
 			$language->save();
 			if ($language->id)
 				copy(dirname(__FILE__).'/img/an.jpg', _PS_IMG_DIR_.'/l/'.$language->id.'.jpg');
@@ -377,7 +377,7 @@ class TranslaTools extends Module
 
 		$this->createVirtualLanguage();
 
-		Tools::redirectAdmin('?controller=AdminModules&configure='.$this->name.'&token='.Tools::getValue('token'));
+		Tools::redirectAdmin($this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
 	// Crowdin => PrestaShop

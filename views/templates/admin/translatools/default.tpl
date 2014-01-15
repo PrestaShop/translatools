@@ -189,8 +189,8 @@
 	<h3>Crowdin Integration</h3>
 	
 	<form class="form-horizontal">
-		{yesno input_name=jipt_bo label="Enable Crowdin-JIPT in Back-Office" value=$jipt_bo}
-		{yesno input_name=jipt_fo label="Enable Crowdin-JIPT in Front-Office" value=$jipt_fo}
+		{yesno input_name=jipt_bo label="Enable Live Translation in Back-Office" value=$jipt_bo}
+		{yesno input_name=jipt_fo label="Enable Live Translation in Front-Office" value=$jipt_fo}
 	</form>
 	
 	<div class="row">
@@ -198,7 +198,7 @@
 		<div class="col-lg-6">
 			<p class="help-block">JIPT Virtual Language is set to <strong>{$jipt_language}</strong>.</p>
 			{if !isset($languages[$jipt_language])}
-				<form method="POST">{$translatools_stay_here}<p class="alert alert-info">The virtual language was not created on this shop though, you need to <button name="action" value="createVirtualLanguage" class="btn btn-primary">Create It</button> before you can use Crowdin-JIPT.</p></form>
+				<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=createVirtualLanguage" method="POST"><p class="alert alert-info">The virtual language was not created on this shop though, you need to <button type="submit" class="btn btn-primary">Create It</button> before you can use Crowdin Live Translation.</p></form>
 			{/if}
 		</div>
 	</div>
@@ -220,21 +220,16 @@
 					</div>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-lg-3"></div>
-				<div class="col-lg-6">
-					<div class="alert alert-warning">
-						<p>You need to export the 'As in code' language before pushing to Crowdin.</p>
-						<p>Exporting the 'As in code' language will download an archive containing all the strings selected for export. This is so that you can review what is exported, but, if you are satisfied with it, you don't need to do anything more with this file.</p>
-					</div>
-				</div>
-			</div>
 		</form>
 
 		<form class="form-horizontal">
 			<div class="form-group">
 				<label for="export-translations-to-crowdin" class="control-label col-lg-3">Export Translations to Crowdin</label>
 				<div class="col-lg-6">
+					<div class="alert alert-warning">
+						<p>You need to export the 'As in code' language before pushing to Crowdin.</p>
+						<p>Exporting the 'As in code' language will download an archive containing all the strings selected for export. This is so that you can review what is exported, but, if you are satisfied with it, you don't need to do anything more with this file.</p>
+					</div>
 					<div class="row">
 						<div class="col-lg-2">
 							<select name="language" id="export-translations-language">
@@ -277,30 +272,25 @@
 	{/if}
 	<form class="form-horizontal">
 		<div class="form-group">
-			<label for="export" class="control-label col-lg-3">Download translations from Crowdin</label>
+			<label for="export" class="control-label col-lg-3">Install translations from Crowdin</label>
 			<div class="col-lg-6">
+				<div class="alert alert-info">
+					<p>Downloading the translations from crowdin will install the latest translation files from Crowdin onto your Shop.</p>
+					<p>You should run this action regularly during pre release times if you want to be able to use JIPT on all the strings in PrestaShop.</p>
+				</div>
+				<div class="alert alert-warning">
+					<p><strong>Warning:</strong> Downloading translations from Crowdin will overwrite all or most of your own translations, in all languages. Only proceed if you really know what you're doing!</p>
+					<p>This action will install translation files for all supported languages, even if they are not installed on your shop. So this will create a lot of files!</p>
+				</div>
 				<div class="row">
 					<div class="col-lg-4">
 						<span class="confirm">
-							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Download!</button>
+							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">Install!</button>
 						</span>
 					</div>
 					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
 					</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-lg-3"></div>
-			<div class="col-lg-6">
-				<div class="alert alert-info">
-						<p>Downloading the translations from crowdin will install the latest translation files from Crowdin onto your Shop.</p>
-						<p>You should run this action regularly during pre release times if you want to be able to use JIPT on all the strings in PrestaShop.</p>
-					</div>
-				<div class="alert alert-warning">
-					<p><strong>Warning:</strong> Downloading translations from Crowdin will overwrite all or most of your own translations, in all languages. Only proceed if you really know what you're doing!</p>
-					<p>This action will install translation files for all supported languages, even if they are not installed on your shop. So this will create a lot of files!</p>
 				</div>
 			</div>
 		</div>
