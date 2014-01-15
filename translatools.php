@@ -250,25 +250,8 @@ class TranslaTools extends Module
 
 	public function assignDefaultSmartyParameters()
 	{
-		$hidden = array(
-			'token' => Tools::getValue('token'),
-			'configure' => $this->name,
-			'controller' => 'AdminModules'
-		);
-
-		$inputs = array();
 		$params = array();
-		foreach ($hidden as $name => $value)
-		{
-			$inputs[] = "<input type='hidden' name='$name' value='$value'>";
-			$params[] = urlencode($name).'='.urlencode($value);
-		}
-		$translatools_stay_here = implode("\n", $inputs);
-		$translatools_url = '?'.implode('&', $params);
-
-		$this->context->smarty->assign('translatools_stay_here', $translatools_stay_here); 
-		$this->context->smarty->assign('translatools_url', $translatools_url);
-		$this->context->smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
+		$this->context->smarty->assign($params);
 	}
 
 	public function exportTranslationsAction()

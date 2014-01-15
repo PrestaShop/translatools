@@ -37,16 +37,30 @@ class AdminTranslatoolsController extends ModuleAdminController
 		if ($this->action && !$this->ajax && !method_exists($this, 'process'.Tools::ucfirst($this->action)))
 		{
 			$method = $this->action.'Action';
-			$this->module->assignDefaultSmartyParameters();
-			$data = $this->module->$method();
-			if (is_array($data))
-				$this->context->smarty->assign($data);
+
+			foreach (array($this, $this->module) as $object)
+			{
+				if (is_callable(array($object, $method)))
+				{
+					$data = $object->$method();
+					if (is_array($data))
+						$this->context->smarty->assign($data);
+					break;
+				}
+			}
+			
 		}
 		else if ($this->action && $this->ajax && !method_exists($this, 'ajaxProcess'.Tools::ucfirst($this->action)))
 		{
 			$method = 'ajax'.Tools::ucfirst($this->action).'Action';
-			$data = $this->$method(Tools::jsonDecode(Tools::file_get_contents('php://input'), true));
-			die (Tools::jsonEncode($data));
+			foreach (array($this, $this->module) as $object)
+			{
+				if (is_callable(array($object, $method)))
+				{
+					$data = $object->$method(Tools::jsonDecode(Tools::file_get_contents('php://input'), true));
+					die(Tools::jsonEncode($data));
+				}
+			}
 		}
 		else
 		{
