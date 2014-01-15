@@ -91,7 +91,7 @@ class TranslaTools extends Module
 		$tab->class_name = "AdminTranslatools";
 		$tab->name = array();
 		foreach (Language::getLanguages(true) as $lang)
-			$tab->name[$lang['id_lang']] = "AdminTranslatools";
+			$tab->name[$lang['id_lang']] = "Translatools";
 		$tab->id_parent = -1;
 		$tab->module = $this->name;
 		return $tab->add();
@@ -148,34 +148,7 @@ class TranslaTools extends Module
 
 	public function getContent()
 	{
-		$action = Tools::getValue('action');
-		if ($action == '')
-			$action = 'default';
-
-		$method = $action.'Action';
-		if (is_callable(array($this, $method)))
-		{
-			$this->tpl = $action;
-			$template_parameters = $this->$method();
-			if (is_array($template_parameters))
-			{
-				$this->context->smarty->assign($template_parameters);
-			}
-			if (file_exists($tpl_path=dirname(__FILE__).'/views/'.$this->tpl.'.tpl')
-				||
-				file_exists($tpl_path=dirname(__FILE__).'/views/templates/admin/translatools/'.$this->tpl.'.tpl'))
-			{
-				$this->assignDefaultSmartyParameters();
-				return $this->context->smarty->fetch($tpl_path);
-			}
-			else
-				return "Could not find template for: '$action'";
-		}
-		else
-		{
-			return "Unknown action: '$action'.";
-		}
-
+		Tools::redirectAdmin($this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
 	public function getNativeModules()
@@ -248,12 +221,6 @@ class TranslaTools extends Module
 		);
 	}
 
-	public function assignDefaultSmartyParameters()
-	{
-		$params = array();
-		$this->context->smarty->assign($params);
-	}
-
 	public function exportTranslationsAction()
 	{
 		if (Tools::getValue('filter_modules') === 'native')
@@ -314,7 +281,7 @@ class TranslaTools extends Module
 		foreach ($tokill as $path)
 		{
 			unlink($path);
-			$killed[] = substr($path, Tools::strlen(_PS_ROOT_DIR_)+1);
+			$killed[] = Tools::substr($path, Tools::strlen(_PS_ROOT_DIR_)+1);
 		}
 
 		return array('killed' => $killed);
