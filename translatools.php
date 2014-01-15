@@ -282,6 +282,42 @@ class TranslaTools extends Module
 		);
 	}
 
+	public function computeTranslatability()
+	{
+		$te = new TranslationsExtractor();
+		$built = $te->buildFromTranslationFiles(dirname(__FILE__).'/packs/en');
+		if (!$built)
+			return false;
+		$te->setLanguage('-');
+		$te->fill();
+		ddd($te);
+	}
+
+	public function exportAsInCodeLanguage()
+	{
+		$extractor = new TranslationsExtractor();
+		$extractor->setSections(array(
+			'frontOffice' => 1,
+			'backOffice' => 1,
+			'modules' => 1,
+			'errors' => 1,
+			'pdfs' => 1,
+			'tabs' => 1,
+			'mailSubjects' => 1,
+			'mailContent' => 1,
+			'generatedEmails' => 1
+		));
+		$extractor->setRootDir(_PS_ROOT_DIR_);
+		$extractor->setTheme($this->context->theme->name);
+		$extractor->setLanguage('-');
+		$extractor->setModuleParsingBehaviour('both', 'core');
+		$extractor->setModuleFilter($module_filter);
+		$dir = FilesLister::join(dirname(__FILE__), 'packs');
+		$extractor->extract($dir);
+		
+		return $extractor;
+	}
+
 	public function exportTranslationsAction()
 	{
 		if (Tools::getValue('filter_modules') === 'native')
