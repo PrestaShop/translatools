@@ -62,11 +62,13 @@
 
 <div class="alert alert-info">
 	<p>Translatability level: <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
-	<p>The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs. It may be lower than 100% for different reasons:</p>
+	<p>The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs.</p>
+	<p>A translatability of 100% doesn't mean that your shop will be fully translated if you install translation packs, but it means that if you install a 100% translation pack it will cover 100% of what can be covered by any official PrestaShop translation pack.</p>
+	<p>Translatability may be lower than 100% for different reasons:</p>
 	<ul>
 		<li>The 'Live Translation' language was not installed on your shop or something went wrong while extracting the strings from your installation. You will usually see 0% coverage when this happens.</li>
 		<li>You have unsupported modules and / or themes installed.</li>
-		<li>PrestaShop has evolved since you last downloaded tranlations from Crowdin or PrestaShop hasn't yet updated Crowdin translations to reflect the new state of the software.</li>
+		<li>PrestaShop has evolved since you last downloaded tranlations from Crowdin or PrestaShop hasn't yet updated Crowdin translations to reflect the new state of the software (this will usually happen if you are using an unstable version of PrestaShop.</li>
 	</ul>
 	{if $coverage[null].percent_translated < 100}
 		<p>The following translation files were found on your shop and do not have full translatability:</p>
@@ -77,6 +79,8 @@
 				{/if}
 			{/foreach}
 		</ul>
+	{else}
+		<p><strong>Yay!</strong> Your shop is 100% translatable :) You should be able to use Live Translation to its full potential.</p>
 	{/if}
 </div>
 

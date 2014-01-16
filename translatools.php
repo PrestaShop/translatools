@@ -76,6 +76,7 @@ class TranslaTools extends Module
 
 		if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_ && count($this->nonWritableDirectories()) === 0)
 		{
+			$this->exportAsInCodeLanguage();
 			$ttc = new AdminTranslatoolsController(true);
 			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
 		}
