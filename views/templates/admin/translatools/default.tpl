@@ -60,6 +60,26 @@
 	</div>
 {/if}
 
+<div class="alert alert-info">
+	<p>Translatability level: <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
+	<p>The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs. It may be lower than 100% for different reasons:</p>
+	<ul>
+		<li>The 'Live Translation' language was not installed on your shop or something went wrong while extracting the strings from your installation. You will usually see 0% coverage when this happens.</li>
+		<li>You have unsupported modules and / or themes installed.</li>
+		<li>PrestaShop has evolved since you last downloaded tranlations from Crowdin or PrestaShop hasn't yet updated Crowdin translations to reflect the new state of the software.</li>
+	</ul>
+	{if $coverage[null].percent_translated < 100}
+		<p>The following translation files were found on your shop and do not have full translatability:</p>
+		<ul>
+			{foreach from=$coverage item=details key=file}
+				{if $file and $details.percent_translated < 100}
+					<li>{$file} ({$details.percent_translated|intval})%</li>
+				{/if}
+			{/foreach}
+		</ul>
+	{/if}
+</div>
+
 <div class="panel">
 	<h3>Export translations</h3>
 
@@ -125,7 +145,7 @@
 			<div class="col-lg-6">
 				<select name="theme" id="theme">
 					{foreach from=$themes item=theme}
-						<option value="{$theme}">{$theme|escape:'htmlall':'UTF-8'}</option>
+						<option value="{$theme}" {if $theme === $current_theme}selected{/if}>{$theme|escape:'htmlall':'UTF-8'}</option>
 					{/foreach}
 				</select>
 			</div>
@@ -314,7 +334,7 @@
 			<div class="col-lg-6">
 				<select name="theme" id="theme_lint">
 					{foreach from=$themes item=theme}
-						<option value="{$theme}">{$theme}</option>
+						<option value="{$theme}" {if $theme === $current_theme}selected{/if}>{$theme}</option>
 					{/foreach}
 				</select>
 			</div>

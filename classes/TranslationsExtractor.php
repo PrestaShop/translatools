@@ -262,6 +262,32 @@ class TranslationsExtractor
 		}
 	}
 
+	public function computeStats()
+	{
+		$stats = array(null => array('total' => 0, 'translated' => 0));
+		foreach ($this->files as $name => $messages)
+		{
+			$stats[null]['total'] += count($messages);
+			$stats[$name] = array('total' => count($messages), 'translated' => 0);
+
+			foreach ($messages as $key => $message)
+			{
+				if ($message['translation'] != '')
+				{
+					$stats[$name]['translated'] += 1; 
+					$stats[null]['translated'] += 1; 
+				}
+			}
+		}
+
+		foreach ($stats as $file => $details)
+		{
+			$stats[$file]['percent_translated'] = 100*$details['translated'] / $details['total']; 
+		}
+
+		return $stats;
+	}
+
 	public function diffFromArrayOfDictionaries($lc, $files)
 	{
 		foreach ($this->files as $name => &$data)

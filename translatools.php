@@ -271,6 +271,7 @@ class TranslaTools extends Module
 
 		return array(
 			'themes' => $themes,
+			'current_theme' => $this->context->theme->name,
 			'languages' => $languages,
 			'jipt_bo' => Configuration::get('JIPT_BO'),
 			'jipt_fo' => Configuration::get('JIPT_FO'),
@@ -278,19 +279,22 @@ class TranslaTools extends Module
 			'jipt_language' => 'an',
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
-			'non_writable_directories' => $this->nonWritableDirectories()
+			'non_writable_directories' => $this->nonWritableDirectories(),
+			'coverage' => $this->computeTranslatability()
 		);
 	}
 
 	public function computeTranslatability()
 	{
 		$te = new TranslationsExtractor();
+		$te->setRootDir(_PS_ROOT_DIR_);
 		$built = $te->buildFromTranslationFiles(dirname(__FILE__).'/packs/en');
 		if (!$built)
 			return false;
-		$te->setLanguage('-');
+		$te->setLanguage('an');
 		$te->fill();
-		ddd($te);
+		$stats = $te->computeStats();
+		return $stats;
 	}
 
 	public function exportAsInCodeLanguage()
@@ -311,7 +315,7 @@ class TranslaTools extends Module
 		$extractor->setTheme($this->context->theme->name);
 		$extractor->setLanguage('-');
 		$extractor->setModuleParsingBehaviour('both', 'core');
-		$extractor->setModuleFilter($module_filter);
+		$extractor->setModuleFilter($this->getNativeModules());
 		$dir = FilesLister::join(dirname(__FILE__), 'packs');
 		$extractor->extract($dir);
 		
@@ -480,19 +484,9 @@ class TranslaTools extends Module
 	{
 		// Guess language code
 		$m = array();
-		$lc = null;
-		if (preg_match('#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs)\.php$#', $path, $m))
-			$lc = $m[1];
-		elseif(preg_match('#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#', $path, $m))
-			$lc = $m[1];
-		elseif(preg_match('#^themes/(?:[^/]+)/lang/(.*?)\.php$#', $path, $m))
-			$lc = $m[1];
-		elseif(preg_match('#mails/([^/]+)/lang.php$#', $path, $m))
-			$lc = $m[1];
-		elseif(basename($path) === 'lang_content.php')
-			return true;
+		$lc = $this->guessLanguageCodeFromPath($path);
 
-		if ($lc === null)
+		if ($lc === false)
 			return "Could not infer language code from file named '$path'.";
 
 		// Remove empty lines, just in case
