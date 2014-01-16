@@ -120,6 +120,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 	{
 		$info = $this->crowdin->info();
 
+		$this->module->exportAsInCodeLanguage();
 		$path_to_sources = dirname(__FILE__).'/../../packs/en';
 
 		$files_to_export = array();
