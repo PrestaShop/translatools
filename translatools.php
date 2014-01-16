@@ -423,8 +423,25 @@ class TranslaTools extends Module
 
 	// Crowdin => PrestaShop
 	public static $languageMapping = array(
-		'zh-CN' => 'zh',
-		'sr-CS' => 'sr'
+		'es-AR' => 'ag',
+		'pt-BR' => 'br',
+		'br-FR' => 'bz',
+		'es-CO' => 'cb',
+		'es-ES' => 'es',
+		'ga-IE' => 'ga',
+		'en-GB' => 'gb',
+		'hy-AM' => 'hy',
+		'ml-IN' => 'ml',
+		'es-MX' => 'mx',
+		'pt-PT' => 'pt',
+		'si-LK' => 'sh',
+		'sl' 	=> 'si',
+		'sr-CS' => 'sr',
+		'sv-SE' => 'sv',
+		'zh-TW' => 'tw',
+		'ur-PK' => 'ur',
+		'vi' 	=> 'vn',
+		'zh-CN' => 'zh'
 	);
 
 	public function getPrestaShopLanguageCode($foreignCode)
