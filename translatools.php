@@ -447,7 +447,7 @@ class TranslaTools extends Module
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
 		if (isset(self::$languageMapping[$foreignCode])) 
-			return self::$$languageMapping[$foreignCode];
+			return self::$languageMapping[$foreignCode];
 		else
 			return $foreignCode;
 	}

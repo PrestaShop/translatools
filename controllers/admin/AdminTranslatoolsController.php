@@ -371,11 +371,13 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			$packs_root = realpath(dirname(__FILE__).'/../../packs/');
 
+			$te->save();
 			$te->setLanguage($code);
 			$te->fill();
 			// Remove identical translations
 			$te->diffFromArrayOfDictionaries($code, $this->getTranslationsFromCrowdin($code));
 			$wrote = $te->write($packs_root);
+			$te->load();
 			foreach ($wrote as $file)
 			{
 				$relpath = Tools::substr($file, Tools::strlen(_PS_ROOT_DIR_)+1);

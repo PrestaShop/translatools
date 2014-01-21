@@ -17,6 +17,18 @@ class TranslationsExtractor
 		$this->raw_files = array();
 	}
 
+	public function save()
+	{
+		$this->old_files = $this->files;
+		$this->old_raw_files = $this->raw_files;
+	}
+
+	public function load()
+	{
+		$this->files = $this->old_files;
+		$this->raw_files = $this->old_raw_files;
+	}
+
 	public function setModuleFilter($filter = null)
 	{
 		$this->module_filter = $filter;
