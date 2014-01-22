@@ -379,6 +379,8 @@ class TranslaTools extends Module
 				$tokill[] = $file;
 			elseif (preg_match('#/(?:translations|lang)/[a-z]{2}\.php$#', $file))
 				$tokill[] = $file;
+			elseif (preg_match('#/langs/[a-z]{2}/install.php$#', $file))
+				$tokill[] = $file;
 		}
 
 		foreach ($tokill as $path)
@@ -477,7 +479,8 @@ class TranslaTools extends Module
 			'#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#',
 			'#(?:^|/)themes/(?:[^/]+)/lang/(.*?)\.php$#',
 			'#(?:^|/)mails/([^/]+)/lang.php$#',
-			'#(?:^|/)templates_translations/([^/]+)/lang_content\.php$#'
+			'#(?:^|/)templates_translations/([^/]+)/lang_content\.php$#',
+			'#/langs/([^/]+)/install\.php$#'
 		);
 
 		$m = array();

@@ -253,7 +253,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		else
 			return array(
 				'success' => $ok,
-				'message' => 'Done :)',
+				'message' => $ok ? 'Done :)' : $message,
 			);
 	}
 
@@ -369,8 +369,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 			if ($code === 'en' || $code === 'an')
 				continue;
 
-			$packs_root = realpath(dirname(__FILE__).'/../../packs/');
-
+			$packs_root = realpath(dirname(__FILE__).'/../../packs/');			
 			$te->save();
 			$te->setLanguage($code);
 			$te->fill();

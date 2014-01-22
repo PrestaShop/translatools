@@ -56,7 +56,19 @@ class TranslationsExtractor
 				if ($n !== 1)
 					return "File '$relpath' doesn't seem to be an English source.";
 
-				$dictionary = $this->parseDictionary($path);
+				$dictionary = array();
+				if (basename($path) === 'install.php')
+				{
+					if (file_exists($path))
+					{
+						$tmp = include $path;
+						$dictionary = $tmp['translations'];
+					}
+				}
+				else
+				{
+					$dictionary = $this->parseDictionary($path);
+				}
 
 				$data = array();
 
@@ -151,7 +163,7 @@ class TranslationsExtractor
 			if (!@mkdir($output_dir, 0777, true))
 				return false;
 		$str_data = "<?php\n\nreturn ".var_export($data, true).";\n";
-		return @file_put_contents($output_file, $str_data) ? true : false;
+		return @file_put_contents($output_file, $str_data) ? $output_file : false;
 	}
 
 	public function write($to_folder)
@@ -211,7 +223,9 @@ class TranslationsExtractor
 						if ($data['translation'])
 							$dictionary[$key] = $data['translation'];
 					$path = str_replace('[lc]', $lc, $name);
-					$this->writeInstallerTranslations(FilesLister::join($to_folder, $lc), $path, $dictionary);
+					$written = $this->writeInstallerTranslations(FilesLister::join($to_folder, $lc), $path, $dictionary);
+					if ($written !== false)
+						$wrote[] = $written;
 				}
 				else
 				{
@@ -856,7 +870,9 @@ class TranslationsExtractor
 			$parser->setString(Tools::file_get_contents($file));
 			while ($m=$parser->getMatch())
 			{
-				if ($str = self::dequote($m['arguments'][0]))
+				// Fully dequote because translations are read from the PHP array in memory,
+				// not parsed, so quote are not unnecessarily escaped in the translations.
+				if ($str = self::dequote($m['arguments'][0], true))
 				{
 					$key = $str;
 					$this->record(
