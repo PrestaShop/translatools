@@ -30,6 +30,11 @@ class FilesLister
 		return $files;
 	}
 
+	public static function recListFiles($dir, $whitelist = null, $blacklist = null)
+	{
+		return self::listFiles($dir, $whitelist, $blacklist, true);
+	}
+
 	public static function join($root, $path)
 	{
 		return self::cleanPath(preg_replace('#/+$#', '', $root)).'/'.self::cleanPath(preg_replace('#^/+#', '', $path));

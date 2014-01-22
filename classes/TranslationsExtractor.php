@@ -127,6 +127,33 @@ class TranslationsExtractor
 			$this->write($to_folder);
 	}
 
+	public function writeInstallerTranslations($base, $path, $dictionary)
+	{
+		$existing_file = FilesLister::join($this->root_dir, $path);
+
+		if (file_exists($existing_file))
+		{
+			$data = include $existing_file;
+		}
+		else
+		{
+			$data = array(
+				'informations' => array(),
+				'translations' => array()
+			);
+		}
+
+		$data['translations'] = $dictionary;
+
+		$output_file = FilesLister::join($base, $path);
+		$output_dir = dirname($output_file);
+		if (!is_dir($output_dir))
+			if (!@mkdir($output_dir, 0777, true))
+				return false;
+		$str_data = "<?php\n\nreturn ".var_export($data, true).";\n";
+		return @file_put_contents($output_file, $str_data) ? true : false;
+	}
+
 	public function write($to_folder)
 	{
 		$wrote = array();
@@ -176,6 +203,15 @@ class TranslationsExtractor
 						mkdir(dirname($path), 0777, true);
 					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
 					$wrote[] = $path;
+				}
+				else if (basename($name) === 'install.php')
+				{
+					$dictionary = array();
+					foreach ($contents as $key => $data)
+						if ($data['translation'])
+							$dictionary[$key] = $data['translation'];
+					$path = str_replace('[lc]', $lc, $name);
+					$this->writeInstallerTranslations(FilesLister::join($to_folder, $lc), $path, $dictionary);
 				}
 				else
 				{
@@ -242,14 +278,27 @@ class TranslationsExtractor
 			$dictionary = array();
 			$lang = $this->language === '-' ? 'en' : $this->language;
 
-			$base_source = $this->join($this->root_dir, str_replace('[lc]', $lang, $name));
-
-			$translations_sources = array(
-				$base_source
-			);
-
-			foreach ($translations_sources as $src)
-				$dictionary = array_merge($this->parseDictionary($src), $dictionary);
+			// The installer is different from everything else :)
+			if (basename($name) === 'install.php')
+			{
+				$relpath = str_replace('[lc]', $lang, $name);
+				$relpath = preg_replace('#^[^/]+#', $this->findInstallerName(), $relpath);
+				$source = $this->join($this->root_dir, $relpath);
+				if (file_exists($source))
+				{
+					$tmp = include $source;
+					$dictionary = $tmp['translations'];
+				}
+			}
+			else
+			{
+				$base_source = $this->join($this->root_dir, str_replace('[lc]', $lang, $name));
+				$translations_sources = array(
+					$base_source
+				);
+				foreach ($translations_sources as $src)
+					$dictionary = array_merge($this->parseDictionary($src), $dictionary);
+			}			
 
 			foreach ($data as $key => &$message)
 			{
@@ -294,7 +343,7 @@ class TranslationsExtractor
 
 		foreach ($stats as $file => $details)
 		{
-			$stats[$file]['percent_translated'] = 100*$details['translated'] / $details['total']; 
+			$stats[$file]['percent_translated'] = $details['total'] > 0 ? 100*$details['translated'] / $details['total'] : 0; 
 		}
 
 		return $stats;
@@ -764,8 +813,62 @@ class TranslationsExtractor
 		}
 	}
 
-	// $parseWhat can be: both, core, overriden
-	// $storeWhere can be: core, theme
+	public function findInstallerName()
+	{
+		$candidates = array('install-dev', 'install');
+		foreach ($candidates as $candidate)
+		{
+			$dir = FilesLister::join($this->root_dir, $candidate);
+			if (is_dir($dir))
+			{
+				return $candidate;
+			}
+		}
+		return false;
+	}
+
+	public function findInstaller()
+	{
+		$name = $this->findInstallerName();
+		if ($name === false)
+			return false;
+
+		return FilesLister::join($this->root_dir, $name);
+	}
+
+	public function extractInstallerStrings()
+	{
+		$dir = $this->findInstaller();
+
+		if ($dir === false)
+			return;
+
+		$files = FilesLister::recListFiles($dir, '/\.php|\.phtml/');
+
+		$storage_file = FilesLister::join(Tools::substr($dir, Tools::strlen($this->root_dir)+1),'langs/[lc]/install.php');
+		// Always name the folder install-dev
+		$storage_file = preg_replace('#^[^/]+#', 'install-dev', $storage_file);
+
+		foreach ($files as $file)
+		{
+			$parser = new PHPFunctionCallParser();
+			$parser->setPattern('->\s*l');
+			$parser->setString(Tools::file_get_contents($file));
+			while ($m=$parser->getMatch())
+			{
+				if ($str = self::dequote($m['arguments'][0]))
+				{
+					$key = $str;
+					$this->record(
+						$str,
+						$key,
+						$storage_file,
+						'installer'
+					);
+				}
+			}
+		}
+	}
 
 	public function getModuleKey($kind, $module, $file, $str)
 	{
