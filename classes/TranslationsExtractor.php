@@ -342,6 +342,10 @@ class TranslationsExtractor
 		$stats = array(null => array('total' => 0, 'translated' => 0));
 		foreach ($this->files as $name => $messages)
 		{
+			// DIRTY: do not count installer in stats, cuz not useful to many ppl
+			if (basename($name) === 'install.php')
+				continue;
+
 			$stats[null]['total'] += count($messages);
 			$stats[$name] = array('total' => count($messages), 'translated' => 0);
 
