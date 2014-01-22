@@ -504,6 +504,15 @@ class TranslaTools extends Module
 
 	public function importTranslationFile($path, $contents, $languages = array())
 	{
+		static $installed_languages;
+
+		if (!is_array($installed_languages))
+		{
+			$installed_languages = array();
+			foreach (Language::getLanguages() as $l)
+				$installed_languages[$l['iso_code']] = true;
+		}
+
 		// Guess language code
 		$m = array();
 		$lc = $this->guessLanguageCodeFromPath($path);
@@ -517,7 +526,7 @@ class TranslaTools extends Module
 
 		$languageCode = $this->getPrestaShopLanguageCode($lc);
 
-		if (count($languages) > 0 && !in_array($languageCode, $languages))
+		if ((count($languages) > 0 && !in_array($languageCode, $languages)) || !isset($installed_languages[$languageCode]))
 			return true;
 
 		if ($languageCode === null)
@@ -528,6 +537,10 @@ class TranslaTools extends Module
 			array("/$languageCode/", "/$languageCode.php"),
 			$path
 		);
+
+		// Skip installer translations for languages that do not have their data folders
+		if (basename($path) === 'install.php' && !is_dir(FilesLister::join(_PS_ROOT_DIR_, "install-dev/langs/$languageCode/data")))
+			return true;
 
 		$full_path = _PS_ROOT_DIR_.'/'.$path;
 		$dir = dirname($full_path);
