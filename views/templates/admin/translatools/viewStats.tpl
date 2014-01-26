@@ -1,6 +1,6 @@
 <table>
 	<tr>
-		<th>File</th><th>Messages</th>
+		<th>{l s='File' mod='translatools'}</th><th>{l s='Messages' mod='translatools'}</th>
 	</tr>
 	{foreach from=$stats item=data key=file}
 		<tr>
