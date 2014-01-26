@@ -1,11 +1,11 @@
 <form>
 	{if $live_translation_enabled == 1}
 		<button onclick="javascript:toggleLiveTranslation(false);" type="button" class="btn btn-default">
-			Disable Live Translation		
+			{l s='Disable Live Translation' mod='translatools'}		
 		</button>
 	{else}
 		<button onclick="javascript:toggleLiveTranslation(true);" type="button" class="btn btn-success">
-			Enable Live Translation
+			{l s='Enable Live Translation' mod='translatools'}
 		</button>
 	{/if}
 </form>
