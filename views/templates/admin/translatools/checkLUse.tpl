@@ -1,5 +1,5 @@
 <table class="table">
-	<tr><th>File</th><th>Issue</th><th>#problems</th></tr>
+	<tr><th>{l s='File' mod='translatools'}</th><th>{l s='Issue' mod='translatools'}</th><th>{l s='#problems' mod='translatools'}</th></tr>
 	{foreach from=$issues key=file item=problems}
 		{foreach from=$problems key=problem item=n}
 			<tr>

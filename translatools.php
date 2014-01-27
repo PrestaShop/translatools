@@ -55,8 +55,8 @@ class TranslaTools extends Module
 		$this->bootstrap = true;
 		parent::__construct();	
 
-		$this->displayName = 'TranslaTools';
-		$this->description = 'Crowdin integration and more!';
+		$this->displayName = $this->l('TranslaTools');
+		$this->description = $this->l('Crowdin integration and more!');
 	}
 
 	public function install()
