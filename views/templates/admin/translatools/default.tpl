@@ -310,7 +310,7 @@
 				<div class="row">
 					<div class="col-lg-4">
 						<span class="confirm">
-							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">{l s='Install!' mod='translatools'}</button>
+							<button data-confirm={l s="Sure?" mod='translatools'} data-cancel={l s="Nope." mod='translatools'} type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">{l s='Install!' mod='translatools'}</button>
 						</span>
 					</div>
 					<div class="col-lg-8 feedback">
