@@ -44,4 +44,25 @@ class FilesLister
 	{
 		return str_replace('\\', '/', $path);
 	}
+
+	public static function rmDir($out)
+	{
+		if (!is_dir($out))
+			return;
+
+		foreach (scandir($out) as $entry)
+		{
+			if ($entry === '.' or $entry === '..')
+				continue;
+
+			$path = self::join($out, $entry);
+
+			if (is_dir($path))
+				self::rmDir($path);
+			else
+				unlink($path);
+		}
+
+		rmdir($out);
+	}
 }

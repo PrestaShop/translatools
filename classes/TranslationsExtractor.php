@@ -237,9 +237,10 @@ class TranslationsExtractor
 			foreach ($this->raw_files as $name => $contents)
 			{
 				$path = $this->join($to_folder, $lc.'/'.$name);
+
 				if (!is_dir(dirname($path)))
 					mkdir(dirname($path), 0777, true);
-				file_put_contents($path, $contents);
+				$put = file_put_contents($path, $contents);
 			}
 		}
 
@@ -334,6 +335,21 @@ class TranslationsExtractor
 				else
 					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
 			}
+		}
+
+		if($this->language !== '-')
+		{
+			$raw_files = array();
+			foreach ($this->raw_files as $name => $data)
+			{
+				$new = preg_replace('#(^|/)mails/en/#', '\1mails/'.$this->language.'/', $name);
+				$path = FilesLister::join($this->root_dir, $new);
+				if (file_exists($path))
+				{
+					$raw_files[$new] = file_get_contents($path);
+				}
+			}
+			$this->raw_files = $raw_files;
 		}
 	}
 
@@ -784,16 +800,21 @@ class TranslationsExtractor
 
 	public function extractGeneratedEmailsStrings()
 	{
+		$lc = $this->language;
+		if ($lc === '-')
+			$lc = 'en';
+
 		$module_emails = FilesLister::listFiles(
 			$this->getModulesDir(),
-			'#'.preg_quote(preg_replace('#/$#', '', $this->getModulesDir())).'/[^/]+/mails/'.$this->language.'/(.*?)\.(?:txt|html)$#',
+			'#'.preg_quote(preg_replace('#/$#', '', $this->getModulesDir())).'/[^/]+/mails/'.$lc.'/(.*?)\.(?:txt|html)$#',
 			null,
 			true
 		);
 		$core_emails = FilesLister::listFiles(
-			$this->join($this->root_dir, 'mails/'.$this->language),
+			FilesLister::join($this->root_dir, 'mails/'.$lc),
 			'#\.(?:txt|html)$#'
 		);
+		
 		$files = array_merge($module_emails, $core_emails);
 
 		foreach ($files as $path)
@@ -1116,22 +1137,6 @@ class TranslationsExtractor
 
 	public function rmDir($out)
 	{
-		if (!is_dir($out))
-			return;
-
-		foreach (scandir($out) as $entry)
-		{
-			if ($entry === '.' or $entry === '..')
-				continue;
-
-			$path = $this->join($out, $entry);
-
-			if (is_dir($path))
-				$this->rmDir($path);
-			else
-				unlink($path);
-		}
-
-		rmdir($out);
+		return FilesLister::rmDir($out);
 	}
 }

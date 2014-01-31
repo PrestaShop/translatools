@@ -106,7 +106,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		
 		$export_pattern = str_replace(
 			array('/en.php', '/en/'), 
-			array('/%two_letters_code%.php', '/%two_letters_code%/'),
+			array('/%locale%.php', '/%locale%/'),
 			$path
 		);
 
@@ -431,5 +431,84 @@ class AdminTranslatoolsController extends ModuleAdminController
 			unset($this->context->cookie->JIPT_PREVIOUS_ID_LANG);
 			return array('success' => true, 'language' => $language_to_set);
 		}
+	}
+
+	public function processBuild()
+	{
+		require_once dirname(__FILE__).'/../../../../tools/tar/Archive_Tar.php';
+
+		$dir = realpath(dirname(__FILE__).'/../../packs');
+
+		if (!$dir)
+			die("Packs directory not found, aborting.");
+
+		FilesLister::rmDir($dir);
+		if (!@mkdir($dir, 0777, true))
+			die('Could not create directory: '.$dir);
+
+		$te = $this->module->exportNativePack();
+		
+		$created = array();
+
+		//$dl = $this->ajaxDownloadTranslationsAction(array());
+		foreach (scandir(_PS_ROOT_DIR_.'/translations') as $lc)
+		{
+			if (!preg_match('/^\./', $lc) && is_dir(_PS_ROOT_DIR_.'/translations/'.$lc))
+			{
+				$te->save();
+
+				$te->setLanguage($lc);
+				$te->fill();
+
+				$wrote = $te->write($dir);
+
+				$cwd = getcwd();
+				chdir(FilesLister::join($dir, $lc));
+
+				$archname = $lc.'.gzip';
+				$archpath = '../'.$archname;
+
+				if (file_exists($archpath))
+					unlink($archpath);
+
+				$arch = new Archive_Tar($archpath, 'gz');
+
+				$add = array();
+
+				foreach (FilesLister::listFiles('.', null, null, true) as $path)
+					$add[] = preg_replace('#^\./#', '', $path);
+
+				$arch->add($add);
+
+				$created[] = $archname;
+
+				chdir($cwd);
+
+				$te->load();
+			}					
+		}
+
+		// Put it back
+		$this->module->exportAsInCodeLanguage();
+
+		chdir($dir);
+
+		$allpath = 'all_packs.tar.gz';
+		if (file_exists($allpath))
+			unlink($allpath);
+
+		$all = new Archive_Tar($allpath, 'gz');
+		$all->add($created);
+
+		ob_end_clean();
+		header('Content-Description: File Transfer');
+        header('Content-Type: application/x-gzip');
+        header('Content-Disposition: attachment; filename='.$allpath);
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        readfile($allpath);
+        exit;
 	}
 }	

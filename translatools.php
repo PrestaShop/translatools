@@ -324,6 +324,30 @@ class TranslaTools extends Module
 		return $extractor;
 	}
 
+	public function exportNativePack()
+	{
+		$extractor = new TranslationsExtractor();
+		$extractor->setSections(array(
+			'frontOffice' => 1,
+			'backOffice' => 1,
+			'modules' => 1,
+			'errors' => 1,
+			'pdfs' => 1,
+			'tabs' => 1,
+			'mailSubjects' => 1,
+			'generatedEmails' => 1,
+		));
+		$extractor->setRootDir(_PS_ROOT_DIR_);
+		$extractor->setTheme($this->context->theme->name);
+		$extractor->setLanguage('-');
+		$extractor->setModuleParsingBehaviour('both', 'core');
+		$extractor->setModuleFilter($this->getNativeModules());
+		$dir = FilesLister::join(dirname(__FILE__), 'packs');
+		$extractor->extract($dir);
+		
+		return $extractor;
+	}
+
 	public function exportTranslationsAction()
 	{
 		if (Tools::getValue('filter_modules') === 'native')
@@ -425,27 +449,8 @@ class TranslaTools extends Module
 	}
 
 	// Crowdin => PrestaShop
-	public static $languageMapping = array(
-		'es-AR' => 'ag',
-		'pt-BR' => 'br',
-		'br-FR' => 'bz',
-		'es-CO' => 'cb',
-		'es-ES' => 'es',
-		'ga-IE' => 'ga',
-		'en-GB' => 'gb',
-		'hy-AM' => 'hy',
-		'ml-IN' => 'ml',
-		'es-MX' => 'mx',
-		'pt-PT' => 'pt',
-		'si-LK' => 'sh',
-		'sl' 	=> 'si',
-		'sr-CS' => 'sr',
-		'sv-SE' => 'sv',
-		'zh-TW' => 'tw',
-		'ur-PK' => 'ur',
-		'vi' 	=> 'vn',
-		'zh-CN' => 'zh'
-	);
+	// This list is not meant to be written by hand :)
+	public static $languageMapping = array('an-AR' => 'an', 'af-ZA' => 'af', 'es-AR' => 'ag', 'ar-SA' => 'ar', 'az-AZ' => 'az', 'bg-BG' => 'bg', 'bn-BD' => 'bn', 'pt-BR' => 'br', 'bs-BA' => 'bs', 'br-FR' => 'bz', 'ca-ES' => 'ca', 'es-CO' => 'cb', 'cs-CZ' => 'cs', 'da-DK' => 'da', 'de-DE' => 'de', 'el-GR' => 'el', 'en-US' => 'en', 'es-ES' => 'es', 'et-EE' => 'et', 'eu-ES' => 'eu', 'fa-IR' => 'fa', 'fi-FI' => 'fi', 'fo-FO' => 'fo', 'fr-FR' => 'fr', 'ga-IE' => 'ga', 'en-GB' => 'gb', 'gl-ES' => 'gl', 'he-IL' => 'he', 'hi-IN' => 'hi', 'hr-HR' => 'hr', 'hu-HU' => 'hu', 'hy-AM' => 'hy', 'id-ID' => 'id', 'it-IT' => 'it', 'ja-JP' => 'ja', 'ka-GE' => 'ka', 'ko-KR' => 'ko', 'lo-LA' => 'lo', 'lt-LT' => 'lt', 'lv-LV' => 'lv', 'mk-MK' => 'mk', 'ml-IN' => 'ml', 'ms-MY' => 'ms', 'es-MX' => 'mx', 'nl-NL' => 'nl', 'no-NO' => 'no', 'pl-PL' => 'pl', 'pt-PT' => 'pt', 'ro-RO' => 'ro', 'ru-RU' => 'ru', 'si-LK' => 'sh', 'sl-SI' => 'si', 'sk-SK' => 'sk', 'sq-AL' => 'sq', 'sr-CS' => 'sr', 'sv-SE' => 'sv', 'sw-KE' => 'sw', 'ta-IN' => 'ta', 'te-IN' => 'te', 'th-TH' => 'th', 'tr-TR' => 'tr', 'zh-TW' => 'tw', 'ug-CN' => 'ug', 'uk-UA' => 'uk', 'ur-PK' => 'ur', 'vi-VN' => 'vn', 'zh-CN' => 'zh');
 
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
@@ -526,7 +531,8 @@ class TranslaTools extends Module
 
 		$languageCode = $this->getPrestaShopLanguageCode($lc);
 
-		if ((count($languages) > 0 && !in_array($languageCode, $languages)) || !isset($installed_languages[$languageCode]))
+
+		if (count($languages) > 0 && !in_array($languageCode, $languages) && $languageCode !== 'an')
 			return true;
 
 		if ($languageCode === null)

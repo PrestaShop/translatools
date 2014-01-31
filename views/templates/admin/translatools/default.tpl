@@ -308,15 +308,35 @@
 					<p>{l s="This action will install translation files for all supported languages, even if they are not installed on your shop. So this will create a lot of files!" mod='translatools'}</p>
 				</div>
 				<div class="row">
-					<div class="col-lg-4">
+					<div class="col-lg-{if isset($CROWDIN_PROJECT_API_KEY)}2{else}4{/if}">
 						<span class="confirm">
 							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">{l s='Install!' mod='translatools'}</button>
 						</span>
 					</div>
+					{if isset($CROWDIN_PROJECT_API_KEY)}
+						<div class="col-lg-2">
+							<select id="install_language">
+								<option value="*">All languages</option>
+								{foreach from=$languages item=language key=code}
+									<option value="{$code}">{$language}</option>
+								{/foreach}
+							</select>
+						</div>
+					{/if}
 					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
 					</div>
 				</div>
+			</div>
+		</div>
+	</form>
+	<form method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=build" class="form-horizontal">
+		<div class="form-group">
+			<label for="build_packs" class="col-lg-3 control-label">
+				{l s='Build all Language Packs' mod='translatools'}
+			</label>
+			<div class="col-lg-9">
+				<button type="submit" class="btn btn-default" id="build_packs">{l s='Build &amp; Download' mod='translatools'}</button>
 			</div>
 		</div>
 	</form>
@@ -508,6 +528,9 @@
 		$.ajax({
 		  type: "POST",
 		  url: '{$link->getAdminLink("AdminTranslatools")}&action=downloadTranslations&ajax=1',
+		  data: {
+		  	language: {if isset($CROWDIN_PROJECT_API_KEY)} $('#install_language').val() {else} '*' {/if}
+		  },
 		  success: handleDownloadTranslationsReturn,
 		  dataType: 'json'
 		});
