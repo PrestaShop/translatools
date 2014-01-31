@@ -435,6 +435,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 	public function processBuild()
 	{
+
+		$tmp = Tools::jsonDecode(Tools::file_get_contents('http://www.prestashop.com/download/lang_packs/get_each_language_pack.php?version='.$this->module->getPackVersion()), true);
+		$published = array();
+
+		if (is_array($tmp))
+			foreach ($tmp as $lang)
+				$published[$lang['iso_code']] = true;				
+
 		require_once dirname(__FILE__).'/../../../../tools/tar/Archive_Tar.php';
 
 		$dir = realpath(dirname(__FILE__).'/../../packs');
@@ -453,7 +461,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		//$dl = $this->ajaxDownloadTranslationsAction(array());
 		foreach (scandir(_PS_ROOT_DIR_.'/translations') as $lc)
 		{
-			if (!preg_match('/^\./', $lc) && is_dir(_PS_ROOT_DIR_.'/translations/'.$lc))
+			if (!preg_match('/^\./', $lc) && is_dir(_PS_ROOT_DIR_.'/translations/'.$lc) && (isset($published[$lc]) || count($published) === 0))
 			{
 				$te->save();
 
