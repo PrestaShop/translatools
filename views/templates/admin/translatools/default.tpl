@@ -343,6 +343,18 @@
 </div>
 
 <div class="panel">
+	<h3>{l s='Tasks' mod='translatools'}</h3>
+	<form class="form-horizontal" method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=copyTabs">
+		<div class="form-group">
+			<label for="copy_tabs" class="control-label col-lg-3">{l s='Copy Tabs to Installer XML files' mod='translatools'}</label>
+			<div class="col-lg-9">
+				<button id="copy_tabs" type="submit" class="btn btn-primary">{l s='Copy' mod='translatools'}</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="panel">
 	<h3>{l s='Translation Linting' mod='translatools'}</h3>
 	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkCoherence" method="POST" class="form-horizontal">
 		<div class="form-group">

@@ -433,6 +433,68 @@ class AdminTranslatoolsController extends ModuleAdminController
 		}
 	}
 
+	public function processCopyTabs()
+	{
+		$installer_dir = null;
+		foreach (array('install-dev', 'install') as $dir)
+		{
+			$path = FilesLister::join(_PS_ROOT_DIR_, $dir);
+			if (is_dir($path))
+			{
+				$installer_dir = $path;
+				break;
+			}
+		}
+
+		if ($installer_dir === null)
+		{
+			die("Could not find installer dir!");
+		}
+
+		$langs_dir = FilesLister::join($installer_dir, 'langs');
+
+		foreach (scandir($langs_dir) as $entry)
+		{
+			$lang = $entry;
+			$tabs_xml_path = FilesLister::join($langs_dir, $entry.'/data/tab.xml');
+			if (file_exists($tabs_xml_path))
+			{
+				if ($xml = simplexml_load_file($tabs_xml_path))
+				{
+					$sql = 'SELECT e.name as message, t.name as translation 
+					FROM '._DB_PREFIX_.'tab_lang e INNER JOIN '._DB_PREFIX_.'lang el ON el.id_lang=e.id_lang AND el.iso_code=\'en\'
+					INNER JOIN '._DB_PREFIX_.'tab_lang t ON t.id_tab = e.id_tab INNER JOIN '._DB_PREFIX_.'lang tl on tl.id_lang=t.id_lang AND tl.iso_code=\''.pSQL($lang).'\'';
+
+					$tl = Db::getInstance()->ExecuteS($sql);
+					$translations = array();
+
+					foreach($tl as $row)
+					{
+						$translations[$row['message']] = $row['translation'];
+					}
+
+					foreach ($xml->tab as $tab)
+					{
+						$tab_name = (string)$tab['name'];
+						
+						if (isset($translations[$tab_name]))
+						{
+							if ($lang === 'mk')
+							{
+								//die($translations[$tab_name]);
+							}
+							$tab['name'] = $translations[$tab_name];
+						}	
+					}
+
+					file_put_contents($tabs_xml_path, $xml->asXML());
+				}
+			}
+		}
+
+		die("<p>done.</p>");
+	}
+
 	public function processBuild()
 	{
 
