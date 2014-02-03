@@ -459,7 +459,11 @@ class AdminTranslatoolsController extends ModuleAdminController
 			$tabs_xml_path = FilesLister::join($langs_dir, $entry.'/data/tab.xml');
 			if (file_exists($tabs_xml_path))
 			{
-				if ($xml = simplexml_load_file($tabs_xml_path))
+				$xml_str = file_get_contents($tabs_xml_path);
+
+				$xml_str = preg_replace('/^\s*<\?\s*xml\s+version\s*=\s*"(.*?)"\s*\?>/', '<?xml version="\1" encoding="UTF-8"?>', $xml_str);
+
+				if ($xml = simplexml_load_string($xml_str))
 				{
 					$sql = 'SELECT e.name as message, t.name as translation 
 					FROM '._DB_PREFIX_.'tab_lang e INNER JOIN '._DB_PREFIX_.'lang el ON el.id_lang=e.id_lang AND el.iso_code=\'en\'
@@ -491,8 +495,6 @@ class AdminTranslatoolsController extends ModuleAdminController
 				}
 			}
 		}
-
-		die("<p>done.</p>");
 	}
 
 	public function processBuild()
