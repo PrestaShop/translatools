@@ -564,28 +564,28 @@ class TranslaTools extends Module
 
 	public function postProcessTranslationFile($language_code, $full_path)
 	{
-		if (basename($full_path) === 'tabs.php' && $language_code === 'an')
+		$id_lang = Db::getInstance()->getValue('SELECT `id_lang` FROM `'._DB_PREFIX_.'lang` WHERE `iso_code` = \''.pSQL(strtolower($language_code)).'\'');
+		
+		if (!$id_lang)
+			return;
+
+		if (basename($full_path) === 'tabs.php')
 		{
 			$te = new TranslationsExtractor();
 			foreach ($te->parseDictionary($full_path) as $class => $name)
 			{
 				// Unescape the quotes
 				$name = preg_replace('/\\\*\'/', '\'', $name);
+				
+				$sql = 'SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($class).'\'';
+				$id_tab = Db::getInstance()->getValue($sql);
 
-				$id_lang = Language::getIdByIso($language_code);
-
-				if ($id_lang)
+				if ($id_tab)
 				{
-					$sql = 'SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($class).'\'';
-					$id_tab = Db::getInstance()->getValue($sql);
-
-					if ($id_tab)
-					{
-						// DELETE old tab name in case it exists
-						Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'tab_lang WHERE id_tab='.(int)$id_tab.' AND id_lang='.(int)$id_lang);
-						// INSERT new tab name
-						Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'tab_lang (id_tab, id_lang, name) VALUES ('.(int)$id_tab.','.(int)$id_lang.',\''.pSQL($name).'\')');
-					}
+					// DELETE old tab name in case it exists
+					Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'tab_lang WHERE id_tab='.(int)$id_tab.' AND id_lang='.(int)$id_lang);
+					// INSERT new tab name
+					Db::getInstance()->execute('INSERT INTO '._DB_PREFIX_.'tab_lang (id_tab, id_lang, name) VALUES ('.(int)$id_tab.','.(int)$id_lang.',\''.pSQL($name).'\')');
 				}
 			}
 		}
