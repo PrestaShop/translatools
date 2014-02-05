@@ -1084,11 +1084,14 @@ class TranslationsExtractor
 
 	public function extractTabsStrings()
 	{
-		if (class_exists('Tab'))
+		$blacklist = array('AdminTranslatools', 'AdminEmailGenerator');
+		if (class_exists('Tab')) // We  would not have this if running from CLI
 		{
 			$id_lang = Language::getIdByIso($this->language !== '-' ? $this->language : 'en');
 			foreach(Tab::getTabs($id_lang) as $tab)
 			{
+				if (in_array($tab['class_name'], $blacklist))
+					continue;
 				if ($tab['name'] != '')
 					$this->record($tab['name'], $tab['class_name'], 'translations/[lc]/tabs.php', 'tabs');
 			}
