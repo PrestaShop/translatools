@@ -590,7 +590,7 @@ class TranslationsExtractor
 			$prefix_key = 'Admin'.Tools::ucfirst(Tools::substr($tmp, strrpos($tmp, '/') + 1, $pos));
 
 		// Adding list, form, option in Helper Translations
-		$list_prefix_key = array('AdminHelpers', 'AdminList', 'AdminView', 'AdminOptions', 'AdminForm', 'AdminHelpAccess');
+		$list_prefix_key = array('AdminHelpers', 'AdminList', 'AdminView', 'AdminOptions', 'AdminForm', 'AdminHelpAccess', 'AdminCalendar', 'AdminTree', 'AdminUploader', 'AdminDataviz', 'AdminKpi', 'AdminModule_list');
 		if (in_array($prefix_key, $list_prefix_key))
 			$prefix_key = 'Helper';
 
