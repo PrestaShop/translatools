@@ -313,7 +313,7 @@
 							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">{l s='Install!' mod='translatools'}</button>
 						</span>
 					</div>
-					{if isset($CROWDIN_PROJECT_API_KEY)}
+					{if isset($CROWDIN_PROJECT_API_KEY) && $CROWDIN_PROJECT_API_KEY}
 						<div class="col-lg-2">
 							<select id="install_language">
 								<option value="*">All languages</option>
