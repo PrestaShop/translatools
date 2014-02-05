@@ -299,6 +299,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 	public function ajaxDownloadTranslationsAction($payload)
 	{
 		$data = $this->crowdin->downloadTranslations();
+		$imported = array();
 		if ($data)
 		{
 			$file = tempnam(null, 'translatools');
@@ -325,11 +326,13 @@ class AdminTranslatoolsController extends ModuleAdminController
 					
 					if ($ok !== true)
 						return array('success' => false, 'message' => $ok);
+					else
+						$imported[] = $target_path;
 				}
 
 			}
 
-			return array('success' => true, 'message' => 'Done :)');
+			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported);
 		}
 		else
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');

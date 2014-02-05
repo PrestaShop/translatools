@@ -555,7 +555,8 @@ class TranslaTools extends Module
 			if (!@mkdir($dir, 0777, true))
 				return "Could not create directory for file '$path'.";
 
-		file_put_contents($full_path, $contents);
+		if(!@file_put_contents($full_path, $contents))
+			return $this->l('Could not import file: ').$path;
 
 		$this->postProcessTranslationFile($languageCode, $full_path);
 
