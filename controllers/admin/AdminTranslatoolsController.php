@@ -309,7 +309,12 @@ class AdminTranslatoolsController extends ModuleAdminController
 			file_put_contents($file, $data);
 
 			$za = new ZipArchive();
-			$za->open($file);
+			$opened = $za->open($file);
+
+			if ($opened !== true)
+			{
+				return array('success' => false, 'message' => 'Could not open archive.');
+			}
 
 			$numFiles = $za->numFiles;
 
