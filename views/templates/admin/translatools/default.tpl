@@ -110,7 +110,7 @@
 				<div class="col-lg-3"></div>
 				<div class="col-lg-6">
 					<div class="alert alert-warning">
-                        <strong>{l s='Warning:' mod='translatools'} </strong>{$modules_not_found_warning|escape:'htmlall':'UTF-8'}	
+                        <strong>{l s='Warning:' mod='translatools'} </strong>{$modules_not_found_warning}	
 					</div>
 				</div>
 			</div>
