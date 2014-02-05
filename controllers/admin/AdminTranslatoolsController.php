@@ -300,6 +300,9 @@ class AdminTranslatoolsController extends ModuleAdminController
 	{
 		$data = $this->crowdin->downloadTranslations();
 		$imported = array();
+		$numFiles = 0;
+		$unrecognized = array();
+
 		if ($data)
 		{
 			$file = tempnam(null, 'translatools');
@@ -307,6 +310,8 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			$za = new ZipArchive();
 			$za->open($file);
+
+			$numFiles = $za->numFiles;
 
 			for ($i=0; $i<$za->numFiles; $i++)
 			{
@@ -329,10 +334,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 					else
 						$imported[] = $target_path;
 				}
+				else
+				{
+					$unrecognized[] = $name;
+				}
 
 			}
 
-			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported);
+			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported, 'numFiles' => $numFiles, 'unrecognized' => $unrecognized);
 		}
 		else
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
