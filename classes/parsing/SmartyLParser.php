@@ -1,27 +1,34 @@
 <?php
-
 class SmartyLParser
 {
+	private $verbose = false;
+
 	public function __construct()
 	{
-		$this->pattern = '/\{l\s+s\s*=\s*/';
+		$this->pattern = '/\{l\s+s\s*=\s*/u';
+	}
+
+	public function setVerbose($verbose=true)
+	{
+		$this->verbose = $verbose;
 	}
 
 	public function peek($n=1)
 	{
-		return mb_substr($this->string, $this->at, $n);
+		return mb_substr($this->string, $this->at, $n, 'UTF-8');
 	}
 
 	public function getc($n=1)
 	{
 		$str = $this->peek($n);
-		$this->at += $n;
+		$this->at += 1;
 		return $str;
 	}
 
 	public function parse($path)
 	{
-		return $this->parseString(file_get_contents($path));
+		$str = file_get_contents($path);
+		return $this->parseString($str);
 	}
 
 	public function parseString($string)
@@ -32,11 +39,11 @@ class SmartyLParser
 		$this->at = 0;
 
 		$m = array();
-		while (preg_match($this->pattern, $this->string, $m, PREG_OFFSET_CAPTURE, $this->at))
+		while (preg_match($this->pattern, $this->string, $m, null, $this->at))
 		{
 			$this->str = '';
 			$this->state = 'default';
-			$this->at = $m[0][1] + mb_strlen($m[0][0]);
+			$this->at = mb_strpos($this->string, $m[0], $this->at, 'UTF-8') + mb_strlen($m[0], 'UTF-8');
 			while (false !== ($c=$this->getc()))
 			{
 				$this->str .= $c;
