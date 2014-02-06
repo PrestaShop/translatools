@@ -311,18 +311,30 @@ class AdminTranslatoolsController extends ModuleAdminController
 		$imported = array();
 		$numFiles = 0;
 		$unrecognized = array();
+		$archiveSize = 0;
 
 		if ($data)
 		{
 			$file = tempnam(null, 'translatools');
-			file_put_contents($file, $data);
+
+			if($file === false)
+			{
+				return array('success' => false, 'message' => 'Could not create temporary file to store archive.');
+			}
+
+			if(!@file_put_contents($file, $data))
+			{
+				return array('success' => false, 'message' => 'Could write archive.');
+			}
+
+			$archiveSize = (int)(filesize($file) / 1024);
 
 			$za = new ZipArchive();
 			$opened = $za->open($file);
 
 			if ($opened !== true)
 			{
-				return array('success' => false, 'message' => 'Could not open archive.');
+				return array('success' => false, 'message' => 'Could not open archive.', 'archiveSize' => $archiveSize);
 			}
 
 			$numFiles = $za->numFiles;
