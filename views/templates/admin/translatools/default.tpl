@@ -313,16 +313,14 @@
 							<button data-confirm="Sure?" data-cancel="Nope." type="button" onclick="javascript:downloadTranslationsFromCrowdin();" class="btn btn-primary">{l s='Install!' mod='translatools'}</button>
 						</span>
 					</div>
-					{if isset($CROWDIN_PROJECT_API_KEY) && $CROWDIN_PROJECT_API_KEY}
-						<div class="col-lg-2">
-							<select id="install_language">
-								<option value="*">All languages</option>
-								{foreach from=$languages item=language key=code}
-									<option value="{$code}">{$language}</option>
-								{/foreach}
-							</select>
-						</div>
-					{/if}
+					<div class="col-lg-2">
+						<select id="install_language">
+							<option value="all">All languages</option>
+							{foreach from=$languages item=language key=code}
+								<option value="{$code}">{$language}</option>
+							{/foreach}
+						</select>
+					</div>
 					<div class="col-lg-8 feedback">
 						<p class="form-control-static" id="download-from-crowdin-feedback"></p>
 					</div>
@@ -540,9 +538,9 @@
 		$.ajax({
 		  type: "POST",
 		  url: '{$link->getAdminLink("AdminTranslatools")}&action=downloadTranslations&ajax=1',
-		  data: {
-		  	language: {if isset($CROWDIN_PROJECT_API_KEY)} $('#install_language').val() {else} '*' {/if}
-		  },
+		  data: JSON.stringify({
+		  	language: $('#install_language').val()
+		  }),
 		  success: handleDownloadTranslationsReturn,
 		  dataType: 'json'
 		});
