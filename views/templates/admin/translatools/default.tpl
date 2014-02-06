@@ -6,19 +6,17 @@
     <div class="form-group">
 		<label for="{$id_on}" class="control-label col-lg-3">{$label|escape:'htmlall':'UTF-8'}</label>
 		<div class="col-lg-2">
-			<div class="input-group">
-				<span class="switch prestashop-switch">
-					<input name="{$input_name}" type="radio" id="{$id_on}" value="{$value_on}"{if $value==$value_on} checked{/if}>
-					<label for="{$id_on}">
-						{l s='Yes' mod='translatools'|escape:'htmlall':'UTF-8'}
-					</label>
-					<input name="{$input_name}" type="radio" id="{$id_off}" value="{$value_off}"{if $value==$value_off} checked{/if}>
-					<label for="{$id_off}">
-						{l s='No' mod='translatools'|escape:'htmlall':'UTF-8'}
-					</label>
-					<a class="slide-button btn"></a>
-				</span>
-			</div>
+			<span class="switch prestashop-switch fixed-width-lg">
+				<input name="{$input_name}" type="radio" id="{$id_on}" value="{$value_on}"{if $value==$value_on} checked{/if}>
+				<label for="{$id_on}">
+					{l s='Yes' mod='translatools'|escape:'htmlall':'UTF-8'}
+				</label>
+				<input name="{$input_name}" type="radio" id="{$id_off}" value="{$value_off}"{if $value==$value_off} checked{/if}>
+				<label for="{$id_off}">
+					{l s='No' mod='translatools'|escape:'htmlall':'UTF-8'}
+				</label>
+				<a class="slide-button btn"></a>
+			</span>
 		</div>
 	</div>
 {/function}
