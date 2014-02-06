@@ -470,16 +470,16 @@ class TranslaTools extends Module
 
 	public function getCrowdinLanguageCode($prestashopCode)
 	{
-		if (isset($reverseLanguageMapping[$prestashopCode])) 
-			return $reverseLanguageMapping[$prestashopCode]['locale'];
+		if (isset(self::$reverseLanguageMapping[$prestashopCode])) 
+			return self::$reverseLanguageMapping[$prestashopCode]['locale'];
 		else
 			return $prestashopCode;
 	}
 
 	public function getCrowdinShortCode($prestashopCode)
 	{
-		if (isset($reverseLanguageMapping[$prestashopCode])) 
-			return $reverseLanguageMapping[$prestashopCode]['crowdin_code'];
+		if (isset(self::$reverseLanguageMapping[$prestashopCode])) 
+			return self::$reverseLanguageMapping[$prestashopCode]['crowdin_code'];
 		else
 			return $prestashopCode;
 	}

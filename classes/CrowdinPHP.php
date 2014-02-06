@@ -103,7 +103,7 @@ class CrowdinPHP
 		if ($language === 'all')
 			$url = "http://crowdin.net/download/project/{$this->identifier}.zip";
 		else
-			$url = "https://crowdin.net/download/project/{$this->identifier}/$language.zip";
+			$url = "http://crowdin.net/download/project/{$this->identifier}/$language.zip";
 
 		return @file_get_contents($url);
 	}
