@@ -315,7 +315,10 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if ($data)
 		{
-			$file = tempnam(null, 'translatools');
+			$file = dirname(__FILE__).'/../tmp/archive.zip';
+			if (!is_dir(dirname($file)))
+				if (!@mkdir(dirname($file, 0777)))
+					return array('success' => false, 'message' => 'Could not create tmp dir.');
 
 			if($file === false)
 			{
@@ -324,7 +327,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			if(!@file_put_contents($file, $data))
 			{
-				return array('success' => false, 'message' => 'Could write archive.');
+				return array('success' => false, 'message' => 'Could not write archive.');
 			}
 
 			$archiveSize = (int)(filesize($file) / 1024);

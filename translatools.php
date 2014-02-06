@@ -184,6 +184,7 @@ class TranslaTools extends Module
 		$directories[] = FilesLister::join(_PS_ROOT_DIR_, 'translations');
 		$directories[] = FilesLister::join(_PS_ROOT_DIR_, 'mails');
 		$directories[] = FilesLister::join(_PS_MODULE_DIR_, 'translatools/packs');
+		$directories[] = FilesLister::join(_PS_MODULE_DIR_, 'translatools/tmp');
 
 		if (is_dir( FilesLister::join(_PS_MODULE_DIR_, 'emailgenerator')))
 			$directories[] = FilesLister::join(_PS_MODULE_DIR_, 'emailgenerator/templates_translations');
