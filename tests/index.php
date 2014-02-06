@@ -6,9 +6,9 @@
 * Test PHPFunctionCallParser
 */
 
-require_once dirname(__FILE__).'/../classes/PHPFunctionCallParser.php';
-require_once dirname(__FILE__).'/../classes/SmartyFunctionCallParser.php';
-require_once dirname(__FILE__).'/../classes/SmartyLParser.php';
+require_once dirname(__FILE__).'/../classes/parsing/PHPFunctionCallParser.php';
+require_once dirname(__FILE__).'/../classes/parsing/SmartyFunctionCallParser.php';
+require_once dirname(__FILE__).'/../classes/parsing/SmartyLParser.php';
 
 $fixtures = array(
 	array(

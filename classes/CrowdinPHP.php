@@ -101,13 +101,10 @@ class CrowdinPHP
 	public function downloadTranslations($language='all')
 	{
 		if ($language === 'all')
-		{
 			$url = "http://crowdin.net/download/project/{$this->identifier}.zip";
-		}
 		else
-		{
-			$url = "http://api.crowdin.net/api/project/{$this->identifier}/download/$language.zip?key={$this->key}";
-		}
+			$url = "https://crowdin.net/download/project/{$this->identifier}/$language.zip";
+
 		return @file_get_contents($url);
 	}
 
