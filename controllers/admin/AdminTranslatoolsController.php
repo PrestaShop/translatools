@@ -315,15 +315,10 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if ($data)
 		{
-			$file = dirname(__FILE__).'/../tmp/archive.zip';
+			$file = dirname(__FILE__).'/../../tmp/archive.zip';
 			if (!is_dir(dirname($file)))
 				if (!@mkdir(dirname($file, 0777)))
 					return array('success' => false, 'message' => 'Could not create tmp dir.');
-
-			if($file === false)
-			{
-				return array('success' => false, 'message' => 'Could not create temporary file to store archive.');
-			}
 
 			if(!@file_put_contents($file, $data))
 			{
