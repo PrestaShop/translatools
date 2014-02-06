@@ -298,7 +298,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 	public function ajaxDownloadTranslationsAction($payload)
 	{
-		$data = $this->crowdin->downloadTranslations();
+		$data = $this->crowdin->downloadTranslations(isset($payload['language']) ? $payload['language'] : 'all');
 		$imported = array();
 		$numFiles = 0;
 		$unrecognized = array();

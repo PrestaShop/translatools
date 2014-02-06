@@ -43,6 +43,12 @@ class TranslaTools extends Module
 	public $owner;
 	public $address;
 	public $extra_mail_vars;
+
+	// Locale => array('crowdin_code' => xy, 'prestashop_code' => zt)
+	// This list is not meant to be written by hand :)
+	public static $languageMapping = array('an-AR' => array('crowdin_code' => 'an', 'prestashop_code' => 'an'), 'af-ZA' => array('crowdin_code' => 'af', 'prestashop_code' => 'af'), 'es-AR' => array('crowdin_code' => 'es-AR', 'prestashop_code' => 'ag'), 'ar-SA' => array('crowdin_code' => 'ar', 'prestashop_code' => 'ar'), 'az-AZ' => array('crowdin_code' => 'az', 'prestashop_code' => 'az'), 'bg-BG' => array('crowdin_code' => 'bg', 'prestashop_code' => 'bg'), 'bn-BD' => array('crowdin_code' => 'bn', 'prestashop_code' => 'bn'), 'pt-BR' => array('crowdin_code' => 'pt-BR', 'prestashop_code' => 'br'), 'bs-BA' => array('crowdin_code' => 'bs', 'prestashop_code' => 'bs'), 'br-FR' => array('crowdin_code' => 'br-FR', 'prestashop_code' => 'bz'), 'ca-ES' => array('crowdin_code' => 'ca', 'prestashop_code' => 'ca'), 'es-CO' => array('crowdin_code' => 'es-CO', 'prestashop_code' => 'cb'), 'cs-CZ' => array('crowdin_code' => 'cs', 'prestashop_code' => 'cs'), 'da-DK' => array('crowdin_code' => 'da', 'prestashop_code' => 'da'), 'de-DE' => array('crowdin_code' => 'de', 'prestashop_code' => 'de'), 'el-GR' => array('crowdin_code' => 'el', 'prestashop_code' => 'el'), 'en-US' => array('crowdin_code' => 'en', 'prestashop_code' => 'en'), 'es-ES' => array('crowdin_code' => 'es-ES', 'prestashop_code' => 'es'), 'et-EE' => array('crowdin_code' => 'et', 'prestashop_code' => 'et'), 'eu-ES' => array('crowdin_code' => 'eu', 'prestashop_code' => 'eu'), 'fa-IR' => array('crowdin_code' => 'fa', 'prestashop_code' => 'fa'), 'fi-FI' => array('crowdin_code' => 'fi', 'prestashop_code' => 'fi'), 'fo-FO' => array('crowdin_code' => 'fo', 'prestashop_code' => 'fo'), 'fr-FR' => array('crowdin_code' => 'fr', 'prestashop_code' => 'fr'), 'ga-IE' => array('crowdin_code' => 'ga-IE', 'prestashop_code' => 'ga'), 'en-GB' => array('crowdin_code' => 'en-GB', 'prestashop_code' => 'gb'), 'gl-ES' => array('crowdin_code' => 'gl', 'prestashop_code' => 'gl'), 'he-IL' => array('crowdin_code' => 'he', 'prestashop_code' => 'he'), 'hi-IN' => array('crowdin_code' => 'hi', 'prestashop_code' => 'hi'), 'hr-HR' => array('crowdin_code' => 'hr', 'prestashop_code' => 'hr'), 'hu-HU' => array('crowdin_code' => 'hu', 'prestashop_code' => 'hu'), 'hy-AM' => array('crowdin_code' => 'hy-AM', 'prestashop_code' => 'hy'), 'id-ID' => array('crowdin_code' => 'id', 'prestashop_code' => 'id'), 'it-IT' => array('crowdin_code' => 'it', 'prestashop_code' => 'it'), 'ja-JP' => array('crowdin_code' => 'ja', 'prestashop_code' => 'ja'), 'ka-GE' => array('crowdin_code' => 'ka', 'prestashop_code' => 'ka'), 'ko-KR' => array('crowdin_code' => 'ko', 'prestashop_code' => 'ko'), 'lo-LA' => array('crowdin_code' => 'lo', 'prestashop_code' => 'lo'), 'lt-LT' => array('crowdin_code' => 'lt', 'prestashop_code' => 'lt'), 'lv-LV' => array('crowdin_code' => 'lv', 'prestashop_code' => 'lv'), 'mk-MK' => array('crowdin_code' => 'mk', 'prestashop_code' => 'mk'), 'ml-IN' => array('crowdin_code' => 'ml-IN', 'prestashop_code' => 'ml'), 'ms-MY' => array('crowdin_code' => 'ms', 'prestashop_code' => 'ms'), 'es-MX' => array('crowdin_code' => 'es-MX', 'prestashop_code' => 'mx'), 'nl-NL' => array('crowdin_code' => 'nl', 'prestashop_code' => 'nl'), 'no-NO' => array('crowdin_code' => 'no', 'prestashop_code' => 'no'), 'pl-PL' => array('crowdin_code' => 'pl', 'prestashop_code' => 'pl'), 'pt-PT' => array('crowdin_code' => 'pt-PT', 'prestashop_code' => 'pt'), 'ro-RO' => array('crowdin_code' => 'ro', 'prestashop_code' => 'ro'), 'ru-RU' => array('crowdin_code' => 'ru', 'prestashop_code' => 'ru'), 'si-LK' => array('crowdin_code' => 'si-LK', 'prestashop_code' => 'sh'), 'sl-SI' => array('crowdin_code' => 'sl', 'prestashop_code' => 'si'), 'sk-SK' => array('crowdin_code' => 'sk', 'prestashop_code' => 'sk'), 'sq-AL' => array('crowdin_code' => 'sq', 'prestashop_code' => 'sq'), 'sr-CS' => array('crowdin_code' => 'sr-CS', 'prestashop_code' => 'sr'), 'sv-SE' => array('crowdin_code' => 'sv-SE', 'prestashop_code' => 'sv'), 'sw-KE' => array('crowdin_code' => 'sw', 'prestashop_code' => 'sw'), 'ta-IN' => array('crowdin_code' => 'ta', 'prestashop_code' => 'ta'), 'te-IN' => array('crowdin_code' => 'te', 'prestashop_code' => 'te'), 'th-TH' => array('crowdin_code' => 'th', 'prestashop_code' => 'th'), 'tr-TR' => array('crowdin_code' => 'tr', 'prestashop_code' => 'tr'), 'zh-TW' => array('crowdin_code' => 'zh-TW', 'prestashop_code' => 'tw'), 'ug-CN' => array('crowdin_code' => 'ug', 'prestashop_code' => 'ug'), 'uk-UA' => array('crowdin_code' => 'uk', 'prestashop_code' => 'uk'), 'ur-PK' => array('crowdin_code' => 'ur-PK', 'prestashop_code' => 'ur'), 'vi-VN' => array('crowdin_code' => 'vi', 'prestashop_code' => 'vn'), 'zh-CN' => array('crowdin_code' => 'zh-CN', 'prestashop_code' => 'zh'));
+	public static $reverseLanguageMapping = array();
+
 	public function __construct()
 	{
 		$this->name = 'translatools';
@@ -57,6 +63,11 @@ class TranslaTools extends Module
 
 		$this->displayName = $this->l('TranslaTools');
 		$this->description = $this->l('Crowdin integration and more!');
+
+		foreach (static::$languageMapping as $locale => $codes)
+		{
+			static::$reverseLanguageMapping[$codes['prestashop_code']] = array('locale' => $locale, 'crowdin_code' => $codes['crowdin_code']);
+		}
 	}
 
 	public function install()
@@ -68,6 +79,7 @@ class TranslaTools extends Module
 		&& $this->registerHook('displayBackOfficeHeader')
 		&& $this->installTab();
 
+
 		Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', 'prestashop-official');
 		Configuration::updateValue('JIPT_FO', '1');
 		Configuration::updateValue('JIPT_BO', '1');
@@ -78,7 +90,7 @@ class TranslaTools extends Module
 		{
 			$this->exportAsInCodeLanguage();
 			$ttc = new AdminTranslatoolsController(true);
-			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true));
+			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true, 'language' => 'an'));
 		}
 
 		return $ok;
@@ -448,31 +460,26 @@ class TranslaTools extends Module
 		Tools::redirectAdmin($this->context->link->getAdminLink('AdminTranslatools'));
 	}
 
-	// Crowdin => PrestaShop
-	// This list is not meant to be written by hand :)
-	public static $languageMapping = array('an-AR' => 'an', 'af-ZA' => 'af', 'es-AR' => 'ag', 'ar-SA' => 'ar', 'az-AZ' => 'az', 'bg-BG' => 'bg', 'bn-BD' => 'bn', 'pt-BR' => 'br', 'bs-BA' => 'bs', 'br-FR' => 'bz', 'ca-ES' => 'ca', 'es-CO' => 'cb', 'cs-CZ' => 'cs', 'da-DK' => 'da', 'de-DE' => 'de', 'el-GR' => 'el', 'en-US' => 'en', 'es-ES' => 'es', 'et-EE' => 'et', 'eu-ES' => 'eu', 'fa-IR' => 'fa', 'fi-FI' => 'fi', 'fo-FO' => 'fo', 'fr-FR' => 'fr', 'ga-IE' => 'ga', 'en-GB' => 'gb', 'gl-ES' => 'gl', 'he-IL' => 'he', 'hi-IN' => 'hi', 'hr-HR' => 'hr', 'hu-HU' => 'hu', 'hy-AM' => 'hy', 'id-ID' => 'id', 'it-IT' => 'it', 'ja-JP' => 'ja', 'ka-GE' => 'ka', 'ko-KR' => 'ko', 'lo-LA' => 'lo', 'lt-LT' => 'lt', 'lv-LV' => 'lv', 'mk-MK' => 'mk', 'ml-IN' => 'ml', 'ms-MY' => 'ms', 'es-MX' => 'mx', 'nl-NL' => 'nl', 'no-NO' => 'no', 'pl-PL' => 'pl', 'pt-PT' => 'pt', 'ro-RO' => 'ro', 'ru-RU' => 'ru', 'si-LK' => 'sh', 'sl-SI' => 'si', 'sk-SK' => 'sk', 'sq-AL' => 'sq', 'sr-CS' => 'sr', 'sv-SE' => 'sv', 'sw-KE' => 'sw', 'ta-IN' => 'ta', 'te-IN' => 'te', 'th-TH' => 'th', 'tr-TR' => 'tr', 'zh-TW' => 'tw', 'ug-CN' => 'ug', 'uk-UA' => 'uk', 'ur-PK' => 'ur', 'vi-VN' => 'vn', 'zh-CN' => 'zh');
-
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
 		if (isset(self::$languageMapping[$foreignCode])) 
-			return self::$languageMapping[$foreignCode];
+			return self::$languageMapping[$foreignCode]['prestashop_code'];
 		else
 			return $foreignCode;
 	}
 
 	public function getCrowdinLanguageCode($prestashopCode)
 	{
-		static $reverseLanguageMapping;
-		if (!is_array($reverseLanguageMapping))
-		{
-			$reverseLanguageMapping = array();
-			foreach (static::$languageMapping as $crowdin => $prestashop)
-			{
-				$reverseLanguageMapping[$prestashop] = $crowdin;
-			}
-		}
 		if (isset($reverseLanguageMapping[$prestashopCode])) 
-			return $reverseLanguageMapping[$prestashopCode];
+			return $reverseLanguageMapping[$prestashopCode]['locale'];
+		else
+			return $prestashopCode;
+	}
+
+	public function getCrowdinShortCode($prestashopCode)
+	{
+		if (isset($reverseLanguageMapping[$prestashopCode])) 
+			return $reverseLanguageMapping[$prestashopCode]['crowdin_code'];
 		else
 			return $prestashopCode;
 	}
