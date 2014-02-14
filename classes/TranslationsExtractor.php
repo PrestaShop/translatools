@@ -307,7 +307,7 @@ class TranslationsExtractor
 			}
 			else
 			{
-				$base_source = $this->join($this->root_dir, str_replace('[lc]', $lang, $name));
+				$base_source = FilesLister::join($this->root_dir, str_replace('[lc]', $lang, $name));
 				$translations_sources = array(
 					$base_source
 				);
