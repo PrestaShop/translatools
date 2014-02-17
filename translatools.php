@@ -490,7 +490,7 @@ class TranslaTools extends Module
 	public function guessLanguageCodeFromPath($path)
 	{
 		$exps = array(
-			'#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs)\.php$#',
+			'#(?:^|/)translations/([^/]+)/(?:admin|errors|pdf|tabs|fields)\.php$#',
 			'#(?:^|/)modules/(?:[^/]+)/translations/(.*?)\.php$#',
 			'#(?:^|/)themes/(?:[^/]+)/lang/(.*?)\.php$#',
 			'#(?:^|/)mails/([^/]+)/lang.php$#',
