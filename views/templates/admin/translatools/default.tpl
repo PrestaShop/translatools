@@ -141,6 +141,7 @@
 		{yesno label={l s='Export Mail Content Strings' mod='translatools'} input_name="section[mailContent]"}
 		{yesno label={l s='Export Generated Emails' mod='translatools'} input_name="section[generatedEmails]"}
 		{yesno label={l s='Export Installer Strings' mod='translatools'} input_name="section[installer]"}
+		{yesno label={l s='Export Fields Strings' mod='translatools'} input_name="section[fields]"}
 
 		
 		<div class="form-group">

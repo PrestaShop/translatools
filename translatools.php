@@ -324,7 +324,8 @@ class TranslaTools extends Module
 			'mailSubjects' => 1,
 			'mailContent' => 1,
 			'generatedEmails' => 1,
-			'installer' => 1
+			'installer' => 1,
+			'fields' => 1
 		));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
 		$extractor->setTheme($this->context->theme->name);
@@ -349,6 +350,7 @@ class TranslaTools extends Module
 			'tabs' => 1,
 			'mailSubjects' => 1,
 			'generatedEmails' => 1,
+			'fields' => 1
 		));
 		$extractor->setRootDir(_PS_ROOT_DIR_);
 		$extractor->setTheme($this->context->theme->name);

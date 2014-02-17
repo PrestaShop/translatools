@@ -1,0 +1,5 @@
+Customer: firstname, lastname, birthday, email, website, company, siret
+Warehouse: reference, name, management_type
+Country: iso_code, name, zip_code_format
+State: iso_code, name
+Address: company, lastname, firstname, address1, address2, postcode, city, other, phone, phone_mobile, vat_number, dni

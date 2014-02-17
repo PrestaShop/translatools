@@ -200,6 +200,8 @@ class TranslationsExtractor
 					$array_name = '_TABS';
 				else if (preg_match('#^mails/#', $name))
 					$array_name = '_LANGMAIL';
+				else if (basename($name) === 'fields.php')
+					$array_name = '_FIELDS';
 
 				if ($array_name !== null)
 				{
@@ -819,6 +821,37 @@ class TranslationsExtractor
 		foreach ($files as $path)
 		{
 			$this->raw_files[Tools::substr($path, Tools::strlen($this->root_dir)+1)] = Tools::file_get_contents($path);
+		}
+	}
+
+	public function extractFieldsStrings()
+	{
+		$src = dirname(__FILE__).'/../data/fields';
+		if (file_exists($src) && ($data = @file_get_contents($src)))
+		{
+			$dictionary = array();
+			foreach (preg_split('#\n+#', $data) as $line)
+			{
+				$left_right = explode(':', $line);
+				if (count($left_right) === 2)
+				{
+					$classes = array_map('trim', explode(',', $left_right[0]));
+					$fields = array_map('trim', explode(',', $left_right[1]));
+
+					foreach ($classes as $class)
+						foreach ($fields as $field)
+							$this->record(
+								$field,
+								$class.'_'.md5($field),
+								'translations/[lc]/fields.php',
+								'fields'
+							);
+				}
+			}
+		}
+		else
+		{
+			die("Could not find fields file!");
 		}
 	}
 
