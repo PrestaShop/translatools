@@ -52,7 +52,7 @@ class TranslaTools extends Module
 	public function __construct()
 	{
 		$this->name = 'translatools';
-		$this->version = '0.6';
+		$this->version = '0.8';
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
 		
