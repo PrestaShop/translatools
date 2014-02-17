@@ -123,8 +123,7 @@ class TranslationsExtractor
 	}
 
 	public function extract($to_folder = null)
-	{
-
+	{		
 		foreach ($this->sections as $section)
 		{
 			$method = 'extract'.Tools::ucfirst($section).'Strings';
@@ -167,7 +166,7 @@ class TranslationsExtractor
 	}
 
 	public function write($to_folder)
-	{
+	{		
 		$wrote = array();
 
 		if (!is_dir($to_folder))
@@ -336,18 +335,16 @@ class TranslationsExtractor
 					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
 			}
 		}
-
+		
 		if($this->language !== '-')
 		{
 			$raw_files = array();
-			foreach ($this->raw_files as $name => $data)
+			foreach ($this->raw_files as $name => $unused)
 			{
 				$new = preg_replace('#(^|/)mails/en/#', '\1mails/'.$this->language.'/', $name);
 				$path = FilesLister::join($this->root_dir, $new);
-				if (file_exists($path))
-				{
+				if (file_exists($path) && basename($path) !== 'lang.php')
 					$raw_files[$new] = file_get_contents($path);
-				}
 			}
 			$this->raw_files = $raw_files;
 		}
