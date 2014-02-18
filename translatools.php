@@ -85,15 +85,19 @@ class TranslaTools extends Module
 		Configuration::updateValue('JIPT_BO', '1');
 
 		$this->createVirtualLanguage();
+		$this->updateVirtualLanguage();
 
+		return $ok;
+	}
+
+	public function updateVirtualLanguage()
+	{
 		if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_ && count($this->nonWritableDirectories()) === 0)
 		{
 			$this->exportAsInCodeLanguage();
 			$ttc = new AdminTranslatoolsController(true);
 			$ttc->ajaxDownloadTranslationsAction(array('only_virtual' => true, 'language' => 'an'));
 		}
-
-		return $ok;
 	}
 
 	public function uninstall()
@@ -265,6 +269,18 @@ class TranslaTools extends Module
 		else
 			$modules_not_found_warning = false;
 
+		$shop_not_up_to_date = '';
+		$translatability = $this->computeTranslatability();
+		if ((int)$translatability[null]['percent_translated'] < 100)
+		{
+			$this->updateVirtualLanguage();
+			$translatability = $this->computeTranslatability();
+			if ((int)$translatability[null]['percent_translated'] < 100)
+			{
+				$shop_not_up_to_date = $this->l('We tried to update the list of translatable strings from Crowdin, but your shop is still not 100% translatable. The strings on Crowdin are maybe not up to date or your PrestaShop installation is either not up to date or contains custom changes in the core strings.');
+			}
+		}
+
 		$themes = array();
 		foreach (scandir(_PS_ALL_THEMES_DIR_) as $entry)
 			if (!preg_match('/^\./', $entry) && is_dir(_PS_ALL_THEMES_DIR_.$entry))
@@ -294,7 +310,8 @@ class TranslaTools extends Module
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
 			'non_writable_directories' => $this->nonWritableDirectories(),
-			'coverage' => $this->computeTranslatability()
+			'coverage' => $translatability,
+			'shop_not_up_to_date' => $shop_not_up_to_date
 		);
 	}
 

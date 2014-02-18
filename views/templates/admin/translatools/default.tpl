@@ -58,6 +58,12 @@
 	</div>
 {/if}
 
+{if $shop_not_up_to_date}
+	<div class="alert alert-warning">
+		<p><strong>{l s='Warning:' mod='translatools'}</strong> {$shop_not_up_to_date}
+	</div>
+{/if}
+
 <div class="alert alert-info">
 	<p>{l s="Translatability level:" mod='translatools'} <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
 	<p>{l s="The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs." mod='translatools'}</p>
