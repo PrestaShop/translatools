@@ -459,7 +459,7 @@ class TranslaTools extends Module
 
 	public function createVirtualLanguage()
 	{
-		if (!Language::getIdByIso('an'))
+		if (!Language::getIdByIso('an') && defined('_PS_MODE_DEV_') && _PS_MODE_DEV_)
 		{
 			$language = new Language();
 			$language->iso_code = 'an';
