@@ -688,7 +688,6 @@ class TranslationsExtractor
 		foreach ($files as $file)
 		{	
 			$parser = new SmartyLParser();
-			$parser->setVerbose($dbg);
 			$strings = $parser->parse($file);
 
 			$prefix_key = $this->getAdminTPLPrefixKey($file);
