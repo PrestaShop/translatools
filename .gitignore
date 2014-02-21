@@ -3,4 +3,3 @@ packs/*
 !packs/index.php
 tmp/*
 !tmp/index.php
-translatools.zip
