@@ -70,7 +70,7 @@
 	<p>{l s="A translatability of 100%% doesn't mean that your shop will be fully translated if you install translation packs." mod='translatools'} {l s="It only means that if you install a 100%% translation pack it will cover 100%% of what can be covered by any official PrestaShop translation pack." mod='translatools'}</p>
 	<p>{l s='Translatability may be lower than 100%% for different reasons:' mod='translatools'}</p>
 	<ul>
-		<li>{l s="The 'Live Translation' language was not installed on your shop or something went wrong while extracting the strings from your installation. You will usually see 0% coverage when this happens." mod='translatools'}</li>
+		<li>{l s="The 'Live Translation' language was not installed on your shop or something went wrong while extracting the strings from your installation. You will usually see 0%% coverage when this happens." mod='translatools'}</li>
 		<li>{l s="You have unsupported modules and / or themes installed." mod='translatools'}</li>
 		<li>{l s="PrestaShop has evolved since you last downloaded tranlations from Crowdin or PrestaShop hasn't yet updated Crowdin translations to reflect the new state of the software this will usually happen if you are using an unstable version of PrestaShop." mod='translatools'}</li>
 	</ul>
