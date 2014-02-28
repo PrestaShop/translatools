@@ -619,4 +619,27 @@ class AdminTranslatoolsController extends ModuleAdminController
         readfile($allpath);
         exit;
 	}
+
+	public function checkQualityAction()
+	{
+		$with_tags = array();
+
+		$extractor = $this->module->exportAsInCodeLanguage();
+		foreach ($extractor->getFiles() as $name => $data)
+			foreach ($data as $key => $details)
+			{
+				if ($details['type'] === 'installer')
+					continue;
+				else if ($details['type'] === 'mailContent')
+					continue;
+
+				$message = $details['message'];
+				if ($message !== strip_tags($message))
+				{
+					$with_tags[] = $message;
+				}
+			}
+
+		return array('with_tags' => $with_tags);
+	}
 }	

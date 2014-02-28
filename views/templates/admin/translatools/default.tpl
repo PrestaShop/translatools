@@ -367,6 +367,15 @@
 			</div>
 		</div>
 	</form>
+
+	<form action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkQuality" method="POST" class="form-horizontal">
+		<div class="form-group">
+			<label for="check-quality" class="control-label col-lg-3">{l s='Check English Quality' mod='translatools'}</label>
+			<div class="col-lg-6">
+				<button type="submit" class="btn btn-primary">{l s='Check!' mod='translatools'}</button>
+			</div>
+		</div>
+	</form>
 	
 	<form method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkLUse" class="form-horizontal">
 		<div class="form-group">
