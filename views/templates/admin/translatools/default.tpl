@@ -44,6 +44,13 @@
 
 <div class="alert alert-warning">
 	<p><strong>{l s='Warning:' mod='translatools'}</strong> {l s='This module should never be used on a production shop!' mod='translatools'}</p>
+	{if !$devServer}
+		<p>We detected that your shop is not in dev mode, so as a precaution Live Translation was not enabled.</p>
+		<form action="" method="POST">
+			<input type="hidden" name="force_live_translation" value="1">
+			<p><button class="btn btn-warning" onclick="javascript:return confirm('Really activate Live Translation?? You should not do this on a production shop.');">Click here</button> to enable Live Translation anyway at your own risk!</p>
+		</form>
+	{/if}
 </div>
 
 {if $non_writable_directories|count > 0}

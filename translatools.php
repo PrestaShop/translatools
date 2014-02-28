@@ -92,7 +92,7 @@ class TranslaTools extends Module
 
 	public function updateVirtualLanguage()
 	{
-		if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_ && count($this->nonWritableDirectories()) === 0)
+		if ($this->isDevServer() && count($this->nonWritableDirectories()) === 0)
 		{
 			$this->exportAsInCodeLanguage();
 			$ttc = new AdminTranslatoolsController(true);
@@ -102,6 +102,7 @@ class TranslaTools extends Module
 
 	public function uninstall()
 	{
+		Configuration::updateValue('FORCE_CROWDIN_LIVE_TRANSLATION', false);
 		return parent::uninstall() && $this->uninstallTab();
 	}
 
@@ -269,15 +270,18 @@ class TranslaTools extends Module
 		else
 			$modules_not_found_warning = false;
 
-		$shop_not_up_to_date = '';
-		$translatability = $this->computeTranslatability();
-		if ((int)$translatability[null]['percent_translated'] < 100)
+		if ($this->isDevServer() && !Tools::getValue('SKIP_CROWDIN_UPDATE'))
 		{
-			$this->updateVirtualLanguage();
+			$shop_not_up_to_date = '';
 			$translatability = $this->computeTranslatability();
 			if ((int)$translatability[null]['percent_translated'] < 100)
 			{
-				$shop_not_up_to_date = $this->l('We tried to update the list of translatable strings from Crowdin, but your shop is still not 100% translatable. The strings on Crowdin are maybe not up to date or your PrestaShop installation is either not up to date or contains custom changes in the core strings.');
+				$this->updateVirtualLanguage();
+				$translatability = $this->computeTranslatability();
+				if ((int)$translatability[null]['percent_translated'] < 100)
+				{
+					$shop_not_up_to_date = $this->l('We tried to update the list of translatable strings from Crowdin, but your shop is still not 100% translatable. The strings on Crowdin are maybe not up to date or your PrestaShop installation is either not up to date or contains custom changes in the core strings.');
+				}
 			}
 		}
 
@@ -299,6 +303,14 @@ class TranslaTools extends Module
 			Tools::redirectAdmin($_SERVER['REQUEST_URI']);
 		}
 
+		if ($_SERVER['REQUEST_METHOD'] === 'POST' && Tools::getValue('force_live_translation'))
+		{
+			Configuration::updateValue('FORCE_CROWDIN_LIVE_TRANSLATION', true);
+			$this->createVirtualLanguage();
+			$this->updateVirtualLanguage();
+			Tools::redirectAdmin($_SERVER['REQUEST_URI']);
+		}
+
 		return array(
 			'themes' => $themes,
 			'current_theme' => $this->context->theme->name,
@@ -311,7 +323,8 @@ class TranslaTools extends Module
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
 			'non_writable_directories' => $this->nonWritableDirectories(),
 			'coverage' => $translatability,
-			'shop_not_up_to_date' => $shop_not_up_to_date
+			'shop_not_up_to_date' => $shop_not_up_to_date,
+			'devServer' => $this->isDevServer()
 		);
 	}
 
@@ -457,9 +470,14 @@ class TranslaTools extends Module
 		die();
 	}
 
+	public function isDevServer()
+	{
+		return (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) || Configuration::get('FORCE_CROWDIN_LIVE_TRANSLATION');
+	}
+
 	public function createVirtualLanguage()
 	{
-		if (!Language::getIdByIso('an') && defined('_PS_MODE_DEV_') && _PS_MODE_DEV_)
+		if (!Language::getIdByIso('an') && $this->isDevServer())
 		{
 			$language = new Language();
 			$language->iso_code = 'an';
@@ -574,6 +592,14 @@ class TranslaTools extends Module
 		// Skip installer translations for languages that do not have their data folders
 		if (basename($path) === 'install.php' && !is_dir(FilesLister::join(_PS_ROOT_DIR_, "install-dev/langs/$languageCode/data")))
 			return true;
+
+		$m = array();
+		if (preg_match('#^modules/([^/]+)(?:/translations)?/[a-z]{2}\.php$#', $path, $m))
+		{
+			$module = $m[1];
+			if (!is_dir(_PS_MODULE_DIR_.$module))
+				return true;
+		}
 
 		$full_path = _PS_ROOT_DIR_.'/'.$path;
 		$dir = dirname($full_path);
