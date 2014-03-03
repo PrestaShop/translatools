@@ -320,7 +320,7 @@ class TranslationsExtractor
 			{
 				if ($this->language === '-')
 				{
-					if (isset($dictionary[$message['message']]))
+					if (!empty($dictionary[$key]))
 					{
 						$message['translation'] = $dictionary[$key];
 					}

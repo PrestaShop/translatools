@@ -1,6 +1,5 @@
 <?php
 
-require_once dirname(__FILE__).'/../../classes/CrowdinPHP.php';
 require_once dirname(__FILE__).'/../../classes/TranslationsExtractor.php';
 require_once dirname(__FILE__).'/../../classes/FilesLister.php';
 
@@ -9,12 +8,10 @@ class AdminTranslatoolsController extends ModuleAdminController
 	public function __construct($standalone=false)
 	{
 		$this->bootstrap = true;
-		$this->crowdin = new CrowdinPHP(
-			Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
-			Configuration::get('CROWDIN_PROJECT_API_KEY')
-		);
 		
 		parent::__construct();
+
+		$this->crowdin = $this->module->crowdin;
 
 		if (!$standalone)
 		{		
@@ -298,77 +295,14 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 	public function ajaxDownloadTranslationsAction($payload)
 	{
-		if (!is_array($payload))
-			$payload = array();
-
-		if (!isset($payload['language']))
-			$payload['language'] = 'all';
-
-		if ($payload['language'] !== 'all')
-			$payload['language'] = $this->module->getCrowdinShortCode($payload['language']);
-
-		$data = $this->crowdin->downloadTranslations($payload['language']);
-		$imported = array();
-		$numFiles = 0;
-		$unrecognized = array();
-		$archiveSize = 0;
-
-		if ($data)
-		{
-			$file = dirname(__FILE__).'/../../tmp/archive.zip';
-			if (!is_dir(dirname($file)))
-				if (!@mkdir(dirname($file, 0777)))
-					return array('success' => false, 'message' => 'Could not create tmp dir.');
-
-			if(!@file_put_contents($file, $data))
-			{
-				return array('success' => false, 'message' => 'Could not write archive.');
-			}
-
-			$archiveSize = (int)(filesize($file) / 1024);
-
-			$za = new ZipArchive();
-			$opened = $za->open($file);
-
-			if ($opened !== true)
-			{
-				return array('success' => false, 'message' => 'Could not open archive.', 'archiveSize' => $archiveSize);
-			}
-
-			$numFiles = $za->numFiles;
-
-			for ($i=0; $i<$za->numFiles; $i++)
-			{
-				$stat = $za->statIndex($i);
-				$name = $stat['name'];
-				$m = array();
-				$exp = '#^'.preg_quote($this->module->getPackVersion()).'/(.*?\.php)$#';
-				if (preg_match($exp, $name, $m))
-				{
-					$target_path = $m[1];
-					$contents = $za->getFromIndex($i);
-
-					$only = array();
-					if (is_array($payload) && isset($payload['only_virtual']) && $payload['only_virtual'])
-						$only[] = 'an';
-					$ok = $this->module->importTranslationFile($target_path, $contents, $only);
-					
-					if ($ok !== true)
-						return array('success' => false, 'message' => $ok);
-					else
-						$imported[] = $target_path;
-				}
-				else
-				{
-					$unrecognized[] = $name;
-				}
-
-			}
-
-			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported, 'numFiles' => $numFiles, 'unrecognized' => $unrecognized);
-		}
+		if (!empty($payload['only_virtual']))
+			$language = 'an';
+		else if (!empty($payload['language']))
+			$language = $payload['language'];
 		else
-			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
+			$language = 'all';
+
+		return $this->module->downloadTranslations($language);
 	}
 
 	public function ajaxExportTranslationsAction($payload)

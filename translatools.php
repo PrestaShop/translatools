@@ -31,6 +31,7 @@ require_once dirname(__FILE__).'/classes/TranslationsExtractor.php';
 require_once dirname(__FILE__).'/classes/TranslationsLinter.php';
 require_once dirname(__FILE__).'/classes/FilesLister.php';
 require_once dirname(__FILE__).'/classes/parsing/SmartyFunctionCallParser.php';
+require_once dirname(__FILE__).'/classes/CrowdinPHP.php';
 require_once dirname(__FILE__).'/controllers/admin/AdminTranslatoolsController.php';
 
 
@@ -57,6 +58,11 @@ class TranslaTools extends Module
 		$this->tab = 'administration';
 		
 		//TODO: Add warning curl ($this->warning = 'blah blah';)
+
+		$this->crowdin = new CrowdinPHP(
+			Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
+			Configuration::get('CROWDIN_PROJECT_API_KEY')
+		);
 
 		$this->bootstrap = true;
 		parent::__construct();	
@@ -343,6 +349,9 @@ class TranslaTools extends Module
 
 	public function exportAsInCodeLanguage()
 	{
+		// As in code language is overriden by English (US) translations
+		$this->downloadTranslations('en');
+
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(array(
 			'frontOffice' => 1,
@@ -550,6 +559,77 @@ class TranslaTools extends Module
 		$lc = $this->getPrestaShopLanguageCode($crowdin_code);
 
 		return str_replace(array("/$crowdin_code/", "/$crowdin_code.php"), array("/$lc/", "/$lc.php"), $path);
+	}
+
+	public function downloadTranslations($language='all')
+	{
+		if ($language !== 'all')
+			$language = $this->getCrowdinShortCode($language);
+
+		$data = $this->crowdin->downloadTranslations($language);
+		$imported = array();
+		$numFiles = 0;
+		$unrecognized = array();
+		$archiveSize = 0;
+
+		if ($data)
+		{
+			$file = dirname(__FILE__).'/tmp/archive.zip';
+			if (!is_dir(dirname($file)))
+				if (!@mkdir(dirname($file, 0777)))
+					return array('success' => false, 'message' => 'Could not create tmp dir.');
+
+			if(!@file_put_contents($file, $data))
+			{
+				return array('success' => false, 'message' => 'Could not write archive.');
+			}
+
+			$archiveSize = (int)(filesize($file) / 1024);
+
+			$za = new ZipArchive();
+			$opened = $za->open($file);
+
+			if ($opened !== true)
+			{
+				return array('success' => false, 'message' => 'Could not open archive.', 'archiveSize' => $archiveSize);
+			}
+
+			$numFiles = $za->numFiles;
+
+			for ($i=0; $i<$za->numFiles; $i++)
+			{
+				$stat = $za->statIndex($i);
+				$name = $stat['name'];
+				$m = array();
+				$exp = '#^'.preg_quote($this->getPackVersion()).'/(.*?\.php)$#';
+				if (preg_match($exp, $name, $m))
+				{
+					$target_path = $m[1];
+					$contents = $za->getFromIndex($i);
+
+					$only = array();
+					
+					if ($language !== 'all')
+						$only[] = $language;
+
+					$ok = $this->importTranslationFile($target_path, $contents, $only);
+					
+					if ($ok !== true)
+						return array('success' => false, 'message' => $ok);
+					else
+						$imported[] = $target_path;
+				}
+				else
+				{
+					$unrecognized[] = $name;
+				}
+
+			}
+
+			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported, 'numFiles' => $numFiles, 'unrecognized' => $unrecognized);
+		}
+		else
+			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
 	}
 
 	public function importTranslationFile($path, $contents, $languages = array())
