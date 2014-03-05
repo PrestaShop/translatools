@@ -1128,6 +1128,64 @@ class TranslationsExtractor
 
 	}
 
+	public function extractFixturesStrings()
+	{
+		$dir = $this->findInstaller();
+		if (!$dir)
+			die("Could not find installer.");
+
+		$path_to_fixtures_xpaths = dirname(__FILE__).'/../data/fixtures_xpaths';
+
+		if (!file_exists($path_to_fixtures_xpaths))
+			die("Could not find fixtures_xpaths file.");
+
+		$fh = fopen($path_to_fixtures_xpaths, 'r');
+		if (!$fh)
+			die("Could not open fixtures_xpaths file.");
+
+		$xpaths = array();
+		$headers = fgetcsv($fh, ',');
+
+		while ($row = fgetcsv($fh, ','))
+		{
+			$row = array_combine($headers, $row);
+			if (!isset($xpaths[$row['file']]))
+				$xpaths[$row['file']] = array();
+
+			$xpaths[$row['file']][] = $row['xpath'];
+		}
+
+		foreach ($xpaths as $key => $value)
+			$xpaths[$key] = array_unique($value);
+
+		foreach ($xpaths as $file => $paths)
+		{
+			$path = FilesLister::join($dir, $file);
+			if (file_exists($path))
+			{
+				$xml = simplexml_load_file($path);
+				if ($xml)
+				{
+					foreach ($paths as $xpath)
+					{
+						echo "$xpath<BR/>";
+						foreach ($xml->xpath($xpath) as $node)
+						{
+							echo "<pre>";
+							echo (string)$node;
+							echo "</pre>";
+						}
+					}
+				}
+			}			
+		}
+
+		fclose($fh);
+
+
+		die("Done: $dir");
+	}
+
 	public function sendAsGZIP($packs_dir)
 	{
 		require_once dirname(__FILE__).'/../../../tools/tar/Archive_Tar.php';

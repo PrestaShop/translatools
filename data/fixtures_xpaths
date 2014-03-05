@@ -1,0 +1,2 @@
+file,xpath
+fixtures/fashion/langs/en/data/carrier.xml:langs/en/data/carrier.xml,//carrier/delay
