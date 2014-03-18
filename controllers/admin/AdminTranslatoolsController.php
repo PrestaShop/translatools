@@ -352,7 +352,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$relpath = Tools::substr($file, Tools::strlen(_PS_ROOT_DIR_)+1);
 				$tasks[] = array(
 					'action' => 'exportTranslationFile',
-					'language' => $this->module->getCrowdinLanguageCode($code),
+					'language' => $this->module->getCrowdinShortCode($code),
 					'relsrc' => $relpath,
 					'dest' => $this->getCrowdinPath(
 						$this->module->getPackVersion(),
