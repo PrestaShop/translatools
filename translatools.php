@@ -328,8 +328,8 @@ class TranslaTools extends Module
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
 			'non_writable_directories' => $this->nonWritableDirectories(),
-			'coverage' => $translatability,
-			'shop_not_up_to_date' => $shop_not_up_to_date,
+			'coverage' => isset($translatability) ? $translatability : 0,
+			'shop_not_up_to_date' => isset($shop_not_up_to_date) ? $shop_not_up_to_date : '',
 			'devServer' => $this->isDevServer()
 		);
 	}
