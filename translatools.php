@@ -247,12 +247,26 @@ class TranslaTools extends Module
 
 	public function getPackVersion()
 	{
-		$m = array();
-		if (preg_match('/^(\d+\.\d+)/', _PS_VERSION_, $m))
+		static $version = null;
+
+		if ($version === null)
 		{
-			return $m[1];
+			$data = Tools::jsonDecode(Tools::file_get_contents(dirname(__FILE__).'/data/versions.json'), true);
+			if (version_compare(_PS_VERSION_, $data['current_stable'], '<='))
+				$version = _PS_VERSION_;
+			else
+			{
+				$m = array();
+				if (preg_match('/^(\d+\.\d+)/', _PS_VERSION_, $m))
+				{
+					$version = $m[1] . '-dev';
+				}
+				else
+					$version = _PS_VERSION_;
+			}
 		}
-		return _PS_VERSION_;
+
+		return $version;
 	}
 
 	public function defaultAction()
@@ -318,6 +332,7 @@ class TranslaTools extends Module
 		}
 
 		return array(
+			'version' => $this->getPackVersion(),
 			'themes' => $themes,
 			'current_theme' => $this->context->theme->name,
 			'languages' => $languages,

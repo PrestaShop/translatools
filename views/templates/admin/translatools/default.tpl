@@ -73,6 +73,7 @@
 
 <div class="alert alert-info">
 	<p>{l s="Translatability level:" mod='translatools'} <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
+	<p>{l s="Your PrestaShop version: %s" mod='translatools' sprintf=[$version]}</p>
 	<p>{l s="The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs." mod='translatools'}</p>
 	<p>{l s="A translatability of 100%% doesn't mean that your shop will be fully translated if you install translation packs." mod='translatools'} {l s="It only means that if you install a 100%% translation pack it will cover 100%% of what can be covered by any official PrestaShop translation pack." mod='translatools'}</p>
 	<p>{l s='Translatability may be lower than 100%% for different reasons:' mod='translatools'}</p>
