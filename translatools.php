@@ -610,7 +610,7 @@ class TranslaTools extends Module
 					$only = array();
 					
 					if ($language !== 'all')
-						$only[] = $language;
+						$only[] = $this->getPrestaShopLanguageCode($language);
 
 					$ok = $this->importTranslationFile($target_path, $contents, $only);
 					
