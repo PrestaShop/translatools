@@ -53,7 +53,7 @@ class TranslaTools extends Module
 	public function __construct()
 	{
 		$this->name = 'translatools';
-		$this->version = '0.8';
+		$this->version = '0.9';
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
 		
@@ -247,6 +247,14 @@ class TranslaTools extends Module
 
 	public function getPackVersion()
 	{
+		$forced = Configuration::get('CROWDIN_FORCED_VERSION');
+		if (is_string($forced))
+		{
+			$forced = trim($forced);
+			if ($forced !== '')
+				return $forced;
+		}
+		
 		static $version = null;
 
 		if ($version === null)
@@ -320,6 +328,7 @@ class TranslaTools extends Module
 		{
 			Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', Tools::getValue('CROWDIN_PROJECT_IDENTIFIER'));
 			Configuration::updateValue('CROWDIN_PROJECT_API_KEY', Tools::getValue('CROWDIN_PROJECT_API_KEY'));
+			Configuration::updateValue('CROWDIN_FORCED_VERSION', Tools::getValue('CROWDIN_FORCED_VERSION'));
 			Tools::redirectAdmin($_SERVER['REQUEST_URI']);
 		}
 
@@ -332,7 +341,7 @@ class TranslaTools extends Module
 		}
 
 		return array(
-			'version' => $this->getPackVersion(),
+			'pack_version' => $this->getPackVersion(),
 			'themes' => $themes,
 			'current_theme' => $this->context->theme->name,
 			'languages' => $languages,
@@ -342,6 +351,7 @@ class TranslaTools extends Module
 			'jipt_language' => 'an',
 			'CROWDIN_PROJECT_IDENTIFIER' => Configuration::get('CROWDIN_PROJECT_IDENTIFIER'),
 			'CROWDIN_PROJECT_API_KEY' => Configuration::get('CROWDIN_PROJECT_API_KEY'),
+			'CROWDIN_FORCED_VERSION' => Configuration::get('CROWDIN_FORCED_VERSION'),
 			'non_writable_directories' => $this->nonWritableDirectories(),
 			'coverage' => isset($translatability) ? $translatability : 0,
 			'shop_not_up_to_date' => isset($shop_not_up_to_date) ? $shop_not_up_to_date : '',

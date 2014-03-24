@@ -73,7 +73,7 @@
 
 <div class="alert alert-info">
 	<p>{l s="Translatability level:" mod='translatools'} <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
-	<p>{l s="Your PrestaShop version: %s" mod='translatools' sprintf=[$version]}</p>
+	<p>{l s="Your PrestaShop version: %s" mod='translatools' sprintf=[$pack_version]}</p>
 	<p>{l s="The translatability level is a measure of how much of your shop's messages can be translated using the official translation packs." mod='translatools'}</p>
 	<p>{l s="A translatability of 100%% doesn't mean that your shop will be fully translated if you install translation packs." mod='translatools'} {l s="It only means that if you install a 100%% translation pack it will cover 100%% of what can be covered by any official PrestaShop translation pack." mod='translatools'}</p>
 	<p>{l s='Translatability may be lower than 100%% for different reasons:' mod='translatools'}</p>
@@ -215,6 +215,14 @@
 			</div>
 		</div>
 		<div class="form-group">
+			<label class="control-label col-lg-3" for="CROWDIN_FORCED_VERSION">{l s='Force PS Version' mod='translatools'}</label>
+			<div class="col-lg-9">
+				<div class="row">
+					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_FORCED_VERSION}" id="CROWDIN_FORCED_VERSION" name="CROWDIN_FORCED_VERSION" type="text" placeholder="1.6-dev"></div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
 			<div class="col-lg-3"></div>
 			<div class="col-lg-8">
 				<button class="btn btn-default">{l s='Save' mod='translatools'}</button>
@@ -347,7 +355,7 @@
 				{l s='Build all Language Packs' mod='translatools'}
 			</label>
 			<div class="col-lg-9">
-				<button type="submit" class="btn btn-default" id="build_packs">{l s='Build &amp; Download' mod='translatools'}</button>
+				<button type="submit" class="btn btn-default" id="build_packs">{l s='Build & Download' mod='translatools'}</button>
 			</div>
 		</div>
 	</form>
