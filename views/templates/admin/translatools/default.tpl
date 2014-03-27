@@ -612,7 +612,7 @@
 		{
 			if (data.success.status === 'skipped')
 			{
-				fdbk.html('<span id="regeneration-done" data-success="0" class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through the API.</span>');
+				fdbk.html('<span id="regeneration-done" data-success="2" class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through the API.</span>');
 			}
 			else if (data.success.status === 'built')
 			{
