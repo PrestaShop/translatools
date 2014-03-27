@@ -559,15 +559,15 @@
 
 		if(data.success)
 		{
-			fdbk.html('<span class="success">'+data.message+'</span>');
+			fdbk.html('<span id="translations-downloaded" data-success="1" class="success">'+data.message+'</span>');
 		}
 		else
 		{
-			fdbk.html('<span class="error">'+data.message+'</span>');
+			fdbk.html('<span id="translations-downloaded" data-success="0" class="error">'+data.message+'</span>');
 		}
 	};
 
-	function downloadTranslationsFromCrowdin()
+	function downloadTranslationsFromCrowdin(dontPreventDefault)
 	{
 		$('#download-from-crowdin-feedback').html('<span class="neutral">Downloading...</span>');
 
@@ -580,7 +580,10 @@
 		  success: handleDownloadTranslationsReturn,
 		  dataType: 'json'
 		});
-		event.preventDefault();
+		if (!dontPreventDefault)
+		{
+			event.preventDefault();
+		}
 	};
 
 	function regenerateCrowdinTranslations()
