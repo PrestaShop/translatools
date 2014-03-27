@@ -130,6 +130,8 @@
 					</div>
 				</div>
 			</div>
+		{else}
+			<span style='display:none' id='modules-not-missing'></span>
 		{/if}
 
 		<div class="form-group">
