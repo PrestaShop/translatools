@@ -293,7 +293,7 @@ class TranslaTools extends Module
 			$modules_not_found_warning = 
 			"The following native modules were not found in your installation: "
 			.implode(', ', $modules_not_found).'.'
-			."&nbsp;<a id='modules-are-missing' target='_blank' href='$install_link'>Try to install them</a> automatically.";
+			."&nbsp;<a id='modules-are-missing' href='$install_link'>Try to install them</a> automatically.";
 		}
 		else
 			$modules_not_found_warning = false;
