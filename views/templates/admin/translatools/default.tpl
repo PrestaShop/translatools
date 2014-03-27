@@ -46,10 +46,12 @@
 	<p><strong>{l s='Warning:' mod='translatools'}</strong> {l s='This module should never be used on a production shop!' mod='translatools'}</p>
 	{if !$devServer}
 		<p>We detected that your shop is not in dev mode, so as a precaution Live Translation was not enabled.</p>
-		<form action="" method="POST">
+		<form id="force-live-translation" action="" method="POST">
 			<input type="hidden" name="force_live_translation" value="1">
 			<p><button class="btn btn-warning" onclick="javascript:return confirm('Really activate Live Translation?? You should not do this on a production shop.');">Click here</button> to enable Live Translation anyway at your own risk!</p>
 		</form>
+	{else}
+		<span id="live-translation-forced" style="display:none"></span>
 	{/if}
 </div>
 
@@ -70,6 +72,8 @@
 		<p><strong>{l s='Warning:' mod='translatools'}</strong> {$shop_not_up_to_date}
 	</div>
 {/if}
+
+<span style="display-none" id="translatability" data-translatability='{$coverage[null].percent_translated|intval}'>
 
 <div class="alert alert-info">
 	<p>{l s="Translatability level:" mod='translatools'} <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
@@ -603,20 +607,20 @@
 		{
 			if (data.success.status === 'skipped')
 			{
-				fdbk.html('<span class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through the API.</span>');
+				fdbk.html('<span id="regeneration-done" data-success="0" class="neutral">Regeneration refused by Crowdin: can only be done every 30 minutes through the API.</span>');
 			}
 			else if (data.success.status === 'built')
 			{
-				fdbk.html('<span class="success">Done :)</span>');
+				fdbk.html('<span id="regeneration-done" data-success="1" class="success">Done :)</span>');
 			}
 			else
 			{
-				fdbk.html('<span class="error">Maybe it worked, but return code is unknown to me.</span>');
+				fdbk.html('<span id="regeneration-done" data-success="0" class="error">Maybe it worked, but return code is unknown to me.</span>');
 			}
 		}
 		else
 		{
-			fdbk.html('<span class="error">Something wrong happened, sorry.</span>');
+			fdbk.html('<span id="regeneration-done" data-success="0" class="error">Something wrong happened, sorry.</span>');
 		}
 	};
 
