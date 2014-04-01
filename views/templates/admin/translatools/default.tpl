@@ -586,7 +586,7 @@
 		}
 	};
 
-	function regenerateCrowdinTranslations()
+	function regenerateCrowdinTranslations(dontPreventDefault)
 	{
 		var fdbk = $('#regenerate-translations-feedback');
 		fdbk.html('<span class="neutral">Regenerating, can take a while... navigating away from this page won\'t stop the process.</span>');
@@ -602,7 +602,10 @@
 		  dataType: 'jsonp'
 		});
 
-		event.preventDefault();
+		if (!dontPreventDefault)
+		{
+			event.preventDefault();
+		}
 	};
 
 	function handleRegenerateTranslations(data)
