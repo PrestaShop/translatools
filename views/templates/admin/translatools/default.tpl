@@ -73,7 +73,9 @@
 	</div>
 {/if}
 
-<span style="display-none" id="translatability" data-translatability='{$coverage[null].percent_translated|intval}'>
+<span style="display:none" id="translatability" data-translatability='{$coverage[null].percent_translated|intval}'></span>
+
+<span style="display:none" id="check_pack_version" data-pack-version="{$pack_version}"></span>
 
 <div class="alert alert-info">
 	<p>{l s="Translatability level:" mod='translatools'} <strong>{$coverage[null].percent_translated|intval}%</strong>.</p>
@@ -231,7 +233,7 @@
 		<div class="form-group">
 			<div class="col-lg-3"></div>
 			<div class="col-lg-8">
-				<button class="btn btn-default">{l s='Save' mod='translatools'}</button>
+				<button id="save-settings" class="btn btn-default">{l s='Save' mod='translatools'}</button>
 			</div>
 		</div>
 	</form>

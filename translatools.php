@@ -329,7 +329,7 @@ class TranslaTools extends Module
 			Configuration::updateValue('CROWDIN_PROJECT_IDENTIFIER', Tools::getValue('CROWDIN_PROJECT_IDENTIFIER'));
 			Configuration::updateValue('CROWDIN_PROJECT_API_KEY', Tools::getValue('CROWDIN_PROJECT_API_KEY'));
 			Configuration::updateValue('CROWDIN_FORCED_VERSION', Tools::getValue('CROWDIN_FORCED_VERSION'));
-			Tools::redirectAdmin($_SERVER['REQUEST_URI']);
+			Tools::redirectAdmin($_SERVER['REQUEST_URI'].'&api_settings_updated');
 		}
 
 		if ($_SERVER['REQUEST_METHOD'] === 'POST' && Tools::getValue('force_live_translation'))
