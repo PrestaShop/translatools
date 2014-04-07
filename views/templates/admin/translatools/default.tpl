@@ -501,10 +501,10 @@
 		event.preventDefault();
 	};
 
-	function performMultiStepAjaxAction(action, payload, fdbk, handler)
+	function performMultiStepAjaxAction(action, payload, fdbk, handler, success_id)
 	{
 		var url = '{$link->getAdminLink("AdminTranslatools")}&action='+action+'&ajax=1';
-
+		var span_id = success_id ? ' id="'+success_id+'" ' : '';
 		$.ajax({
 			type: "POST",
 			url: url,
@@ -521,11 +521,11 @@
 					{
 						fdbk.html(fdbk.html()+'&nbsp;<span class="neutral">...</span>');
 
-						performMultiStepAjaxAction(data['next-action'], data['next-payload'], fdbk, handler);
+						performMultiStepAjaxAction(data['next-action'], data['next-payload'], fdbk, handler, success_id);
 					}
 					else
 					{
-						fdbk.html("<span class='success'>"+(data.message || "Done!")+"</span>")
+						fdbk.html("<span "+span_id+" class='success'>"+(data.message || "Done!")+"</span>")
 					}
 				}
 				else
@@ -537,12 +537,16 @@
 		});
 	};
 
-	function exportSourcesToCrowdin()
+	function exportSourcesToCrowdin(dontPreventDefault)
 	{
 		var fdbk = $('#export-to-crowdin-feedback');
 		fdbk.html('');
-		performMultiStepAjaxAction('exportSources', {}, fdbk);
-		event.preventDefault();
+		performMultiStepAjaxAction('exportSources', {}, fdbk, null, 'sources-successfully-exported');
+
+		if (!dontPreventDefault)
+		{
+			event.preventDefault();
+		}
 	};
 
 	function exportTranslationsToCrowdin()
