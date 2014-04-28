@@ -271,6 +271,24 @@ class TranslationsExtractor
 		return $dictionary;
 	}
 
+	public static function parseDictionaryAndMetaFromString($data)
+	{
+		$matches = array();
+		$n = preg_match_all('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*]\\s*=\\s*\'((?:\\\\\'|[^\'])*)\'\\s*;$/m', $data, $matches);
+
+		$dictionary = array();
+
+		for ($i = 0; $i<$n; $i++)
+			$dictionary[$matches[1][$i]] = $matches[2][$i];
+
+		$global = preg_match('/\bglobal\s*\$\w+\s*;/', $data);
+		$m = array();
+		preg_match('/\$(\w+)\s*=\s*array\s*\(\s*\)\s*;/', $data, $m);
+		$name = $m[1];
+
+		return array('global' => $global, 'name' => $name, 'dictionary' => $dictionary);
+	}
+
 	public function dictionaryToArray($name, $data, $global = true)
 	{
 		$str = "<?php\n\n";
@@ -280,7 +298,7 @@ class TranslationsExtractor
 
 		foreach ($data as $key => $value)
 			if (trim($value) != '')
-				$str .= '$'.$name.'['.$this->quote($key).'] = '.$this->quote($value).";\n";
+				$str .= '$'.$name.'['.self::doQuote($key).'] = '.self::doQuote($value).";\n";
 
 		$str .= "\n\nreturn ".'$'.$name.";\n";
 
@@ -533,6 +551,11 @@ class TranslationsExtractor
 	}
 
 	public function quote($str)
+	{
+		return self::doQuote($str);
+	}
+
+	public static function doQuote($str)
 	{
 		return '\''.str_replace("\n", '', preg_replace('/\\\*\'/', '\\\'', $str)).'\'';
 	}

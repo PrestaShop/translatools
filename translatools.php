@@ -53,7 +53,7 @@ class TranslaTools extends Module
 	public function __construct()
 	{
 		$this->name = 'translatools';
-		$this->version = '0.9';
+		$this->version = '0.9.1';
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
 		
@@ -588,9 +588,14 @@ class TranslaTools extends Module
 
 	public function downloadTranslations($language='all')
 	{
+		$only = array();
+		
 		if ($language !== 'all')
+		{
 			$language = $this->getCrowdinShortCode($language);
-
+			$only[] = $this->getPrestaShopLanguageCode($language);
+		}
+			
 		$data = $this->crowdin->downloadTranslations($language);
 		$imported = array();
 		$numFiles = 0;
@@ -621,34 +626,72 @@ class TranslaTools extends Module
 
 			$numFiles = $za->numFiles;
 
+			$files = array();
+
 			for ($i=0; $i<$za->numFiles; $i++)
 			{
 				$stat = $za->statIndex($i);
 				$name = $stat['name'];
 				$m = array();
-				$exp = '#^'.preg_quote($this->getPackVersion()).'/(.*?\.php)$#';
+				//preg_quote($this->getPackVersion())
+				$exp = '#^(.*?)/(.*?\.php)$#';
 				if (preg_match($exp, $name, $m))
 				{
-					$target_path = $m[1];
+					$version = $m[1];
+					$target_path = $m[2];
 					$contents = $za->getFromIndex($i);
 
-					$only = array();
-					
-					if ($language !== 'all')
-						$only[] = $this->getPrestaShopLanguageCode($language);
-
+					/*
 					$ok = $this->importTranslationFile($target_path, $contents, $only);
 					
 					if ($ok !== true)
 						return array('success' => false, 'message' => $ok);
 					else
-						$imported[] = $target_path;
-				}
-				else
-				{
-					$unrecognized[] = $name;
+						$imported[] = $target_path;*/
+
+					if (!isset($files[$target_path]))
+						$files[$target_path] = array();
+
+					if ($version === $this->getPackVersion())
+						$files[$target_path]['base'] = $contents;
+					else
+					{
+						if (!isset($files[$target_path]['complementary']))
+							$files[$target_path]['complementary'] = array();
+
+						$files[$target_path]['complementary'][$version] = $contents;
+						
+					}
+
 				}
 
+			}
+
+			function crowdin_version_compare_function($a, $b) {
+			  $a = str_replace('-dev', '.9999', $a);
+			  $b = str_replace('-dev', '.9999', $b);
+			  if ($a === $b) {
+			    return 0;
+			  }
+			  return version_compare($a, $b, '>') ? -1 : 1;
+			}
+
+			foreach ($files as $target_path => $data)
+			{	
+				$contents = array();
+
+				if (isset($data['base']))
+					$contents[] = $data['base'];
+					
+				uksort($data['complementary'], 'crowdin_version_compare_function');
+
+				$contents = array_merge($contents, array_values($data['complementary']));
+
+				$ok = $this->importTranslationFile($target_path, $contents, $only);
+				if ($ok !== true)
+					return array('success' => false, 'message' => $ok);
+				else
+					$imported[] = $target_path;
 			}
 
 			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported, 'numFiles' => $numFiles, 'unrecognized' => $unrecognized);
@@ -657,7 +700,7 @@ class TranslaTools extends Module
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
 	}
 
-	public function importTranslationFile($path, $contents, $languages = array())
+	public function importTranslationFile($path, $contentsArray, $languages = array())
 	{
 		static $installed_languages;
 
@@ -675,6 +718,54 @@ class TranslaTools extends Module
 		if ($lc === false)
 			return "Could not infer language code from file named '$path'.";
 
+		// No special treatment for installer, for now
+		if (preg_match('/^install-dev\//', $path))
+			$contents = $contentsArray[0];
+		else
+		{
+			$inited = false;
+			$global = null;
+			$name = null;
+			$dictionary = null;
+			$missing = array();
+
+			foreach ($contentsArray as $content)
+			{
+				$data = TranslationsExtractor::parseDictionaryAndMetaFromString($content);
+
+				if (!$inited)
+				{
+					$inited = true;
+					$global = $data['global'];
+					$name = $data['name'];
+					$dictionary = $data['dictionary'];
+
+					foreach ($dictionary as $key => $value)
+					{
+						if (!$value)
+						{
+							$missing[$key] = true;
+						}
+					}
+				}
+				else
+				{
+					foreach ($missing as $key => $stillMissing)
+					{
+						if ($stillMissing)
+						{
+							if (!empty($data['dictionary'][$key]))
+							{
+								$missing[$key] = false;
+								$dictionary[$key] = $data['dictionary'][$key]; 
+							}
+						}
+					}
+				}	
+			}
+
+			$contents = TranslationsExtractor::dictionaryToArray($name, $dictionary, $global);
+		}
 		// Remove empty lines, just in case
 		$contents = preg_replace('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*\\]\\s*=\\s*\'\'\\s*;$/m', '', $contents);
 		
