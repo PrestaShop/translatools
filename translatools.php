@@ -263,6 +263,7 @@ class TranslaTools extends Module
 				return $forced;
 		}
 		
+		/*
 		static $version = null;
 
 		if ($version === null)
@@ -282,7 +283,9 @@ class TranslaTools extends Module
 			}
 		}
 
-		return $version;
+		return $version;*/
+
+		return _PS_VERSION_;
 	}
 
 	public function defaultAction()
