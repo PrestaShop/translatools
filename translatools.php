@@ -34,6 +34,14 @@ require_once dirname(__FILE__).'/classes/parsing/SmartyFunctionCallParser.php';
 require_once dirname(__FILE__).'/classes/CrowdinPHP.php';
 require_once dirname(__FILE__).'/controllers/admin/AdminTranslatoolsController.php';
 
+function crowdin_version_compare_function($a, $b) {
+  $a = str_replace('-dev', '.9999', $a);
+  $b = str_replace('-dev', '.9999', $b);
+  if ($a === $b) {
+    return 0;
+  }
+  return version_compare($a, $b, '>') ? -1 : 1;
+}
 
 class TranslaTools extends Module
 {
@@ -665,15 +673,6 @@ class TranslaTools extends Module
 
 				}
 
-			}
-
-			function crowdin_version_compare_function($a, $b) {
-			  $a = str_replace('-dev', '.9999', $a);
-			  $b = str_replace('-dev', '.9999', $b);
-			  if ($a === $b) {
-			    return 0;
-			  }
-			  return version_compare($a, $b, '>') ? -1 : 1;
 			}
 
 			foreach ($files as $target_path => $data)
