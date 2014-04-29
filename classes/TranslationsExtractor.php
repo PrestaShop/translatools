@@ -214,7 +214,7 @@ class TranslationsExtractor
 
 					if (!is_dir(dirname($path)))
 						mkdir(dirname($path), 0777, true);
-					file_put_contents($path, $this->dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
+					file_put_contents($path, self::dictionaryToArray($array_name, $dictionary, $array_name !== '_TABS'));
 					$wrote[] = $path;
 				}
 				else if (basename($name) === 'install.php')
@@ -289,7 +289,7 @@ class TranslationsExtractor
 		return array('global' => $global, 'name' => $name, 'dictionary' => $dictionary);
 	}
 
-	public function dictionaryToArray($name, $data, $global = true)
+	public static function dictionaryToArray($name, $data, $global = true)
 	{
 		$str = "<?php\n\n";
 		if ($global)

@@ -78,9 +78,9 @@ class TranslaTools extends Module
 		$this->displayName = $this->l('TranslaTools');
 		$this->description = $this->l('Crowdin integration and more!');
 
-		foreach (static::$languageMapping as $locale => $codes)
+		foreach (self::$languageMapping as $locale => $codes)
 		{
-			static::$reverseLanguageMapping[$codes['prestashop_code']] = array('locale' => $locale, 'crowdin_code' => $codes['crowdin_code']);
+			self::$reverseLanguageMapping[$codes['prestashop_code']] = array('locale' => $locale, 'crowdin_code' => $codes['crowdin_code']);
 		}
 	}
 

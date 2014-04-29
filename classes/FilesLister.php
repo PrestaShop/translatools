@@ -15,14 +15,14 @@ class FilesLister
 			if ($file === '.' || $file === '..')
 				continue;
 
-			$path = static::join($dir, $file);
+			$path = self::join($dir, $file);
 			if ($blacklist !== null && preg_match($blacklist, $path))
 				continue;
 			if ($whitelist !== null && !preg_match($whitelist, $path) && !is_dir($path))
 				continue;
 
 			if (is_dir($path) and $recurse)
-				$files = array_merge($files, static::listFiles($path, $whitelist, $blacklist, $recurse));
+				$files = array_merge($files, self::listFiles($path, $whitelist, $blacklist, $recurse));
 			elseif (!is_dir($path))
 				$files[] = $path;
 		}
