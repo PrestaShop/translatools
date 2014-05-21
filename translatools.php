@@ -64,7 +64,7 @@ class TranslaTools extends Module
 		$this->version = '0.9.2';
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
-		
+
 		//TODO: Add warning curl ($this->warning = 'blah blah';)
 
 		$this->crowdin = new CrowdinPHP(
@@ -73,7 +73,7 @@ class TranslaTools extends Module
 		);
 
 		$this->bootstrap = true;
-		parent::__construct();	
+		parent::__construct();
 
 		$this->displayName = $this->l('TranslaTools');
 		$this->description = $this->l('Crowdin integration and more!');
@@ -86,8 +86,8 @@ class TranslaTools extends Module
 
 	public function install()
 	{
-		$ok = parent::install() 
-		&& $this->registerHook('displayHeader') 
+		$ok = parent::install()
+		&& $this->registerHook('displayHeader')
 		&& $this->registerHook('actionAdminControllerSetMedia')
 		&& $this->registerHook('displayBackOfficeFooter')
 		&& $this->registerHook('displayBackOfficeHeader')
@@ -171,12 +171,12 @@ class TranslaTools extends Module
 	}
 
 	public function hookDisplayBackOfficeFooter($params)
-	{	
+	{
 		if (!Configuration::get('JIPT_BO'))
 			return;
-		
+
 		$live_translation_enabled = ($this->context->cookie->JIPT_PREVIOUS_ID_LANG ? 1 : 0) || $this->context->language->iso_code === 'an';
-		
+
 		$this->context->smarty->assign('live_translation_enabled', $live_translation_enabled);
 		$this->context->smarty->assign('translatools_controller', $this->context->link->getAdminLink('AdminTranslatools'));
 		return $this->display(__FILE__, '/views/templates/hook/backOfficeFooter.tpl');
@@ -229,7 +229,7 @@ class TranslaTools extends Module
 							break;
 					}
 				}
-					
+
 			}
 
 			if (!$writable)
@@ -246,8 +246,8 @@ class TranslaTools extends Module
 
 	public function getNativeModules()
 	{
-		return array_map('trim', 
-			explode("\n", 
+		return array_map('trim',
+			explode("\n",
 				Tools::file_get_contents(dirname(__FILE__).'/data/native_modules')
 			)
 		);
@@ -262,7 +262,7 @@ class TranslaTools extends Module
 			if ($forced !== '')
 				return $forced;
 		}
-		
+
 		/*
 		static $version = null;
 
@@ -301,7 +301,7 @@ class TranslaTools extends Module
 		if (count($modules_not_found) > 0)
 		{
 			$install_link = $this->context->link->getAdminLink('AdminModules').'&install='.implode('|', $modules_not_found);
-			$modules_not_found_warning = 
+			$modules_not_found_warning =
 			"The following native modules were not found in your installation: "
 			.implode(', ', $modules_not_found).'.'
 			."&nbsp;<a id='modules-are-missing' href='$install_link'>Try to install them</a> automatically.";
@@ -386,7 +386,7 @@ class TranslaTools extends Module
 	public function exportAsInCodeLanguage()
 	{
 		// As in code language is overriden by English (US) translations
-		$this->downloadTranslations('en');
+		$this->downloadTranslations('en', '/\/admin\.php$/'); //we need the Admin translations for some magic with punctuation
 
 		$extractor = new TranslationsExtractor();
 		$extractor->setSections(array(
@@ -409,7 +409,7 @@ class TranslaTools extends Module
 		$extractor->setModuleFilter($this->getNativeModules());
 		$dir = FilesLister::join(dirname(__FILE__), 'packs');
 		$extractor->extract($dir);
-		
+
 		return $extractor;
 	}
 
@@ -434,7 +434,7 @@ class TranslaTools extends Module
 		$extractor->setModuleFilter($this->getNativeModules());
 		$dir = FilesLister::join(dirname(__FILE__), 'packs');
 		$extractor->extract($dir);
-		
+
 		return $extractor;
 	}
 
@@ -474,7 +474,7 @@ class TranslaTools extends Module
 		{
 			$stats[$name] = array(
 				'total' => count($data)
-			); 
+			);
 		}
 
 		return array(
@@ -545,7 +545,7 @@ class TranslaTools extends Module
 
 	public function getPrestaShopLanguageCode($foreignCode)
 	{
-		if (isset(self::$languageMapping[$foreignCode])) 
+		if (isset(self::$languageMapping[$foreignCode]))
 			return self::$languageMapping[$foreignCode]['prestashop_code'];
 		else
 			return $foreignCode;
@@ -553,7 +553,7 @@ class TranslaTools extends Module
 
 	public function getCrowdinLanguageCode($prestashopCode)
 	{
-		if (isset(self::$reverseLanguageMapping[$prestashopCode])) 
+		if (isset(self::$reverseLanguageMapping[$prestashopCode]))
 			return self::$reverseLanguageMapping[$prestashopCode]['locale'];
 		else
 			return $prestashopCode;
@@ -561,7 +561,7 @@ class TranslaTools extends Module
 
 	public function getCrowdinShortCode($prestashopCode)
 	{
-		if (isset(self::$reverseLanguageMapping[$prestashopCode])) 
+		if (isset(self::$reverseLanguageMapping[$prestashopCode]))
 			return self::$reverseLanguageMapping[$prestashopCode]['crowdin_code'];
 		else
 			return $prestashopCode;
@@ -582,7 +582,7 @@ class TranslaTools extends Module
 		foreach ($exps as $exp)
 			if (preg_match($exp, $path, $m))
 				return $m[1];
-		
+
 		return false;
 	}
 
@@ -597,16 +597,16 @@ class TranslaTools extends Module
 		return str_replace(array("/$crowdin_code/", "/$crowdin_code.php"), array("/$lc/", "/$lc.php"), $path);
 	}
 
-	public function downloadTranslations($language='all')
+	public function downloadTranslations($language='all', $filter=null)
 	{
 		$only = array();
-		
+
 		if ($language !== 'all')
 		{
 			$language = $this->getCrowdinShortCode($language);
 			$only[] = $this->getPrestaShopLanguageCode($language);
 		}
-			
+
 		$data = $this->crowdin->downloadTranslations($language);
 		$imported = array();
 		$numFiles = 0;
@@ -646,20 +646,20 @@ class TranslaTools extends Module
 				$m = array();
 				//preg_quote($this->getPackVersion())
 				$exp = '#^(.*?)/(.*?\.php)$#';
-				if (preg_match($exp, $name, $m))
+				if (preg_match($exp, $name, $m) && (!$filter || preg_match($filter, $name)))
 				{
 					$version = $m[1];
 					$target_path = $m[2];
 					$contents = $za->getFromIndex($i);
 
-					/*
+
 					$ok = $this->importTranslationFile($target_path, $contents, $only);
-					
+
 					if ($ok !== true)
 						return array('success' => false, 'message' => $ok);
 					else
-						$imported[] = $target_path;*/
-
+						$imported[] = $target_path;
+					/*
 					if (!isset($files[$target_path]))
 						$files[$target_path] = array();
 
@@ -671,20 +671,20 @@ class TranslaTools extends Module
 							$files[$target_path]['complementary'] = array();
 
 						$files[$target_path]['complementary'][$version] = $contents;
-						
-					}
+
+					}*/
 
 				}
 
 			}
-
+			/*
 			foreach ($files as $target_path => $data)
-			{	
+			{
 				$contents = array();
 
 				if (isset($data['base']))
 					$contents[] = $data['base'];
-					
+
 				uksort($data['complementary'], 'crowdin_version_compare_function');
 
 				$contents = array_merge($contents, array_values($data['complementary']));
@@ -694,7 +694,7 @@ class TranslaTools extends Module
 					return array('success' => false, 'message' => $ok);
 				else
 					$imported[] = $target_path;
-			}
+			}*/
 
 			return array('success' => true, 'message' => 'Done :)', 'imported' => $imported, 'numFiles' => $numFiles, 'unrecognized' => $unrecognized);
 		}
@@ -702,7 +702,7 @@ class TranslaTools extends Module
 			return array('success' => false, 'message' => 'Could not download archive from Crowdin');
 	}
 
-	public function importTranslationFile($path, $contentsArray, $languages = array())
+	public function importTranslationFile($path, $contents, $languages = array())
 	{
 		static $installed_languages;
 
@@ -721,6 +721,7 @@ class TranslaTools extends Module
 			return "Could not infer language code from file named '$path'.";
 
 		// No special treatment for installer, for now
+		/*
 		if (preg_match('/^install-dev\//', $path))
 			$contents = $contentsArray[0];
 		else
@@ -759,18 +760,18 @@ class TranslaTools extends Module
 							if (!empty($data['dictionary'][$key]))
 							{
 								$missing[$key] = false;
-								$dictionary[$key] = $data['dictionary'][$key]; 
+								$dictionary[$key] = $data['dictionary'][$key];
 							}
 						}
 					}
-				}	
+				}
 			}
 
 			$contents = TranslationsExtractor::dictionaryToArray($name, $dictionary, $global);
-		}
+		}*/
 		// Remove empty lines, just in case
 		$contents = preg_replace('/^\\s*\\$?\\w+\\s*\\[\\s*\'((?:\\\\\'|[^\'])+)\'\\s*\\]\\s*=\\s*\'\'\\s*;$/m', '', $contents);
-		
+
 
 		$languageCode = $this->getPrestaShopLanguageCode($lc);
 
@@ -819,7 +820,7 @@ class TranslaTools extends Module
 	public function postProcessTranslationFile($language_code, $full_path)
 	{
 		$id_lang = Db::getInstance()->getValue('SELECT `id_lang` FROM `'._DB_PREFIX_.'lang` WHERE `iso_code` = \''.pSQL(strtolower($language_code)).'\'');
-		
+
 		if (!$id_lang)
 			return;
 
@@ -830,7 +831,7 @@ class TranslaTools extends Module
 			{
 				// Unescape the quotes
 				$name = preg_replace('/\\\*\'/', '\'', $name);
-				
+
 				$sql = 'SELECT id_tab FROM '._DB_PREFIX_.'tab WHERE class_name=\''.pSQL($class).'\'';
 				$id_tab = Db::getInstance()->getValue($sql);
 
@@ -855,5 +856,5 @@ class TranslaTools extends Module
 	{
 		$linter = new TranslationsLinter();
 		return $linter->checkCoherence();
-	}	
+	}
 }

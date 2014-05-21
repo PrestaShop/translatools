@@ -8,13 +8,13 @@ class AdminTranslatoolsController extends ModuleAdminController
 	public function __construct($standalone=false)
 	{
 		$this->bootstrap = true;
-		
+
 		parent::__construct();
 
 		$this->crowdin = $this->module->crowdin;
 
 		if (!$standalone)
-		{		
+		{
 			if (!$this->module->active)
 				Tools::redirectAdmin($this->context->link->getAdminLink('AdminHome'));
 		}
@@ -45,7 +45,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 					break;
 				}
 			}
-			
+
 		}
 		else if ($this->action && $this->ajax && !method_exists($this, 'ajaxProcess'.Tools::ucfirst($this->action)))
 		{
@@ -100,9 +100,9 @@ class AdminTranslatoolsController extends ModuleAdminController
 		// PrestaShop installation
 		$path_parts = explode('/translatools/packs/en/', $path);
 		$path = end($path_parts);
-		
+
 		$export_pattern = str_replace(
-			array('/en.php', '/en/'), 
+			array('/en.php', '/en/'),
 			array('/%locale%.php', '/%locale%/'),
 			$path
 		);
@@ -127,7 +127,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 		{
 			foreach (FilesLister::listFiles($path_to_sources, null, null, true) as $path)
 			{
-				if (preg_match('/(?:[a-z]{2}|admin|pdf|errors|tabs)\.php$/', $path))
+				if (preg_match('/\.php$/', $path))
 				{
 					$ps_path = Tools::substr($path, Tools::strlen($path_to_sources)+1);
 
@@ -156,7 +156,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 			// List what we need to do
 			$tasks = array();
-			
+
 			// Need to create the directories
 			// before putting files in them
 			foreach ($dirs_to_create as $dir)
@@ -232,7 +232,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				$action['dest']
 			);
 			if ($res['success'])
-				$message = 'Exported translations ('.$action['language'].') for: '.$action['dest'];				
+				$message = 'Exported translations ('.$action['language'].') for: '.$action['dest'];
 			else
 			{
 				$ok = false;
@@ -339,7 +339,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 			if ($code === 'en' || $code === 'an')
 				continue;
 
-			$packs_root = realpath(dirname(__FILE__).'/../../packs/');			
+			$packs_root = realpath(dirname(__FILE__).'/../../packs/');
 			$te->save();
 			$te->setLanguage($code);
 			$te->fill();
@@ -435,7 +435,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 				if ($xml = simplexml_load_string($xml_str))
 				{
-					$sql = 'SELECT e.name as message, t.name as translation 
+					$sql = 'SELECT e.name as message, t.name as translation
 					FROM '._DB_PREFIX_.'tab_lang e INNER JOIN '._DB_PREFIX_.'lang el ON el.id_lang=e.id_lang AND el.iso_code=\'en\'
 					INNER JOIN '._DB_PREFIX_.'tab_lang t ON t.id_tab = e.id_tab INNER JOIN '._DB_PREFIX_.'lang tl on tl.id_lang=t.id_lang AND tl.iso_code=\''.pSQL($lang).'\'';
 
@@ -450,7 +450,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 					foreach ($xml->tab as $tab)
 					{
 						$tab_name = (string)$tab['name'];
-						
+
 						if (isset($translations[$tab_name]))
 						{
 							if ($lang === 'mk')
@@ -458,7 +458,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 								//die($translations[$tab_name]);
 							}
 							$tab['name'] = $translations[$tab_name];
-						}	
+						}
 					}
 
 					file_put_contents($tabs_xml_path, $xml->asXML());
@@ -475,7 +475,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		if (is_array($tmp))
 			foreach ($tmp as $lang)
-				$published[$lang['iso_code']] = true;				
+				$published[$lang['iso_code']] = true;
 
 		require_once dirname(__FILE__).'/../../../../tools/tar/Archive_Tar.php';
 
@@ -489,7 +489,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 			die('Could not create directory: '.$dir);
 
 		$te = $this->module->exportNativePack();
-		
+
 		$created = array();
 
 		//$dl = $this->ajaxDownloadTranslationsAction(array());
@@ -527,7 +527,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 				chdir($cwd);
 
 				$te->load();
-			}					
+			}
 		}
 
 		// Put it back
@@ -576,4 +576,4 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		return array('with_tags' => $with_tags);
 	}
-}	
+}

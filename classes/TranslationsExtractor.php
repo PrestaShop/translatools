@@ -123,7 +123,7 @@ class TranslationsExtractor
 	}
 
 	public function extract($to_folder = null)
-	{		
+	{
 		foreach ($this->sections as $section)
 		{
 			$method = 'extract'.Tools::ucfirst($section).'Strings';
@@ -166,7 +166,7 @@ class TranslationsExtractor
 	}
 
 	public function write($to_folder)
-	{		
+	{
 		$wrote = array();
 
 		if (!is_dir($to_folder))
@@ -332,19 +332,23 @@ class TranslationsExtractor
 				);
 				foreach ($translations_sources as $src)
 					$dictionary = array_merge($this->parseDictionary($src), $dictionary);
-			}			
+			}
 
 			foreach ($data as $key => &$message)
 			{
 				if ($this->language === '-')
 				{
-					if (!empty($dictionary[$key]))
+					if (preg_match('/\/admin\.php$/', $name))
 					{
-						$message['translation'] = $dictionary[$key];
-					}
-					elseif (preg_match('/admin\.php$/', $name))
-					{
-						$message['translation'] = preg_replace('/:\s*$/', '', $message['message']);
+						if (!empty($dictionary[$key])
+							&&
+							preg_replace('/\s*:?\s*$/', '', $dictionary[$key]) === preg_replace('/\s*:?\s*$/', '', $message['message'])
+							&&
+							(preg_match('/\s*:\s*$/', $dictionary[$key]) || preg_match('/\s*:\s*$/', $message['message']))
+						)
+							$message['translation'] = $dictionary[$key];
+						else
+							$message['translation'] = preg_replace('/:\s*$/', '', $message['message']);
 					}
 					else
 					{
@@ -355,7 +359,7 @@ class TranslationsExtractor
 					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
 			}
 		}
-		
+
 		if($this->language !== '-')
 		{
 			$raw_files = array();
@@ -386,15 +390,15 @@ class TranslationsExtractor
 			{
 				if ($message['translation'] != '')
 				{
-					$stats[$name]['translated'] += 1; 
-					$stats[null]['translated'] += 1; 
+					$stats[$name]['translated'] += 1;
+					$stats[null]['translated'] += 1;
 				}
 			}
 		}
 
 		foreach ($stats as $file => $details)
 		{
-			$stats[$file]['percent_translated'] = $details['total'] > 0 ? 100*$details['translated'] / $details['total'] : 0; 
+			$stats[$file]['percent_translated'] = $details['total'] > 0 ? 100*$details['translated'] / $details['total'] : 0;
 		}
 
 		return $stats;
@@ -411,8 +415,8 @@ class TranslationsExtractor
 				{
 					if (
 						(
-							isset($files[$lcname]) 
-							&& isset($files[$lcname][$key]) 
+							isset($files[$lcname])
+							&& isset($files[$lcname][$key])
 							&& $files[$lcname][$key] === $message['translation']
 						)
 						|| !$message['translation']
@@ -709,7 +713,7 @@ class TranslationsExtractor
 			FilesLister::listFiles($this->join($this->getAdminOverridenControllersDir(), 'admin/templates'), '/\.tpl$/', null, true)
 		);
 		foreach ($files as $file)
-		{	
+		{
 			$parser = new SmartyLParser();
 			$strings = $parser->parse($file);
 
@@ -837,7 +841,7 @@ class TranslationsExtractor
 			FilesLister::join($this->root_dir, 'mails/'.$lc),
 			'#\.(?:txt|html)$#'
 		);
-		
+
 		$files = array_merge($module_emails, $core_emails);
 
 		foreach ($files as $path)
