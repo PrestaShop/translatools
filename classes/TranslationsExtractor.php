@@ -350,10 +350,10 @@ class TranslationsExtractor
 						else
 							$message['translation'] = preg_replace('/:\s*$/', '', $message['message']);
 					}
+					elseif (basename($name) === 'install.php')
+						$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : $message['message'];
 					else
-					{
 						$message['translation'] = $message['message'];
-					}
 				}
 				else
 					$message['translation'] = isset($dictionary[$key]) ? $dictionary[$key] : null;
