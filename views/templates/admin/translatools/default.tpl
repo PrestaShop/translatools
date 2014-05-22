@@ -357,7 +357,7 @@
 			</div>
 		</div>
 	</form>
-	<form method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=build" class="form-horizontal">
+	<form method="POST" id="build-and-download-packs" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=build" class="form-horizontal">
 		<div class="form-group">
 			<label for="build_packs" class="col-lg-3 control-label">
 				{l s='Build all Language Packs' mod='translatools'}
