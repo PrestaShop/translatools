@@ -84,7 +84,7 @@ class TranslaTools extends Module
 	public function __construct()
 	{
 		$this->name = 'translatools';
-		$this->version = '0.9.2';
+		$this->version = '0.9.3';
 		$this->author = 'fmdj';
 		$this->tab = 'administration';
 
@@ -738,6 +738,8 @@ class TranslaTools extends Module
 		$m = array();
 		$lc = $this->guessLanguageCodeFromPath($path);
 
+		// $dbg = ($lc === 'ca-ES' && basename($path) === 'install.php');
+
 		if ($lc === false)
 			return "Could not infer language code from file named '$path'.";
 
@@ -809,8 +811,8 @@ class TranslaTools extends Module
 			$path
 		);
 
-		// Skip installer translations for languages that do not have their data folders
-		if (basename($path) === 'install.php' && !is_dir(FilesLister::join(_PS_ROOT_DIR_, "install-dev/langs/$languageCode/data")))
+		// Skip installer translations for languages that do not have their installer folder
+		if (basename($path) === 'install.php' && !is_dir(FilesLister::join(_PS_ROOT_DIR_, "install-dev/langs/$languageCode/")))
 			return true;
 
 		$m = array();
