@@ -77,7 +77,9 @@ class TranslaTools extends Module
 	'sw-KE' => array('crowdin_code' => 'sw', 'prestashop_code' => 'sw'), 'ta-IN' => array('crowdin_code' => 'ta', 'prestashop_code' => 'ta'), 'te-IN' => array('crowdin_code' => 'te', 'prestashop_code' => 'te'),
 	'th-TH' => array('crowdin_code' => 'th', 'prestashop_code' => 'th'), 'tr-TR' => array('crowdin_code' => 'tr', 'prestashop_code' => 'tr'), 'zh-TW' => array('crowdin_code' => 'zh-TW', 'prestashop_code' => 'tw'),
 	'ug-CN' => array('crowdin_code' => 'ug', 'prestashop_code' => 'ug'), 'uk-UA' => array('crowdin_code' => 'uk', 'prestashop_code' => 'uk'), 'ur-PK' => array('crowdin_code' => 'ur-PK', 'prestashop_code' => 'ur'),
-	'vi-VN' => array('crowdin_code' => 'vi', 'prestashop_code' => 'vn'), 'zh-CN' => array('crowdin_code' => 'zh-CN', 'prestashop_code' => 'zh'));
+	'vi-VN' => array('crowdin_code' => 'vi', 'prestashop_code' => 'vn'), 'zh-CN' => array('crowdin_code' => 'zh-CN', 'prestashop_code' => 'zh'),
+	'nn-NO' => array('crowdin_code' => 'nn-NO', 'prestashop_code' => 'nn')
+);
 
 	public static $reverseLanguageMapping = array();
 
