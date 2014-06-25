@@ -380,7 +380,7 @@ class TranslationsExtractor
 				if (file_exists($txtpath))
 					$email_txts[] = $txtpath;
 			}
-			$email_txts = array_merge($email_tpls, $email_txts);
+			$email_tpls = array_merge($email_tpls, $email_txts);
 
 			foreach ($email_tpls as $path) {
 				$relpath = Tools::substr($path, Tools::strlen($this->root_dir) + 1);
