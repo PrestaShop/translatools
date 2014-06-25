@@ -106,13 +106,13 @@
 	<h3>{l s='Export translations' mod='translatools'}</h3>
 
 	<form class="form-horizontal" action="{$link->getAdminLink('AdminTranslatools')}" method="POST">
-				
+
 		{yesno label={l s='Export Front-Office Strings' mod='translatools'} input_name="section[frontOffice]"}
-		
+
 		{yesno label={l s='Export Back-Office Strings' mod='translatools'} input_name="section[backOffice]"}
 
 		{yesno label={l s='Export Module Strings' mod='translatools'} input_name="section[modules]"}
-	
+
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="filter_modules">{l s='Which modules to parse?' mod='translatools'}</label>
 			<div class="col-lg-6">
@@ -122,13 +122,13 @@
 				</select>
 			</div>
 		</div>
-	
+
 		{if $modules_not_found_warning}
 			<div class="row">
 				<div class="col-lg-3"></div>
 				<div class="col-lg-6">
 					<div class="alert alert-warning">
-                        <strong>{l s='Warning:' mod='translatools'} </strong>{$modules_not_found_warning}	
+                        <strong>{l s='Warning:' mod='translatools'} </strong>{$modules_not_found_warning}
 					</div>
 				</div>
 			</div>
@@ -165,7 +165,7 @@
 		{yesno label={l s='Export Installer Strings' mod='translatools'} input_name="section[installer]"}
 		{yesno label={l s='Export Fields Strings' mod='translatools'} input_name="section[fields]"}
 
-		
+
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="theme">{l s='Theme' mod='translatools'}</label>
 			<div class="col-lg-6">
@@ -211,7 +211,7 @@
 				<div class="row">
 					<div class="col-lg-8"><input class="form-control" value="{$CROWDIN_PROJECT_IDENTIFIER}" id="CROWDIN_PROJECT_IDENTIFIER" name="CROWDIN_PROJECT_IDENTIFIER" type="text" placeholder="prestashop-test-api"></div>
 				</div>
-				
+
 			</div>
 		</div>
 		<div class="form-group">
@@ -241,12 +241,12 @@
 
 <div class="panel">
 	<h3>{l s='Crowdin Integration' mod='translatools'}</h3>
-	
+
 	<form class="form-horizontal">
 		{yesno input_name=jipt_bo label={l s='Enable Live Translation in Back-Office' mod='translatools'} value=$jipt_bo}
 		{yesno input_name=jipt_fo label={l s='Enable Live Translation in Front-Office' mod='translatools'} value=$jipt_fo}
 	</form>
-	
+
 	<div class="row">
 		<div class="col-lg-3"></div>
 		<div class="col-lg-6">
@@ -256,7 +256,7 @@
 			{/if}
 		</div>
 	</div>
-	
+
 	{if isset($CROWDIN_PROJECT_API_KEY) and ($CROWDIN_PROJECT_API_KEY != '')}
 		<form class="form-horizontal">
 			<div class="form-group">
@@ -305,7 +305,7 @@
 				</div>
 			</div>
 		</form>
-		
+
 		<form class="form-horizontal">
 			<div class="form-group">
 				<label for="export" class="control-label col-lg-3">{l s='Regenerate Crowdin Translations' mod='translatools'}</label>
@@ -360,9 +360,10 @@
 	<form method="POST" id="build-and-download-packs" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=build" class="form-horizontal">
 		<div class="form-group">
 			<label for="build_packs" class="col-lg-3 control-label">
-				{l s='Build all Language Packs' mod='translatools'}
+				{l s='Build Language Packs' mod='translatools'}
 			</label>
-			<div class="col-lg-9">
+			<div class="col-lg-2"><input placeholder="specified single code, else all" class="form-control" name="build_code"></div>
+			<div class="col-lg-7">
 				<button type="submit" class="btn btn-default" id="build_packs">{l s='Build & Download' mod='translatools'}</button>
 			</div>
 		</div>
@@ -400,7 +401,7 @@
 			</div>
 		</div>
 	</form>
-	
+
 	<form method="POST" action="{$link->getAdminLink('AdminTranslatools')}&amp;action=checkLUse" class="form-horizontal">
 		<div class="form-group">
 			<label class="control-label col-lg-3" for="check_l">{l s='Check use of translation functions' mod='translatools'}</label>
@@ -451,7 +452,7 @@
 			}
 
 			var container = originalButton.closest('span.confirm');
-			
+
 			originalButton.hide();
 
 			var actionButton = $('<button class="btn btn-danger"></button>')
@@ -468,7 +469,7 @@
 			var cancelButton = $('<button class="btn btn-success"></button>')
 			.html(originalButton.attr('data-cancel') || 'Cancel')
 			.appendTo(container);
-			
+
 			var buttons = [actionButton, cancelButton];
 
 			for (var i in buttons)
@@ -480,7 +481,7 @@
 				});
 			}
 
-			
+
 			e.preventDefault();
 		});
 
