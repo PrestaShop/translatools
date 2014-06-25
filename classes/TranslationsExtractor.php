@@ -372,9 +372,20 @@ class TranslationsExtractor
 			}
 
 			$email_tpls = FilesLister::listFiles(FilesLister::join($this->root_dir, 'mails/en'), '/\.tpl$/');
+
+			$email_txts = array();
+			foreach ($email_tpls as $path)
+			{
+				$txtpath = preg_replace('/\.tpl$/', '.txt', $path);
+				if (file_exists($txtpath))
+					$email_txts[] = $txtpath;
+			}
+			$email_txts = array_merge($email_tpls, $email_txts);
+
 			foreach ($email_tpls as $path) {
 				$relpath = Tools::substr($path, Tools::strlen($this->root_dir) + 1);
 				$relpath = preg_replace('#(^|/)mails/en/#', '\1mails/'.$this->language.'/', $relpath);
+
 				if (!isset($raw_files[$relpath]))
 					$raw_files[$relpath] = file_get_contents($path);
 			}
