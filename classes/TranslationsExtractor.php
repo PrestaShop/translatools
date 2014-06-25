@@ -370,6 +370,15 @@ class TranslationsExtractor
 				if (file_exists($path) && basename($path) !== 'lang.php')
 					$raw_files[$new] = file_get_contents($path);
 			}
+
+			$email_tpls = FilesLister::listFiles(FilesLister::join($this->root_dir, 'mails/en'), '/\.tpl$/');
+			foreach ($email_tpls as $path) {
+				$relpath = Tools::substr($path, Tools::strlen($this->root_dir) + 1);
+				$relpath = preg_replace('#(^|/)mails/en/#', '\1mails/'.$this->language.'/', $relpath);
+				if (!isset($raw_files[$relpath]))
+					$raw_files[$relpath] = file_get_contents($path);
+			}
+
 			$this->raw_files = $raw_files;
 		}
 	}
