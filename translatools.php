@@ -55,7 +55,7 @@ class TranslaTools extends Module
 
 	// Locale => array('crowdin_code' => xy, 'prestashop_code' => zt)
 	// This list is not meant to be written by hand :)
-	public static $languageMapping = array('an-AR' => array('crowdin_code' => 'an', 'prestashop_code' => 'an'), 'af-ZA' => array('crowdin_code' => 'af', 'prestashop_code' => 'af'),
+	public static $languageMapping = array('an-ES' => array('crowdin_code' => 'an', 'prestashop_code' => 'an'), 'af-ZA' => array('crowdin_code' => 'af', 'prestashop_code' => 'af'),
 	'es-AR' => array('crowdin_code' => 'es-AR', 'prestashop_code' => 'ag'), 'ar-SA' => array('crowdin_code' => 'ar', 'prestashop_code' => 'ar'), 'az-AZ' => array('crowdin_code' => 'az', 'prestashop_code' => 'az'),
 	'bg-BG' => array('crowdin_code' => 'bg', 'prestashop_code' => 'bg'), 'bn-BD' => array('crowdin_code' => 'bn', 'prestashop_code' => 'bn'), 'pt-BR' => array('crowdin_code' => 'pt-BR', 'prestashop_code' => 'br'),
 	'bs-BA' => array('crowdin_code' => 'bs', 'prestashop_code' => 'bs'), 'br-FR' => array('crowdin_code' => 'br-FR', 'prestashop_code' => 'bz'), 'ca-ES' => array('crowdin_code' => 'ca', 'prestashop_code' => 'ca'),
