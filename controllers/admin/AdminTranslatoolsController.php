@@ -423,47 +423,48 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 		$langs_dir = FilesLister::join($installer_dir, 'langs');
 
-		foreach (scandir($langs_dir) as $entry)
+		$en_tabs_xml = simplexml_load_string(file_get_contents(FilesLister::join($langs_dir, 'en/data/tab.xml')));
+
+		$tabs_mapping_xml = simplexml_load_string(file_get_contents(FilesLister::join($installer_dir, 'data/xml/tab.xml')));
+		$id_to_class_name = array();
+
+		foreach ($tabs_mapping_xml->entities->tab as $tab) {
+			$id_to_class_name[(string)$tab['id']] = (string)$tab->class_name;
+		}
+
+		foreach (scandir($langs_dir) as $lang)
 		{
-			$lang = $entry;
-			$tabs_xml_path = FilesLister::join($langs_dir, $entry.'/data/tab.xml');
-			if (file_exists($tabs_xml_path))
-			{
-				$xml_str = file_get_contents($tabs_xml_path);
+			if ($lang[0] === '.') {
+				continue;
+			}
 
-				$xml_str = preg_replace('/^\s*<\?\s*xml\s+version\s*=\s*"(.*?)"\s*\?>/', '<?xml version="\1" encoding="UTF-8"?>', $xml_str);
+			$tabs_xml_path = FilesLister::join($langs_dir, $lang.'/data/tab.xml');
 
-				if ($xml = simplexml_load_string($xml_str))
-				{
-					$sql = 'SELECT e.name as message, t.name as translation
-					FROM '._DB_PREFIX_.'tab_lang e INNER JOIN '._DB_PREFIX_.'lang el ON el.id_lang=e.id_lang AND el.iso_code=\'en\'
-					INNER JOIN '._DB_PREFIX_.'tab_lang t ON t.id_tab = e.id_tab INNER JOIN '._DB_PREFIX_.'lang tl on tl.id_lang=t.id_lang AND tl.iso_code=\''.pSQL($lang).'\'';
+			if (!file_exists($tabs_xml_path)) {
+				continue;
+			}
 
-					$tl = Db::getInstance()->ExecuteS($sql);
-					$translations = array();
+			$tabs_php_path = FilesLister::join(_PS_ROOT_DIR_, 'translations/' . $lang . '/tabs.php');
+			if (!file_exists($tabs_php_path)) {
+				continue;
+			}
 
-					foreach($tl as $row)
-					{
-						$translations[$row['message']] = $row['translation'];
+			$translations = require $tabs_php_path;
+
+			$xml = clone $en_tabs_xml;
+			$xml->addAttribute('encoding', 'UTF-8');
+
+			foreach ($xml->tab as $tab) {
+				$id = (string)$tab['id'];
+				if (array_key_exists($id, $id_to_class_name)) {
+					$class_name = $id_to_class_name[$id];
+					if (array_key_exists($class_name, $translations)) {
+						$tab['name'] = $translations[$class_name];
 					}
-
-					foreach ($xml->tab as $tab)
-					{
-						$tab_name = (string)$tab['name'];
-
-						if (isset($translations[$tab_name]))
-						{
-							if ($lang === 'mk')
-							{
-								//die($translations[$tab_name]);
-							}
-							$tab['name'] = $translations[$tab_name];
-						}
-					}
-
-					file_put_contents($tabs_xml_path, $xml->asXML());
 				}
 			}
+
+			file_put_contents($tabs_xml_path, $xml->asXML());
 		}
 	}
 
