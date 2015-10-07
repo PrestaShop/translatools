@@ -105,7 +105,21 @@ class CrowdinPHP
 		else
 			$url = "http://crowdin.net/download/project/{$this->identifier}/$language.zip";
 
-		return @file_get_contents($url);
+		if (function_exists('curl_version'))
+                {
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    $content = curl_exec($curl);
+                    curl_close($curl);
+                } else if (file_get_contents(__FILE__) && ini_get('allow_url_fopen')) {
+                    $content = file_get_contents($url);
+                } else {
+                    //echo 'CURL is not installed, and allow_url_fopen is off, unable to download';
+                    return false;
+                }
+                return $content;
 	}
 
 	public function info()
