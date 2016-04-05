@@ -7,6 +7,7 @@ class AdminTranslatoolsController extends ModuleAdminController
 {
 	public function __construct($standalone=false)
 	{
+        set_time_limit(0);
 		$this->bootstrap = true;
 
 		parent::__construct();
@@ -470,88 +471,90 @@ class AdminTranslatoolsController extends ModuleAdminController
 
 	public function processBuild()
 	{
-		$specific_language = Tools::getValue('build_code');
-		$published = array();
+		$specific_iso_lang = Tools::strtolower(Tools::getValue('build_code'));
+		$toPublish = array();
 
-		if (!$specific_language) {
-			$tmp = Tools::jsonDecode(Tools::file_get_contents('http://www.prestashop.com/download/lang_packs/get_each_language_pack.php?version='.$this->module->getPackVersion()), true);
-			if (is_array($tmp))
-				foreach ($tmp as $lang)
-					$published[$lang['iso_code']] = true;
+		if (!$specific_iso_lang) {
+			$tmpLangs = Tools::jsonDecode(Tools::file_get_contents('http://www.prestashop.com/download/lang_packs/get_each_language_pack.php?version='.$this->module->getPackVersion()), true);
+			if (is_array($tmpLangs)) {
+                foreach ($tmpLangs as $lang) {
+                    $toPublish[$lang['iso_code']] = true;
+                }
+            }
 		} else {
-			$published[$specific_language] = true;
+            $toPublish[$specific_iso_lang] = true;
 		}
 
-		require_once dirname(__FILE__).'/../../../../tools/tar/Archive_Tar.php';
+		require_once _PS_ROOT_DIR_.'/tools/tar/Archive_Tar.php';
 
-		$dir = realpath(dirname(__FILE__).'/../../packs');
+		$packs_dir = $this->module->getLocalPath().'packs';
+		if (!$packs_dir) {
+            die("Packs directory not found, aborting.");
+        }
+		FilesLister::rmDir($packs_dir);
+		if (!@mkdir($packs_dir, 0777, true)) {
+            die('Could not create directory: ' . $packs_dir);
+        }
 
-		if (!$dir)
-			die("Packs directory not found, aborting.");
-
-		FilesLister::rmDir($dir);
-		if (!@mkdir($dir, 0777, true))
-			die('Could not create directory: '.$dir);
-
-		$te = $this->module->exportNativePack();
-
+		$preSetExtractor = $this->module->exportNativePack();
 		$created = array();
 
-		//$dl = $this->ajaxDownloadTranslationsAction(array());
 		foreach (scandir(_PS_ROOT_DIR_.'/translations') as $lc)
 		{
-			if (!preg_match('/^\./', $lc) && is_dir(_PS_ROOT_DIR_.'/translations/'.$lc) && (isset($published[$lc]) || count($published) === 0))
-			{
-				$te->save();
 
-				$te->setLanguage($lc);
-				$te->fill();
+            $isDottedFile = (bool)preg_match('/^\./', $lc);
+            $isDir = is_dir(_PS_ROOT_DIR_.'/translations/'.$lc);
+            $hasToBuildThisPack = isset($toPublish[$lc]);
 
-				$wrote = $te->write($dir);
+			if (!$isDottedFile && $isDir && $hasToBuildThisPack) {
+                $preSetExtractor->save();
+
+                $preSetExtractor->setLanguage($lc);
+                $preSetExtractor->fill();
+				$preSetExtractor->write($packs_dir);
 
 				$cwd = getcwd();
-				chdir(FilesLister::join($dir, $lc));
+				chdir(FilesLister::join($packs_dir, $lc));
 
-				$archname = $lc.'.gzip';
-				$archpath = '../'.$archname;
+				$archiveName = $lc.'.gzip';
+				$archivePath = '../'.$archiveName;
 
-				if (file_exists($archpath))
-					unlink($archpath);
+				if (file_exists($archivePath)) {
+                    unlink($archivePath);
+                }
 
-				$arch = new Archive_Tar($archpath, 'gz');
+				$newArchiveBuilt = new Archive_Tar($archivePath, 'gz');
 
 				$add = array();
 
-				foreach (FilesLister::listFiles('.', null, null, true) as $path)
-					$add[] = preg_replace('#^\./#', '', $path);
+				foreach (FilesLister::listFiles('.', null, null, true) as $path) {
+                    $add[] = preg_replace('#^\./#', '', $path);
+                }
 
-				$arch->add($add);
-
-				$created[] = $archname;
-
+                $newArchiveBuilt->add($add);
+				$created[] = $archiveName;
 				chdir($cwd);
-
-				$te->load();
+                $preSetExtractor->load();
 			}
 		}
 
 		// Put it back
-		$this->module->exportAsInCodeLanguage();
+		//$this->module->exportAsInCodeLanguage(); // ??????
 
-		chdir($dir);
+		chdir($packs_dir);
 
 		$allpath = 'all_packs.tar.gz';
-		if (file_exists($allpath))
-			unlink($allpath);
+		if (file_exists($allpath)) {
+            unlink($allpath);
+        }
 
 		$all = new Archive_Tar($allpath, 'gz');
 		$all->add($created);
-
-		ob_end_clean();
 		header('Content-Description: File Transfer');
         header('Content-Type: application/x-gzip');
         header('Content-Disposition: attachment; filename='.$allpath);
         header('Content-Transfer-Encoding: binary');
+        header('Content-Length: ' . filesize($allpath));
         header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Pragma: public');
